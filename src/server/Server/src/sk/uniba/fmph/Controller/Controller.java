@@ -1,4 +1,4 @@
-package sk.uniba.fmph.Arduino;
+package sk.uniba.fmph.Controller;
 
 import java.net.InetAddress;
 
