@@ -1,4 +1,4 @@
-package sk.uniba.fmph.Arduino;
+package sk.uniba.fmph.Controller;
 
 import sk.uniba.fmph.UDPCommunicationHandler;
 
