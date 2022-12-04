@@ -14,12 +14,11 @@ public class ControllerCommunicationHandler {
     /**
      * Send UDP broadcast to local network and await response from all controllers
      */
-    public void requestArduinoIps() {
-        byte[] password = {0x41, 0x48, 0x4f, 0x4a, 0x2b};
-        UDPCommunicationHandler.sendUDPPacket(password, UDPCommunicationHandler.getBroadcastAddresses());
+    public void requestControllerIps() {
+        UDPCommunicationHandler.sendUDPPacket(UDPCommunicationHandler.LOOKING_FOR_CONTROLLERS_MESSAGE, UDPCommunicationHandler.getBroadcastAddresses());
     }
 
-    public void addArduinoToList(Controller a) {
+    public void addControllerToList(Controller a) {
         System.out.println(a.IP.getHostAddress());
         System.out.println("Controller added!");
         controllers.add(a);

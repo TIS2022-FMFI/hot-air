@@ -10,91 +10,118 @@ import java.util.Arrays;
 
 public class Client {
     private Socket clientSocket;
-    private PrintWriter out;
-    private BufferedReader in;
-    private final static int[] LIST_OF_FREE_PORTS = {4002, 4003, 4004, 4005, 4006, 4007, 4008, 4009, 4010, 4011};
-    private final static String SERVER_PASSWORD = "abcd", RECOGNIZE_ME_MESSAGE = "EXE here";
-    private final static String INITIALIZE_FILE_TRANSFER_MESSAGE = "Prepare for file transfer";
-    private final static String END_OF_SEGMENT_MESSAGE = "segment is done";
-//    private static enum messages {RECOGNIZE_ME_MESSAGE, INITIALIZE_FILE_TRANSFER_MESSAGE, END_OF_SEGMENT_MESSAGE}
-    private final String SERVER_IP; //TODO -> look for server using udp
+    private BufferedOutputStream out;
+    private BufferedInputStream in;
+    private final static int PORT = 4002;
+    private final static byte[] SERVER_PASSWORD = new byte[]{'a', 'b', 'c', 'd'};
+    private final static byte[] RECOGNIZE_EXE_MESSAGE = {69, 88, 69};
+    private final static byte[] INITIALIZE_FILE_TRANSFER_MESSAGE = {70, 73, 76, 69};
+    private final static byte[] END_OF_SEGMENT_MESSAGE = {69, 78, 68};
+    private final static byte END_OF_MESSAGE = 3;
+    private final String SERVER_IP;
 
     public Client(String differentIp) throws ConnectException { //TODO -> check if differentIp is an IP
         SERVER_IP = differentIp;
-        connectToServer();
+        connectToServer(SERVER_IP);
     }
 
     public Client() throws ConnectException {
-        this(findServerIp());
+        String IP = "";
+        try {
+            connectToServer("127.0.0.1");
+            IP = "127.0.0.1";
+        } catch (ConnectException e) {
+            IP = UDPCommunicationHandler.findServerIp();
+            connectToServer(IP);
+        } finally {
+            SERVER_IP = IP;
+            System.out.println(IP);
+        }
     }
 
-    private static String findServerIp() {
-        UDPCommunicationHandler.sendUDPPacket(UDPCommunicationHandler.LOOKING_FOR_SERVER_MESSAGE, UDPCommunicationHandler.getBroadcastAddresses());
+    private void writeBytes(byte[] msg) throws IOException {
+        out.write(msg);
+        out.write(END_OF_MESSAGE);
+        out.flush();
+    }
+
+    private byte[] readLine() throws IOException {
+        byte[] buffer = new byte[4096];
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte b = 0;
+        int count = 0;
+        for (; count < 4096; count++) {
+            b = (byte) in.read();
+            if (b == END_OF_MESSAGE || b == -1) {
+                break;
+            }
+            buffer[count] = b;
+        }
+        out.write(buffer, 0, count);
+        return out.toByteArray();
+    }
+
+    private String readStringLine() throws IOException {
+        byte[] buffer = new byte[4096];
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte b = 0;
+        int count = 0;
+        for (; count < 4096; count++) {
+            b = (byte) in.read();
+            if (b == END_OF_MESSAGE || b == -1) {
+                break;
+            }
+            buffer[count] = b;
+        }
+        out.write(buffer, 0, count);
+        return out.toString();
+    }
+
+    private void connectToServer(String ip) throws ConnectException {
+        byte[] password = new byte[0];
+        System.out.println("a");
         try {
-            DatagramSocket socket = new DatagramSocket(4002);
-            byte[] buff = new byte[4096];
-            DatagramPacket packet;
+            clientSocket = new Socket(ip, PORT);
+            clientSocket.setSoTimeout(10000);
+            out = new BufferedOutputStream(clientSocket.getOutputStream());
+            in = new BufferedInputStream(clientSocket.getInputStream());
+            System.out.println("want to read password");
+            password = readLine();
+            System.out.println("b");
 
-            do {
-                packet = new DatagramPacket(buff, buff.length);
-                socket.receive(packet);
-            } while (!UDPCommunicationHandler.areMessagesEqual(packet.getData(), UDPCommunicationHandler.I_AM_THE_SERVER_MESSAGE));
-            socket.close();
-
-            return packet.getAddress().getHostAddress();
+        } catch (ConnectException e) {
+            throw new ConnectException("No server found!");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "";
-    }
-
-    private void connectToServer() throws ConnectException {
-        boolean serverFound = false;
-        for (int port : LIST_OF_FREE_PORTS) {
+        if (!Arrays.equals(SERVER_PASSWORD, password)) {
             try {
-                clientSocket = new Socket(SERVER_IP, port);
-                out =  new PrintWriter(new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8)), true);
-                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
-                if (!SERVER_PASSWORD.equals(in.readLine())) { // not my server
-                    clientSocket.close();
-                    out.close();
-                    in.close();
-                    continue;
-                }
-                serverFound = true;
-                break;
+                clientSocket.close();
+                out.close();
+                in.close();
             } catch (IOException e) {
-                System.out.printf("Port %d occupied, trying next one\n", port);
+                e.printStackTrace();
             }
-        }
-        out.println(RECOGNIZE_ME_MESSAGE);
-        if (!serverFound) {
             throw new ConnectException("No server found!");
         }
+        System.out.println("Printing exe message");
+        try {
+            writeBytes(RECOGNIZE_EXE_MESSAGE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void sendMessage(String msg) throws IOException {
-        sendMessage(msg, false);
-    }
-    public void sendMessage(String msg, boolean stayConnected) throws IOException {
-        out.println(msg);
+    public void sendMessage(byte[] msg, boolean stayConnected) throws IOException {
+        writeBytes(msg);
         System.out.println("Message delivered!");
         if (!stayConnected) {
             stopConnection();
         }
     }
-
-//    public void sendMessage(messages msg) throws IOException {
-//        sendMessage(msg, false);
-//    }
-//
-//    public void sendMessage(messages msg, boolean stayConnected) throws IOException {
-//        out.println(msg);
-//        System.out.println("Message delivered!");
-//        if (!stayConnected) {
-//            stopConnection();
-//        }
-//    }
+    public void sendMessage(byte[] msg) throws IOException {sendMessage(msg, false);}
+    public void sendMessage(String msg) throws IOException {sendMessage(msg.getBytes(StandardCharsets.UTF_8), false);}
+    public void sendMessage(String msg, boolean stayConnected) throws IOException {sendMessage(msg.getBytes(StandardCharsets.UTF_8), stayConnected);}
 
     public void performInit(String pathToXmlThatIsToBeSent) throws IOException {
         sendMessage(INITIALIZE_FILE_TRANSFER_MESSAGE, true);
@@ -104,14 +131,17 @@ public class Client {
         }
         File file = new File(pathToXmlThatIsToBeSent);
         sendMessage(file.getName(), true);
-        char[] buffer = new char[4096];
-        BufferedReader input = new BufferedReader(new InputStreamReader(Files.newInputStream(file.toPath()), StandardCharsets.UTF_8));
-        BufferedWriter output = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
+        byte[] buffer = new byte[4096];
+        BufferedInputStream input = new BufferedInputStream(Files.newInputStream(file.toPath()));
+        BufferedOutputStream output = new BufferedOutputStream(clientSocket.getOutputStream());
 
         int count;
+        System.out.println("getting ready to transfer");
         while ((count = input.read(buffer)) > 0) {
             output.write(buffer, 0, count);
+            System.out.println("transferring");
         }
+        System.out.println("Done");
 
         input.close();
         output.close();

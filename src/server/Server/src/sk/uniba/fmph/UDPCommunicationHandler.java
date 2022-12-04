@@ -12,6 +12,7 @@ public class UDPCommunicationHandler extends Thread {
     private static final int MAX_UDP_PACKET_SIZE = 4096;
     public static final byte[] LOOKING_FOR_SERVER_MESSAGE = new byte[] {83, 89, 83};
     public static final byte[] I_AM_THE_SERVER_MESSAGE = new byte[] {72, 65, 76, 76, 79};
+    public static final byte[] LOOKING_FOR_CONTROLLERS_MESSAGE = {0x41, 0x48, 0x4f, 0x4a, 0x2b};
     private final DatagramSocket socket;
 
     private static final UDPCommunicationHandler INSTANCE = new UDPCommunicationHandler();
