@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.*;
 import java.util.*;
 
+import static java.lang.System.nanoTime;
+
 
 /**
  * Handle all UDP communication
@@ -35,6 +37,43 @@ public class UDPCommunicationHandler {
             e.printStackTrace();
         }
         return broadcastList;
+    }
+
+    public static String findServerIp() { //TODO -> try localhost first
+        try {
+            for (int i = 0; i < 5; i++) {
+                System.out.println("sending UDP");
+                sendUDPPacket(LOOKING_FOR_SERVER_MESSAGE, getBroadcastAddresses());
+
+                DatagramSocket socket = new DatagramSocket(4002);
+                socket.setSoTimeout(1000);
+                byte[] buff = new byte[4096];
+                DatagramPacket packet;
+                int j = 0;
+                do {
+                    System.out.println("received message");
+                    packet = new DatagramPacket(buff, buff.length);
+                    try {
+                        socket.receive(packet);
+                    } catch (SocketTimeoutException e) {
+                        System.err.println("Timeout");
+                        packet = null;
+                        break;
+                    }
+                    j++;
+                } while (!areMessagesEqual(packet.getData(), I_AM_THE_SERVER_MESSAGE) && j < 5);
+                socket.close();
+
+                if (packet == null) {
+                    continue;
+                }
+
+                return packet.getAddress().getHostAddress();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
     /**
