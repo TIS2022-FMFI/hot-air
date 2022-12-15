@@ -8,15 +8,15 @@ public class Blower {
     private float currentTemp;
     private float targetTemp;
     private String project;
-    private Hyperlink link;  // ip_adresa/settings
+    private Hyperlink link;
 
-    public Blower(String IPAddress, String id, float currentTemp, float targetTemp, String project, Hyperlink link) {
+    public Blower(String IPAddress, String id, float currentTemp, float targetTemp, String project) {
         this.IPAddress = IPAddress;
         this.id = id;
         this.currentTemp = currentTemp;
         this.targetTemp = targetTemp;
         this.project = project;
-        this.link = link;
+        this.link = new Hyperlink(IPAddress + "/settings");
     }
 
     public String getId() {

@@ -66,6 +66,8 @@ public class GUIController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
+        filePath.setTooltip(new Tooltip("default path to store exe file"));
+
         blower_id.setCellValueFactory(
             new PropertyValueFactory<>("id"));
         blower_ip_address.setCellValueFactory(
@@ -104,7 +106,9 @@ public class GUIController implements Initializable {
                     webEngine.load(url);
                 }
             });
-            blowers.add(new Blower("1.2.3.4", ("id" + i), 0, 50, "project 1", link));
+            Blower blower = new Blower("1.2.3.4", ("id" + i), 0, 50, "project 1");
+            blower.setLink(link);
+            blowers.add(blower);
         }
 
         return blowers ;
@@ -133,7 +137,7 @@ public class GUIController implements Initializable {
     public void loadFile(ActionEvent actionEvent) {
         try {
             File file = new File(filePath.getText());
-            desktop.open(file);
+            desktop.open(file); // todo nacitavanie
             System.out.println("File successfully opened");
 
             filePath.setText("");
