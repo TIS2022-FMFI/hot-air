@@ -1,33 +1,18 @@
-package sk.uniba.fmph;
+package sk.uniba.fmph.Burnie;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.List;
 
 
 /**
  * Handle all UDP communication
  */
-public class UDPCommunicationHandler extends Thread {
-    private static final int MAX_UDP_PACKET_SIZE = 4096;
+public class UDPCommunicationHandler {
     public static final byte[] LOOKING_FOR_SERVER_MESSAGE = new byte[] {83, 89, 83};
     public static final byte[] I_AM_THE_SERVER_MESSAGE = new byte[] {72, 65, 76, 76, 79};
-    public static final byte[] LOOKING_FOR_CONTROLLERS_MESSAGE = {0x41, 0x48, 0x4f, 0x4a, 0x2b};
-    private final DatagramSocket socket;
-
-    private static final UDPCommunicationHandler INSTANCE = new UDPCommunicationHandler();
-    private UDPCommunicationHandler() {
-        DatagramSocket s = null;
-        try {
-            s = new DatagramSocket(Server.PORT);
-        } catch (IOException e) {
-            System.err.println("UDP socket failed to start");
-            e.printStackTrace();
-        } finally {
-            socket = s;
-        }
-    }
-    public static UDPCommunicationHandler getInstance() {return INSTANCE;}
 
     /**
      * We shall collect broadcast addresses from all interfaces of local network
@@ -55,6 +40,46 @@ public class UDPCommunicationHandler extends Thread {
     }
 
     /**
+     * Ask for server ip by sending UPD packet to broadcast
+     * @return IP of server
+     */
+    public static String findServerIp() {
+        try {
+            for (int i = 0; i < 5; i++) {
+                System.out.println("sending UDP");
+                sendUDPPacket(LOOKING_FOR_SERVER_MESSAGE, getBroadcastAddresses());
+
+                DatagramSocket socket = new DatagramSocket(4002);
+                socket.setSoTimeout(1000);
+                byte[] buff = new byte[4096];
+                DatagramPacket packet;
+                int j = 0;
+                do {
+                    packet = new DatagramPacket(buff, buff.length);
+                    try {
+                        socket.receive(packet);
+                    } catch (SocketTimeoutException e) {
+                        System.err.println("Timeout");
+                        packet = null;
+                        break;
+                    }
+                    j++;
+                } while (!areMessagesEqual(packet.getData(), I_AM_THE_SERVER_MESSAGE) && j < 5);
+                socket.close();
+
+                if (packet == null) {
+                    continue;
+                }
+
+                return packet.getAddress().getHostAddress();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    /**
      * Send udp packet containing data to all ips
      * @param data contents of udp packet
      * @param ips addresses to which packet will be sent
@@ -69,41 +94,12 @@ public class UDPCommunicationHandler extends Thread {
         }
     }
 
-    private boolean areMessagesEqual(byte[] a, byte[] b) {
+    public static boolean areMessagesEqual(byte[] a, byte[] b) {
         for (int i = 0; i < a.length && i < b.length; i++) {
             if (a[i] != b[i]) {
                 return false;
             }
         }
         return true;
-    }
-
-    /**
-     * Thread run method, await arrival of a UDP packet and respond to it, currently supported:
-     * LOOKING_FOR_SERVER_MESSAGE -> client is looking on broadcast for server, server will send him ip
-     */
-    @Override
-    public void run() {
-        byte[] buffer = new byte[MAX_UDP_PACKET_SIZE];
-        while (true) {
-            try {
-                if (socket == null) {
-                    return;
-                }
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                socket.receive(packet);
-
-                if (areMessagesEqual(packet.getData(), LOOKING_FOR_SERVER_MESSAGE)) {
-                    sendUDPPacket(I_AM_THE_SERVER_MESSAGE, Collections.singletonList(packet.getAddress()));
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void stopSocket() {
-        socket.close();
     }
 }
