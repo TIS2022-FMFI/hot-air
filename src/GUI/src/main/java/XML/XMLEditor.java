@@ -1,4 +1,4 @@
-package GUI;
+package XML;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+// todo kazde exe pri spustani bude dostavat dalsi parameter - port - na kt ma pocuvat, PORT z GUI
 public class XMLEditor {
     public static void addPath(String xmlPath, String pathToExe) throws ParserConfigurationException, IOException, SAXException, TransformerException {
         File file = new File(xmlPath);
