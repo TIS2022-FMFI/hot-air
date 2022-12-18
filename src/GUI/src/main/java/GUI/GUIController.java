@@ -1,18 +1,23 @@
 package GUI;
 
+import XML.XMLEditor;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
+import org.xml.sax.SAXException;
 
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -20,11 +25,16 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.UnaryOperator;
 
 /* todo
      - STOP buttony na duchadla
+     - nejaky refresh btn na najdenie duchadiel
      -
-     -
+ */
+
+/**
+ *  Gui controller.
  */
 public class GUIController implements Initializable {
 
@@ -36,15 +46,11 @@ public class GUIController implements Initializable {
     final WebEngine webEngine = browser.getEngine();
     final Hyperlink[] links = new Hyperlink[gui.numberOfBlowers];
     final static String url = "https://www.google.sk/";
-//    final static String[] urls = new String[]{
-//            "http://www.oracle.com/us/products/index.html",
-//            "http://education.oracle.com/",
-//            "http://www.oracle.com/partners/index.html",
-//            "http://www.oracle.com/us/support/index.html"
-//    };
 
     @FXML TextField filePath;
     @FXML TextField filePath2;
+    @FXML TextField settingsPath;
+    @FXML TextField settingsPort;
 
     @FXML BorderPane blowers;
     @FXML BorderPane projects;
@@ -56,6 +62,7 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Blower,Float> blower_target_tmp;
     @FXML TableColumn<Blower,String> blower_project;
     @FXML TableColumn<Blower,Hyperlink> blower_config;
+    @FXML TableColumn<Blower, Button> blower_stop; // todo, button nefunguje, posielat na server ptm ze sa zastavilo
 
     @FXML TableView<Project> projectsView;
     @FXML TableColumn<Project,String> project_name;
@@ -65,6 +72,23 @@ public class GUIController implements Initializable {
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
+        filePath.setTooltip(new Tooltip("Write path to xml file or search the file by clicking the search button."));
+        filePath2.setTooltip(new Tooltip("Write path to xml file or search the file by clicking the search button."));
+        settingsPath.setTooltip(new Tooltip("Enter default path to store exe file."));
+        settingsPath.setPromptText("Enter default path to store exe file.");
+        settingsPort.setTooltip(new Tooltip("Enter port to communicate with server."));
+        settingsPort.setPromptText("Enter port to communicate with server.");
+
+        UnaryOperator<TextFormatter.Change> integerFilter = change -> {
+            String input = change.getText();
+            if (input.matches("[0-9]*")) {
+                return change;
+            }
+            return null;
+        };
+        settingsPort.setTextFormatter(new TextFormatter<String>(integerFilter));
+
 
         blower_id.setCellValueFactory(
             new PropertyValueFactory<>("id"));
@@ -78,6 +102,8 @@ public class GUIController implements Initializable {
             new PropertyValueFactory<>("project"));
         blower_config.setCellValueFactory(
             new PropertyValueFactory<>("link"));
+        blower_stop.setCellValueFactory(
+            new PropertyValueFactory<>("stop"));
 
         project_name.setCellValueFactory(
             new PropertyValueFactory<>("name"));
@@ -104,7 +130,9 @@ public class GUIController implements Initializable {
                     webEngine.load(url);
                 }
             });
-            blowers.add(new Blower("1.2.3.4", ("id" + i), 0, 50, "project 1", link));
+            Blower blower = new Blower("1.2.3.4", ("id" + i), 0, 50, "project 1");
+            blower.setLink(link);
+            blowers.add(blower);
         }
 
         return blowers ;
@@ -121,8 +149,13 @@ public class GUIController implements Initializable {
         return projects ;
     }
 
-    public void chooseFile(ActionEvent actionEvent) {
-        System.out.println("Button clicked");
+    /**
+     * Search XML file.
+     *
+     * @param actionEvent the action event
+     */
+    public void searchXML(ActionEvent actionEvent) {
+        System.out.println("Search XML file button clicked");
         File file = fileChooser.showOpenDialog(gui.getStage());
         if (file != null) {
             filePath.setText(file.getPath());
@@ -130,23 +163,42 @@ public class GUIController implements Initializable {
         }
     }
 
-    public void loadFile(ActionEvent actionEvent) {
-        try {
-            File file = new File(filePath.getText());
-            desktop.open(file);
-            System.out.println("File successfully opened");
+    /**
+     * Search path to EXE.
+     *
+     * @param actionEvent the action event
+     */
+    public void searchEXE(ActionEvent actionEvent) {
+        System.out.println("Search EXE path button clicked");
+        File file = fileChooser.showOpenDialog(gui.getStage());
+        if (file != null) {
+            settingsPath.setText(file.getPath());
+        }
+    }
 
+    /**
+     * Submit file.
+     *
+     * @param actionEvent the action event
+     */
+    public void submitFile(ActionEvent actionEvent) {
+        try {
+            System.out.println("Submit button clicked");
+            // todo log mby
+            XMLEditor.addPath(filePath.getText(), "A"); // todo path k .exe
+            System.out.println("File successfully loaded");
             filePath.setText("");
             filePath2.setText("");
-        } catch (IllegalArgumentException | IOException e) {
-            System.err.println("Error opening file");
+
+        } catch (IllegalArgumentException | ParserConfigurationException | IOException | SAXException | TransformerException e) {
+            System.err.println("Error loading file");
+            // todo log
+//            Logger.getLogger( GUI.class.getName()).log( Level.SEVERE, null, e ); ?
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("ERROR");
             alert.setHeaderText("Error loading file");
             alert.setContentText(e.getMessage());
             alert.showAndWait();
-
-//            Logger.getLogger( GUI.class.getName()).log( Level.SEVERE, null, e );
         }
     }
 }
