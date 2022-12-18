@@ -1,4 +1,4 @@
-package sk.uniba.fmph.xml;
+package sk.uniba.fmph.Burnie.xml;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -12,12 +12,9 @@ public class FileReceiver {
         BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(Paths.get(fileName)));
         byte[] buffer = new byte[4096];
         int count;
-        System.out.println("FileCreated");
         while ((count = in.read(buffer)) != -1) {
-            System.out.println("Reading");
             out.write(buffer, 0, count);
         }
-        System.out.println("Reading done");
 
         in.close();
         out.close();
