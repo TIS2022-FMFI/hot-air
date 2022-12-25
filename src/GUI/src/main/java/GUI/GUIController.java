@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -186,6 +187,18 @@ public class GUIController implements Initializable {
             // todo log mby
             XMLEditor.addPath(filePath.getText(), "A"); // todo path k .exe
             System.out.println("File successfully loaded");
+
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("SUCCESSFUL LOADING");
+            alert.setHeaderText("File successfully loaded");
+
+            ImageView icon = new ImageView(String.valueOf(GUI.class.getResource("success.png")));
+            icon.setFitHeight(48);
+            icon.setFitWidth(48);
+
+            alert.getDialogPane().setGraphic(icon);
+            alert.show();
+
             filePath.setText("");
             filePath2.setText("");
 
@@ -194,10 +207,16 @@ public class GUIController implements Initializable {
             // todo log
 //            Logger.getLogger( GUI.class.getName()).log( Level.SEVERE, null, e ); ?
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("ERROR");
+            alert.setTitle("ERROR LOADING");
             alert.setHeaderText("Error loading file");
             alert.setContentText(e.getMessage());
-            alert.showAndWait();
+
+            ImageView icon = new ImageView(String.valueOf(GUI.class.getResource("error.png")));
+            icon.setFitHeight(48);
+            icon.setFitWidth(48);
+
+            alert.getDialogPane().setGraphic(icon);
+            alert.show();
         }
     }
 }
