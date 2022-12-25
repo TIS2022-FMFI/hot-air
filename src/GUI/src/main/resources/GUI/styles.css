@@ -18,7 +18,7 @@
 }
 
 .text-field:focused, .text-field:selected  {
-    -fx-border-color: red;
+    -fx-border-color: black;
     -fx-background-insets: 0;
 }
 
