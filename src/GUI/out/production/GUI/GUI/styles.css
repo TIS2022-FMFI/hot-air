@@ -26,7 +26,8 @@
     -fx-border-color: #000000;
 }
 
-#searchBtn, #searchBtn2 {
-    -fx-background-color: transparent;
-}
+/* na transpaerntne buttony */
+/*#submitBtn, #submitBtn2 {*/
+/*    -fx-background-color: transparent;*/
+/*}*/
 
