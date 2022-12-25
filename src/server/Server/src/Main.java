@@ -1,5 +1,5 @@
-import sk.uniba.fmph.Burnie.Server;
-import sk.uniba.fmph.Burnie.UDPCommunicationHandler;
+import Burnie.Server;
+import Burnie.Communication.UDPCommunicationHandler;
 
 public class Main {
     public static void main(String[] args) {
