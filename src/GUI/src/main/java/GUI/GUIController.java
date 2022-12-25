@@ -191,6 +191,7 @@ public class GUIController implements Initializable {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("SUCCESSFUL LOADING");
             alert.setHeaderText("File successfully loaded");
+//            alert.showAndWait();
 
             ImageView icon = new ImageView(String.valueOf(GUI.class.getResource("success.png")));
             icon.setFitHeight(48);
@@ -210,6 +211,8 @@ public class GUIController implements Initializable {
             alert.setTitle("ERROR LOADING");
             alert.setHeaderText("Error loading file");
             alert.setContentText(e.getMessage());
+
+//            alert.showAndWait();
 
             ImageView icon = new ImageView(String.valueOf(GUI.class.getResource("error.png")));
             icon.setFitHeight(48);
