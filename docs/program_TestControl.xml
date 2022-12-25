@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?><PROGRAM NAME="Program" PRJVER="13">
+  <THREAD CH="ACT5.3;ACT5.4;ACT5.5" NAME="Vlákno">
+    <B CTRLCH="ACT5.3" NAME="Start" TSHAPE="LIN" TTIME="0.0" TYPE="BLOCK">
+      <CH CTRL="Default" FBACK="ACT5.3/Sila" NAME="ACT5.3">
+        <GEN RSHAPE="SIN" RTIME="1.0" TYPE="RAMP"/>
+      </CH>
+      <CH CTRL="Default" FBACK="ACT5.4/Sila" NAME="ACT5.4">
+        <GEN RSHAPE="SIN" RTIME="1.0" TYPE="RAMP"/>
+      </CH>
+      <CH CTRL="Default" FBACK="ACT5.5/Poloha" NAME="ACT5.5">
+        <GEN RSHAPE="SIN" RTIME="1.0" TYPE="RAMP"/>
+      </CH>
+      <ACTIONS>
+        <SIGS CMD="SET" ID="User/Aktuálny stav testu" VAL="0.0"/>
+        <SIGS CMD="SET" ID="User/Zadaný počet meraní" VAL="101.0"/>
+      </ACTIONS>
+    </B>
+    <B CTRLCH="ACT5.3" NAME="Pre-damage" TSHAPE="SIN" TTIME="1.0" TYPE="BLOCK">
+      <CH CTRL="Default" FBACK="ACT5.3/Sila" NAME="ACT5.3">
+        <GEN AMP="15.0" CYC="10.0" FREQ="1.0" TYPE="PER">
+          <CORR EXTCNT="1" TCYCLES="0.5">
+            <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+            <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+          </CORR>
+        </GEN>
+      </CH>
+      <CH CTRL="Default" FBACK="ACT5.4/Sila" NAME="ACT5.4">
+        <GEN AMP="0.0" CYC="10.0" FREQ="1.0" TYPE="PER">
+          <CORR EXTCNT="1" TCYCLES="0.5">
+            <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+            <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+          </CORR>
+        </GEN>
+      </CH>
+      <CH CTRL="Default" FBACK="ACT5.5/Poloha" NAME="ACT5.5">
+        <GEN AMP="0.0" CYC="10.0" FREQ="1.0" TYPE="PER">
+          <CORR EXTCNT="1" TCYCLES="0.5">
+            <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+            <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+          </CORR>
+        </GEN>
+      </CH>
+    </B>
+    <CALL BLK="Measurement"/>
+    <SEQ NAME="Damage" REP="100.0" SELTHREAD="0">
+      <THREAD CH="ACT5.3;ACT5.4;ACT5.5" NAME="Vlákno1">
+        <B CTRLCH="ACT5.3" NAME="Null" TSHAPE="LIN" TTIME="0.0" TYPE="BLOCK">
+          <CH CTRL="Default" FBACK="ACT5.3/Sila" NAME="ACT5.3">
+            <GEN RSHAPE="SIN" RTIME="1.0" TYPE="RAMP"/>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.4/Sila" NAME="ACT5.4">
+            <GEN RSHAPE="SIN" RTIME="1.0" TYPE="RAMP"/>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.5/Poloha" NAME="ACT5.5">
+            <GEN RSHAPE="SIN" RTIME="1.0" TYPE="RAMP"/>
+          </CH>
+        </B>
+        <B CTRLCH="ACT5.3" NAME="Blok_1_80deg" TSHAPE="SIN" TTIME="1.0" TYPE="BLOCK">
+          <CH CTRL="Default" FBACK="ACT5.3/Sila" NAME="ACT5.3">
+            <GEN AMP="10.0" CYC="100.0" FREQ="1.0" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.4/Sila" NAME="ACT5.4">
+            <GEN AMP="10.0" CYC="100.0" FREQ="1.0" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.5/Poloha" NAME="ACT5.5">
+            <GEN AMP="10.0" CYC="100.0" FREQ="1.0" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+        </B>
+        <B CTRLCH="ACT5.3" NAME="Heat-cool_1" TSHAPE="SIN" TTIME="1.0" TYPE="BLOCK">
+          <CH CTRL="Default" FBACK="ACT5.3/Sila" NAME="ACT5.3">
+            <GEN AMP="0.0" CYC="3600.0" FREQ="1.0" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.4/Sila" NAME="ACT5.4">
+            <GEN AMP="0.0" CYC="3600.0" FREQ="1.0" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.5/Poloha" NAME="ACT5.5">
+            <GEN AMP="0.0" CYC="3600.0" FREQ="1.0" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+        </B>
+        <B CTRLCH="ACT5.3" NAME="Blok_2_100deg" TSHAPE="SIN" TTIME="1.0" TYPE="BLOCK">
+          <CH CTRL="Default" FBACK="ACT5.3/Sila" NAME="ACT5.3">
+            <GEN AMP="5.0" CYC="50.0" FREQ="1.0" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.4/Sila" NAME="ACT5.4">
+            <GEN AMP="5.0" CYC="50.0" FREQ="1.0" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.5/Poloha" NAME="ACT5.5">
+            <GEN AMP="5.0" CYC="50.0" FREQ="1.0" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+        </B>
+        <B CTRLCH="ACT5.3" NAME="Heat-cool_2" TSHAPE="SIN" TTIME="1.0" TYPE="BLOCK">
+          <CH CTRL="Default" FBACK="ACT5.3/Sila" NAME="ACT5.3">
+            <GEN AMP="0.0" CYC="3600.0" FREQ="1.0" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.4/Sila" NAME="ACT5.4">
+            <GEN AMP="0.0" CYC="3600.0" FREQ="1.0" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.5/Poloha" NAME="ACT5.5">
+            <GEN AMP="0.0" CYC="3600.0" FREQ="1.0" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+        </B>
+        <B CTRLCH="ACT5.3" NAME="Blok_3_90deg" TSHAPE="SIN" TTIME="1.0" TYPE="BLOCK">
+          <CH CTRL="Default" FBACK="ACT5.3/Sila" NAME="ACT5.3">
+            <GEN CYC="10.0" MUL="1.0" TARGET="WBB_rear_TAR_FZ" TYPE="WAVE" WAVE="WBB_rear_CMD_5.3"/>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.4/Sila" NAME="ACT5.4">
+            <GEN CYC="10.0" MUL="1.0" TARGET="WBB_rear_TAR_FX" TYPE="WAVE" WAVE="WBB_rear_CMD_5.4"/>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.5/Poloha" NAME="ACT5.5">
+            <GEN CYC="10.0" MUL="1.0" TARGET="WBB_rear_TAR_FY" TYPE="WAVE" WAVE="WBB_rear_CMD_5.5"/>
+          </CH>
+        </B>
+        <B CTRLCH="ACT5.3" NAME="Heat-cool_3" TSHAPE="SIN" TTIME="1.0" TYPE="BLOCK">
+          <CH CTRL="Default" FBACK="ACT5.3/Sila" NAME="ACT5.3">
+            <GEN AMP="0.0" CYC="3600.0" FREQ="1.0" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.4/Sila" NAME="ACT5.4">
+            <GEN AMP="0.0" CYC="3600.0" FREQ="1.0" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.5/Poloha" NAME="ACT5.5">
+            <GEN AMP="0.0" CYC="3600.0" FREQ="1.0" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+        </B>
+        <CALL BLK="Measurement"/>
+      </THREAD>
+    </SEQ>
+    <B CTRLCH="ACT5.3" NAME="End" TSHAPE="LIN" TTIME="0.0" TYPE="BLOCK">
+      <CH CTRL="Default" FBACK="ACT5.3/Sila" NAME="ACT5.3">
+        <GEN RSHAPE="SIN" RTIME="1.0" TYPE="RAMP"/>
+      </CH>
+      <CH CTRL="Default" FBACK="ACT5.4/Sila" NAME="ACT5.4">
+        <GEN RSHAPE="SIN" RTIME="1.0" TYPE="RAMP"/>
+      </CH>
+      <CH CTRL="Default" FBACK="ACT5.5/Poloha" NAME="ACT5.5">
+        <GEN RSHAPE="SIN" RTIME="1.0" TYPE="RAMP"/>
+      </CH>
+    </B>
+    <UNLOAD/>
+    <SUBRT NAME="Measurement" REP="1.0" SELTHREAD="0">
+      <THREAD CH="ACT5.3;ACT5.4;ACT5.5" NAME="Vlákno1">
+        <B CTRLCH="ACT5.3" NAME="Start" TSHAPE="LIN" TTIME="0.0" TYPE="BLOCK">
+          <CH CTRL="Default" FBACK="ACT5.3/Sila" NAME="ACT5.3">
+            <GEN RSHAPE="SIN" RTIME="1.0" TYPE="RAMP"/>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.4/Sila" NAME="ACT5.4">
+            <GEN RSHAPE="SIN" RTIME="1.0" TYPE="RAMP"/>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.5/Poloha" NAME="ACT5.5">
+            <GEN RSHAPE="SIN" RTIME="1.0" TYPE="RAMP"/>
+          </CH>
+        </B>
+        <B CTRLCH="ACT5.3" NAME="Hys" REC="Fz" TSHAPE="SIN" TTIME="1.0" TYPE="BLOCK">
+          <CH CTRL="Default" FBACK="ACT5.3/Sila" NAME="ACT5.3">
+            <GEN AMP="1.0" CYC="3.0" FREQ="0.05" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.4/Sila" NAME="ACT5.4">
+            <GEN AMP="0.0" CYC="60.0" FREQ="1.0" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.5/Poloha" NAME="ACT5.5">
+            <GEN AMP="0.0" CYC="60.0" FREQ="1.0" TYPE="PER">
+              <CORR EXTCNT="1" TCYCLES="0.5">
+                <AMP EXT="LOCAL" K="1.0" KMAX="1000.0" KMAXM="1.5" TOL="0.0" W="0.8"/>
+                <OFF EXT="LOCAL" P="0.1" SMAX="100.0" SMAXD="1.5" SUM="0.0" TOL="0.0"/>
+              </CORR>
+            </GEN>
+          </CH>
+        </B>
+        <B CTRLCH="ACT5.3" NAME="End" TSHAPE="LIN" TTIME="0.0" TYPE="BLOCK">
+          <CH CTRL="Default" FBACK="ACT5.3/Sila" NAME="ACT5.3">
+            <GEN RSHAPE="SIN" RTIME="1.0" TYPE="RAMP"/>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.4/Sila" NAME="ACT5.4">
+            <GEN RSHAPE="SIN" RTIME="1.0" TYPE="RAMP"/>
+          </CH>
+          <CH CTRL="Default" FBACK="ACT5.5/Poloha" NAME="ACT5.5">
+            <GEN RSHAPE="SIN" RTIME="1.0" TYPE="RAMP"/>
+          </CH>
+        </B>
+      </THREAD>
+    </SUBRT>
+  </THREAD>
+  <REGSETS/>
+  <RECORDER PRJVER="13">
+    <R CLASS="USER" NAME="Fz">
+      <SELECTION EXTREMES="" EXTREMESCREATIONMETHOD="ALLSIGNALS" SAMPLINGRATE="100.0" TYPE="RESAMPLING" UNUSEDSAMPLEVALUE="NaN"/>
+      <TRIGGERING BLOCKSTATE="RUN" TYPE="CONTINUOUS">
+        <CYCLES LENGTH="1000.0" REFCOUNTER="" REFGEN="" SOURCE="REF_GEN" STOREDLENGTH="1.0"/>
+        <SEQUENCE LENGTH="10" STOREDLENGTH="1"/>
+        <INTERVAL LENGTH="3600.0" STOREDLENGTH="1.0" TIMEUNIT1="HOUR" TIMEUNIT2="SECOND"/>
+      </TRIGGERING>
+      <STORAGE BINFORMAT="btDBL" FAILACTION="LOG" FILECREATIONMETHOD="BLOCKPASS" FILENAME="Fz" FOLDERCREATIONMETHOD="TESTFOLDER" FORMAT="DIADEM" MAXDATASIZE="10" NAMEEXTENSION="INDEXING" PATH="" STORAGEMETHOD="BLOCK">
+        <PROPRIETARY HEADERENCODING="UTF-8"/>
+        <FORMATSETTINGS/>
+      </STORAGE>
+      <SIGNALS>
+        <S NAME="ACT5.3/Poloha"/>
+        <S NAME="ACT5.3/Sila"/>
+      </SIGNALS>
+    </R>
+  </RECORDER>
+  <REC_GS ENABLED="TRUE" FOLDERCREATIONMETHOD="NONE" PATH="\\Inova-15141-3\programy\273\273.000.001.123_Customer\AA_2022\123456-0\Part 1" PRJVER="13">
+    <GUI>
+      <TABLE/>
+    </GUI>
+  </REC_GS>
+  <WAVEFORMS>
+    <W FILEFORMAT="stDIADEM" FILENAME="\\Inova-15141-3\programy\273\273.400.013.133_Porsche\Signal_cyl._5.3+5.4+5.5\3. Iter_signal\WBB_rear.dat" FREQ="500.0" LENGTH="20480" NAME="WBB_rear_CMD_5.4" SIG="CMD_5.4" TIME="40.96" TYPE="TIME" UNIT="kN"/>
+    <W FILEFORMAT="stDIADEM" FILENAME="\\Inova-15141-3\programy\273\273.400.013.133_Porsche\Signal_cyl._5.3+5.4+5.5\3. Iter_signal\WBB_rear.dat" FREQ="500.0" LENGTH="20480" NAME="WBB_rear_CMD_5.5" SIG="CMD_5.5" TIME="40.96" TYPE="TIME" UNIT="kN"/>
+    <W FILEFORMAT="stDIADEM" FILENAME="\\Inova-15141-3\programy\273\273.400.013.133_Porsche\Signal_cyl._5.3+5.4+5.5\3. Iter_signal\WBB_rear.dat" FREQ="500.0" LENGTH="20480" NAME="WBB_rear_CMD_5.3" SIG="CMD_5.3" TIME="40.96" TYPE="TIME" UNIT="kN"/>
+    <W FILEFORMAT="stDIADEM" FILENAME="\\Inova-15141-3\programy\273\273.400.013.133_Porsche\Signal_cyl._5.3+5.4+5.5\3. Iter_signal\WBB_rear.dat" FREQ="500.0" LENGTH="20480" NAME="WBB_rear_TAR_FX" SIG="TAR_FX" TIME="40.96" TYPE="TIME" UNIT="kN"/>
+    <W FILEFORMAT="stDIADEM" FILENAME="\\Inova-15141-3\programy\273\273.400.013.133_Porsche\Signal_cyl._5.3+5.4+5.5\3. Iter_signal\WBB_rear.dat" FREQ="500.0" LENGTH="20480" NAME="WBB_rear_TAR_FY" SIG="TAR_FY" TIME="40.96" TYPE="TIME" UNIT="kN"/>
+    <W FILEFORMAT="stDIADEM" FILENAME="\\Inova-15141-3\programy\273\273.400.013.133_Porsche\Signal_cyl._5.3+5.4+5.5\3. Iter_signal\WBB_rear.dat" FREQ="500.0" LENGTH="20480" NAME="WBB_rear_TAR_FZ" SIG="TAR_FZ" TIME="40.96" TYPE="TIME" UNIT="kN"/>
+  </WAVEFORMS>
+  <CRITERIA PRJVER="13"/>
+  <VARIABLES/>
+  <STATE>
+    <PROG_STATE SAMPLES="0"/>
+    <GEN_STATE>
+      <G BLOCK="-" GEN="-"/>
+      <G BLOCK="-" GEN="-"/>
+      <G BLOCK="-" GEN="-"/>
+    </GEN_STATE>
+    <SIGNALS>
+      <S NAME="ACT5.3/Čítač" VAL="8.1387755E7"/>
+      <S NAME="ACT5.4/Čítač" VAL="1.61226648E8"/>
+      <S NAME="ACT5.5/Čítač" VAL="8.0446431E7"/>
+      <S NAME="User/Zadaný počet meraní" VAL="104.0"/>
+      <S NAME="User/Aktuálny stav testu" VAL="207.0"/>
+      <S NAME="User/Kompenzácia_5.1" VAL="-5.0"/>
+      <S NAME="User/Kompenzácia_5.2" VAL="0.0"/>
+      <S NAME="User/Kompenzácia_5.3" VAL="0.0"/>
+      <S NAME="User/Kompenzácia_5.4" VAL="0.0"/>
+      <S NAME="User/Kompenzácia_5.5" VAL="0.0"/>
+    </SIGNALS>
+    <RECORDER>
+      <R INDEX="0" NAME="Fz"/>
+      <BPASS/>
+    </RECORDER>
+  </STATE>
+  <CHANNEL_REGSETS>
+    <REG CH="ACT5.3" FB="ACT5.3/Sila">
+      <R D="0.0" I="1.0" N="0.0:0.0;1.0:1.0" NAME="Default" NSW="false" P="0.1"/>
+    </REG>
+    <REG CH="ACT5.4" FB="ACT5.4/Sila">
+      <R D="0.0" I="1.0" N="0.0:0.0;1.0:1.0" NAME="Default" NSW="false" P="0.1"/>
+    </REG>
+    <REG CH="ACT5.5" FB="ACT5.5/Poloha">
+      <R D="0.0" I="1.3" NAME="Default" P="2.0"/>
+    </REG>
+  </CHANNEL_REGSETS>
+</PROGRAM>
