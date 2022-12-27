@@ -1,15 +1,11 @@
 package GUI;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
-import java.io.File;
+import java.awt.*;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Class for blowers.
@@ -21,7 +17,6 @@ public class Blower {
     private float targetTemp;
     private String project;
     private Hyperlink link;
-    private Button stop;
 
     /**
      * Instantiates a new Blower.
@@ -38,15 +33,18 @@ public class Blower {
         this.currentTemp = currentTemp;
         this.targetTemp = targetTemp;
         this.project = project;
-        this.link = new Hyperlink(IPAddress + "/settings");
-        Button button = new Button("STOP");
-        this.stop = button;
-        this.stop.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                System.out.println("clicked");
+//        this.link = new Hyperlink(IPAddress + "/settings");  // todo debug
+        this.link = new Hyperlink("https://www.google.sk/");
+        this.link.setOnAction(event -> {
+            try {
+                System.out.println(link.getText());
+                Desktop.getDesktop().browse(new URI(this.link.getText()));
+            } catch (IOException | URISyntaxException e) {
+                // todo zapisat do logov
+                e.printStackTrace();
             }
         });
+
     }
 
     /**

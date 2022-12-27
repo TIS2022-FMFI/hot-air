@@ -1,8 +1,8 @@
 package GUI;
 
 import XML.XMLEditor;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -11,9 +11,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
+import javafx.util.Callback;
 import org.xml.sax.SAXException;
 
 
@@ -28,11 +32,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
 
-/* todo
-     - STOP buttony na duchadla
-     - nejaky refresh btn na najdenie duchadiel
-     -
- */
 
 /**
  *  Gui controller.
@@ -41,17 +40,22 @@ public class GUIController implements Initializable {
 
     private Desktop desktop = Desktop.getDesktop();
     final FileChooser fileChooser = new FileChooser();
-    private GUI gui = new GUI();
+    private GUI gui = GUI.gui;
+    private int numberOfBlowers = 0;
+    private int numberOfProjects = 0;
 
     final WebView browser = new WebView();
     final WebEngine webEngine = browser.getEngine();
-    final Hyperlink[] links = new Hyperlink[gui.numberOfBlowers];
+    final Hyperlink[] links;
     final static String url = "https://www.google.sk/";
 
     @FXML TextField filePath;
     @FXML TextField filePath2;
     @FXML TextField settingsPath;
     @FXML TextField settingsPort;
+    @FXML Text blowersInfo;
+    @FXML Text projectsInfo;
+    @FXML Text portInfo;
 
     @FXML BorderPane blowers;
     @FXML BorderPane projects;
@@ -63,33 +67,59 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Blower,Float> blower_target_tmp;
     @FXML TableColumn<Blower,String> blower_project;
     @FXML TableColumn<Blower,Hyperlink> blower_config;
-    @FXML TableColumn<Blower, Button> blower_stop; // todo, button nefunguje, posielat na server ptm ze sa zastavilo
+    @FXML TableColumn<Blower, Blower> blower_stop;
 
     @FXML TableView<Project> projectsView;
     @FXML TableColumn<Project,String> project_name;
     @FXML TableColumn<Project,Float> project_time;
     @FXML TableColumn<Project,String> project_phase;
 
-    
+    public GUIController() {
+        // todo debug
+//        try {
+//            numberOfBlowers = gui.client.getNumberOfControllers();
+//            numberOfProjects = gui.client.getNumberOfProjects();
+            numberOfBlowers = 10;
+            numberOfProjects = 2;
+            links = new Hyperlink[numberOfBlowers];
+//        } catch (IOException | InterruptedException e) {
+//            gui.alert(e);
+//        }
+
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        filePath.setTooltip(new Tooltip("Write path to xml file or search the file by clicking the search button."));
-        filePath2.setTooltip(new Tooltip("Write path to xml file or search the file by clicking the search button."));
+        filePath.setTooltip(new Tooltip("Enter path to xml file or search the file by clicking the search button."));
+        filePath2.setTooltip(new Tooltip("Enter path to xml file or search the file by clicking the search button."));
         settingsPath.setTooltip(new Tooltip("Enter default path to store exe file."));
         settingsPath.setPromptText("Enter default path to store exe file.");
-        settingsPort.setTooltip(new Tooltip("Enter port to communicate with server."));
-        settingsPort.setPromptText("Enter port to communicate with server.");
+        settingsPort.setTooltip(new Tooltip("Enter port to communicate with server. [default 4002]"));
+        settingsPort.setPromptText("Enter port to communicate with server. [default 4002]");
 
-        UnaryOperator<TextFormatter.Change> integerFilter = change -> {
-            String input = change.getText();
-            if (input.matches("[0-9]*")) {
-                return change;
+        settingsPort.getProperties().put("vkType", "numeric");
+        settingsPort.setTextFormatter(new TextFormatter<>(c -> {
+            portInfo.setText("");
+            if (c.isContentChange()) {
+                if (c.getControlNewText().length() == 0) {
+                    return c;
+                }
+                try {
+                    Integer.parseInt(c.getControlNewText());
+                    if (c.getControlNewText().length() > 5) {
+                        portInfo.setText("wrong format: wrong port");
+                        return null;
+                    }
+                    return c;
+                } catch (NumberFormatException e) {
+                    portInfo.setText("wrong format: enter numbers only");
+                }
+                return null;
+
             }
-            return null;
-        };
-        settingsPort.setTextFormatter(new TextFormatter<String>(integerFilter));
-
+            return c;
+        }));
 
         blower_id.setCellValueFactory(
             new PropertyValueFactory<>("id"));
@@ -101,10 +131,49 @@ public class GUIController implements Initializable {
             new PropertyValueFactory<>("targetTemp"));
         blower_project.setCellValueFactory(
             new PropertyValueFactory<>("project"));
+        blower_config.setCellFactory(new Callback<TableColumn<Blower, Hyperlink>, TableCell<Blower, Hyperlink>>() {
+            @Override
+            public TableCell<Blower, Hyperlink> call(TableColumn<Blower, Hyperlink> param) {
+                return new TableCell<Blower, Hyperlink>() {
+                    @Override
+                    protected void updateItem(Hyperlink item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                        } else {
+                            setGraphic(item);
+                        }
+                    }
+                };
+            }
+        });
         blower_config.setCellValueFactory(
             new PropertyValueFactory<>("link"));
-        blower_stop.setCellValueFactory(
-            new PropertyValueFactory<>("stop"));
+        blower_stop.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue()));
+        blower_stop.setCellFactory(column -> new TableCell<Blower, Blower>() {
+            private final Button button = new Button("STOP");
+            {
+                button.setId("stopBtn");
+                button.setOnAction(e -> {
+                    Blower b = getItem();
+                    System.out.println("blower " + b.getId() + " stopped");
+                });
+                button.setFont(Font.font("Arial", FontWeight.BOLD, 11.0));
+                button.setMinWidth(75);
+                button.setPrefWidth(75);
+                button.setMaxWidth(USE_COMPUTED_SIZE);
+            }
+
+            @Override
+            protected void updateItem(Blower item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(button);
+                }
+            }
+        });
 
         project_name.setCellValueFactory(
             new PropertyValueFactory<>("name"));
@@ -112,7 +181,6 @@ public class GUIController implements Initializable {
             new PropertyValueFactory<>("time"));
         project_phase.setCellValueFactory(
             new PropertyValueFactory<>("currentPhase"));
-
 
         blowersView.getItems().addAll(addBlowers());
         projectsView.getItems().addAll(addProjects());
@@ -122,17 +190,8 @@ public class GUIController implements Initializable {
     private List<Blower> addBlowers() {
         List<Blower> blowers = new ArrayList<Blower>();
 
-        for (int i = 0; i<gui.numberOfBlowers; i++) {
-            // todo, ziskat hodnoty zo servra
-            final Hyperlink link = links[i] = new Hyperlink(("config " + i));
-            link.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent e) {
-                    webEngine.load(url);
-                }
-            });
+        for (int i = 0; i<numberOfBlowers; i++) {
             Blower blower = new Blower("1.2.3.4", ("id" + i), 0, 50, "project 1");
-            blower.setLink(link);
             blowers.add(blower);
         }
 
@@ -142,8 +201,7 @@ public class GUIController implements Initializable {
     private List<Project> addProjects() {
         List<Project> projects = new ArrayList<Project>();
 
-        for (int i = 0; i<gui.numberOfProjects; i++) {
-            // todo, ziskat hodnoty zo servra
+        for (int i = 0; i<numberOfProjects; i++) {
             projects.add(new Project(("Project "+i), 0, "phase0"));
         }
 
@@ -156,11 +214,33 @@ public class GUIController implements Initializable {
      * @param actionEvent the action event
      */
     public void searchXML(ActionEvent actionEvent) {
+        blowersInfo.setText("");
+        projectsInfo.setText("");
+
+
         System.out.println("Search XML file button clicked");
         File file = fileChooser.showOpenDialog(gui.getStage());
         if (file != null) {
-            filePath.setText(file.getPath());
-            filePath2.setText(file.getPath());
+            String path = file.getPath();
+
+            filePath.setText(path);
+            filePath2.setText(path);
+            checkType(path);
+        }
+    }
+
+    public void checkTypeOfFile(ActionEvent actionEvent) {
+        String path = filePath.getText();
+        checkType(path);
+    }
+
+    private void checkType(String path) {
+//        System.out.println(path.substring(path.lastIndexOf('.')));
+        blowersInfo.setText("");
+        projectsInfo.setText("");
+        if (!path.substring(path.lastIndexOf('.')).equals(".xml")) {
+            blowersInfo.setText("type of chosen file is not .xml");
+            projectsInfo.setText("type of chosen file is not .xml");
         }
     }
 
@@ -185,7 +265,8 @@ public class GUIController implements Initializable {
     public void submitFile(ActionEvent actionEvent) {
         try {
             System.out.println("Submit button clicked");
-            // todo log mby
+            // todo zapisat do logov
+
             XMLEditor.addPath(filePath.getText(), "A"); // todo path k .exe
             System.out.println("File successfully loaded");
 
@@ -205,7 +286,7 @@ public class GUIController implements Initializable {
 
         } catch (IllegalArgumentException | ParserConfigurationException | IOException | SAXException | TransformerException e) {
             System.err.println("Error loading file");
-            // todo log
+            // todo zapisat do logov
 //            Logger.getLogger( GUI.class.getName()).log( Level.SEVERE, null, e ); ?
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("ERROR LOADING");
@@ -219,5 +300,17 @@ public class GUIController implements Initializable {
             alert.getDialogPane().setGraphic(icon);
             alert.show();
         }
+    }
+
+    public void scanBlowers(ActionEvent actionEvent) { // todo
+        System.out.println("Scan blowers button clicked");
+    }
+
+    public void stopAllBlowers(ActionEvent actionEvent) { // todo
+        System.out.println("Stop all blowers button clicked");
+    }
+
+    public void saveSettings(ActionEvent actionEvent) { // todo, asi sa to posle na server a pri startovani gui sa zisti ci neni na serveri nieco ulozene uz?
+        System.out.println("Save settings button clicked");
     }
 }
