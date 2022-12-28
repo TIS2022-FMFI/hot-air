@@ -1,8 +1,7 @@
-package Burnie.Project;
+package Burniee.Project;
 
-import javafx.util.Pair;
-import Burnie.Communication.ControllerHandler;
-import Burnie.Server;
+import Burniee.Communication.ControllerHandler;
+import Burniee.Server;
 
 import java.io.IOException;
 import java.util.AbstractMap;
@@ -38,6 +37,7 @@ public class ActiveController extends Thread {
             long startTime, jobTime;
             int temperature;
             for (AbstractMap.SimpleEntry<Integer, Long> i : jobQueue) {
+                if (!handler.isActive()) {break;}
                 endOfPhaseConfirmed = false;
                 waitingForConfirmation = false;
                 temperature = i.getKey();
@@ -67,12 +67,12 @@ public class ActiveController extends Thread {
                             System.err.println("Phase end confirmation not received");
                             handler.bigRedButton();
                             project.end();
-                            return; //TODO -> GUI -> big red button
+                            throw new ProjectException("Server did not receive end of phase confirmation");
                         }
                     } catch (InterruptedException ignored) {}
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             Server.getInstance().sendExceptionToAllActiveGUIs(e);
         } finally {
             project.end();

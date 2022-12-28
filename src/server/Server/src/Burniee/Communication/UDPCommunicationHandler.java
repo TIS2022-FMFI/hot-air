@@ -1,6 +1,6 @@
-package Burnie.Communication;
+package Burniee.Communication;
 
-import Burnie.Server;
+import Burniee.Server;
 
 import java.io.IOException;
 import java.net.*;

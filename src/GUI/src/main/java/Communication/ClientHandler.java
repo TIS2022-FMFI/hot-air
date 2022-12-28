@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
  */
 public class ClientHandler {
     private Client client;
-    private int PORT = 0;
     private String IP = "";
 
     /**
@@ -18,7 +17,6 @@ public class ClientHandler {
      * @param IP server IP
      */
     public ClientHandler(String IP, int PORT) throws IOException {
-        this.PORT = PORT;
         this.IP = IP;
         Client.PORT = PORT;
         client = new Client(IP);
@@ -37,7 +35,6 @@ public class ClientHandler {
      * Use UDP discovery to find server
      */
     public ClientHandler(int PORT) throws IOException {
-        this.PORT = PORT;
         Client.PORT = PORT;
         client = new Client();
         client.start();
@@ -64,22 +61,22 @@ public class ClientHandler {
         }
     }
 
-    /**
-     * change ID of a specific controller
-     * @param oldID current ID of said controller
-     * @param newID new ID to replace it
-     */
-    public void changeControllerID(String oldID, String newID) throws IOException {
-        if (!client.isConnected()) {
-            throw new ConnectException("Disconnected from server");
-        }
-        if (!newID.matches("\\A\\p{ASCII}*\\z")) {
-            throw new SocketException("Non ascii characters found!");
-        }
-        client.writeMessage(new Message(MessageBuilder.GUI.Request.ChangeControllerID.build()));
-        client.writeMessage(new Message(oldID.getBytes(StandardCharsets.US_ASCII)));
-        client.writeMessage(new Message(newID.getBytes(StandardCharsets.US_ASCII)));
-    }
+//    /**
+//     * change ID of a specific controller
+//     * @param oldID current ID of said controller
+//     * @param newID new ID to replace it
+//     */
+//    public void changeControllerID(String oldID, String newID) throws IOException {
+//        if (!client.isConnected()) {
+//            throw new ConnectException("Disconnected from server");
+//        }
+//        if (!newID.matches("\\A\\p{ASCII}*\\z")) {
+//            throw new SocketException("Non ascii characters found!");
+//        }
+//        client.writeMessage(new Message(MessageBuilder.GUI.Request.ChangeControllerID.build()));
+//        client.writeMessage(new Message(oldID.getBytes(StandardCharsets.US_ASCII)));
+//        client.writeMessage(new Message(newID.getBytes(StandardCharsets.US_ASCII)));
+//    }
 
     /**
      * @return number of active projects
@@ -99,7 +96,7 @@ public class ClientHandler {
     }
 
     /**
-     * @return number of connected controllers
+     * @return number of connected controllers(Blowers)
      */
     public int getNumberOfControllers() throws IOException, InterruptedException {
         if (!client.isConnected()) {
@@ -113,6 +110,57 @@ public class ClientHandler {
             result = rr.getIntData();
         }
         return result;
+    }
+
+    /**
+     * Server will try to discover new controllers(Blowers)
+     */
+    public void searchForNewControllers() throws IOException {
+        if (!client.isConnected()) {
+            throw new ConnectException("Disconnected from server");
+        }
+        client.writeMessage(new Message(MessageBuilder.GUI.Request.SearchForNewControllers.build()));
+    }
+
+    /**
+     * Stop all controllers(Blowers)
+     */
+    public void stopAllControllers() throws IOException {
+        if (!client.isConnected()) {
+            throw new ConnectException("Disconnected from server");
+        }
+        client.writeMessage(new Message(MessageBuilder.GUI.Request.BigRedButton.build()));
+    }
+
+    /**
+     * Stop controller(Blower) with this ID
+     */
+    public void stopAController(String ID) throws IOException {
+        if (!client.isConnected()) {
+            throw new ConnectException("Disconnected from server");
+        }
+        if (!ID.matches("\\A\\p{ASCII}*\\z")) {
+            throw new SocketException("Non ascii characters found!");
+        }
+        client.writeMessage(new Message(MessageBuilder.GUI.Request.StopThisController.build()));
+        client.writeMessage(new Message(ID.getBytes(StandardCharsets.US_ASCII)));
+    }
+
+    /**
+     * @return IP, ID, currentTemperature, targetTemperature, airFlow, time for each connected controller(Blower)
+     */
+    public RequestResult.Controller[] getAllControllers() throws IOException, InterruptedException {
+        if (!client.isConnected()) {
+            throw new ConnectException("Disconnected from server");
+        }
+        client.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutControllers.build()));
+        RequestResult.Controller[] res;
+        synchronized (RequestResult.getInstance()) {
+            RequestResult rr = RequestResult.getInstance();
+            rr.wait();
+            res = rr.getControllers();
+        }
+        return res;
     }
 
     private class ExitProcess extends Thread {

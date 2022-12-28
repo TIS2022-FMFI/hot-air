@@ -1,11 +1,11 @@
-package Burnie.Project;
+package Burniee.Project;
 
-import Burnie.Communication.ControllerHandler;
-import Burnie.xml.XMLException;
+import Burniee.Communication.ControllerHandler;
+import Burniee.xml.XMLException;
 import org.xml.sax.SAXException;
-import Burnie.Controller.ControllerException;
-import Burnie.Server;
-import Burnie.xml.XMLAnalyzer;
+import Burniee.Controller.ControllerException;
+import Burniee.Server;
+import Burniee.xml.XMLAnalyzer;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -17,11 +17,9 @@ public class Project {
 
     public Project(String pathToXML, String id) throws ControllerException, XMLException, ParserConfigurationException, IOException, SAXException {
         HashMap<String, List<String>> script = XMLAnalyzer.XMLtoCommands(pathToXML);
-//        System.out.println("Hallo");
         ID = id;
         controllers = new LinkedList<>();
         for (Map.Entry<String, List<String>> i : script.entrySet()) {
-//            System.out.println(i.toString());
             ControllerHandler handler = findControllerByID(i.getKey());
             Queue<AbstractMap.SimpleEntry<Integer, Long>> queue = new LinkedList<>();
             int a = 0;
@@ -73,5 +71,4 @@ public class Project {
         }
         throw new ControllerException("No controller with id = " + id + ", stopping");
     }
-
 }

@@ -1,8 +1,13 @@
-package Burnie.Communication;
+package Burniee.Communication;
 
-import Burnie.Server;
+import Burniee.Controller.Controller;
+import Burniee.Controller.ControllerException;
+import Burniee.Project.Project;
+import Burniee.Server;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -20,6 +25,13 @@ public class GUIHandler extends Thread {
     public void stopSocket() {
         socket.stopSocket();
         Server.getInstance().removeGUI(this);
+    }
+
+    private byte[] getObjectBytes(Object o) throws IOException {
+        ByteArrayOutputStream bao = new ByteArrayOutputStream();
+        ObjectOutputStream oo = new ObjectOutputStream(bao);
+        oo.writeObject(o);
+        return bao.toByteArray();
     }
 
     public void sendException(String className, byte[] exception) throws IOException {
@@ -47,6 +59,31 @@ public class GUIHandler extends Thread {
                             i.changeId(newID);
                             break;
                         }
+                    }
+                } else if (MessageBuilder.GUI.Request.SearchForNewControllers.equals(msg)) {
+                    UDPCommunicationHandler.sendUDPPacket(UDPCommunicationHandler.LOOKING_FOR_CONTROLLERS_MESSAGE, UDPCommunicationHandler.getBroadcastAddresses());
+                } else if (MessageBuilder.GUI.Request.BigRedButton.equals(msg)) {
+                    for (ControllerHandler ch : Server.getInstance().getControllers()) {
+                        ch.bigRedButton();
+                    }
+                    for (Project p : Server.getInstance().getActiveProjects()) {
+                        p.end();
+                    }
+                } else if (MessageBuilder.GUI.Request.StopThisController.equals(msg)) {
+                    String ID = socket.readStringMessage();
+                    for (ControllerHandler ch : Server.getInstance().getControllers()) {
+                        if (ch.getControllerID().equals(ID)) {
+                            ch.bigRedButton();
+                            return;
+                        }
+                    }
+                    throw new ControllerException("No controller with ID = " + ID);
+                } else if (MessageBuilder.GUI.Request.GetInfoAboutControllers.equals(msg)) {
+                    socket.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutControllers.build()));
+                    socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getControllers().size()).array()));
+                    for (ControllerHandler ch : Server.getInstance().getControllers()) {
+                        Controller c = ch.getController();
+                        socket.writeMessage(new Message(getObjectBytes(c)));
                     }
                 }
             } catch (SocketException e) {

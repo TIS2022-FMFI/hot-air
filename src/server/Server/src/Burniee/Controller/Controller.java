@@ -1,4 +1,4 @@
-package Burnie.Controller;
+package Burniee.Controller;
 
 import java.net.InetAddress;
 
@@ -6,6 +6,7 @@ public class Controller {
     private final InetAddress IP;
     private String ID;
     private int currentTemperature;
+    private int targetTemperature;
     private short airFlow;
     private long time;
 
@@ -25,4 +26,8 @@ public class Controller {
     public void setCurrentTemperature(int currentTemperature) {this.currentTemperature = currentTemperature;}
     public int getCurrentTemperature() {return currentTemperature;}
 
+    public int getTargetTemperature() {return targetTemperature;}
+    public void setTargetTemperature(int targetTemperature) {this.targetTemperature = targetTemperature;}
+
+    public InetAddress getIP() {return IP;}
 }

@@ -1,4 +1,4 @@
-package Burnie;
+package Burniee;
 
 import java.util.Arrays;
 
