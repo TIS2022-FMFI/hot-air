@@ -1,4 +1,4 @@
-package Burnie.Communication;
+package Burniee.Communication;
 
 import java.util.Arrays;
 
@@ -62,6 +62,34 @@ public class MessageBuilder {
 
                 public static byte[] build() {return new byte[]{GUI.ID, Request.ID, ID};}
                 public static boolean equals(byte[] msg) {return Arrays.equals(msg, new byte[] {GUI.ID, Request.ID, ID});}
+            }
+
+            public static class SearchForNewControllers {
+                private static final byte ID = 'd';
+
+                public static byte[] build() {return new byte[]{GUI.ID, Request.ID, ID};}
+                public static boolean equals(byte[] msg) {return Arrays.equals(msg, new byte[]{GUI.ID, Request.ID, ID});}
+            }
+
+            public static class BigRedButton {
+                private static final byte ID = 'e';
+
+                public static byte[] build() {return new byte[]{GUI.ID, Request.ID, ID};}
+                public static boolean equals(byte[] msg) {return Arrays.equals(msg, new byte[]{GUI.ID, Request.ID, ID});}
+            }
+
+            public static class StopThisController {
+                private static final byte ID = 'e'+1; //alphabet is hard, ok?
+
+                public static byte[] build() {return new byte[]{GUI.ID, Request.ID, ID};}
+                public static boolean equals(byte[] msg) {return Arrays.equals(msg, new byte[]{GUI.ID, Request.ID, ID});}
+            }
+
+            public static class GetInfoAboutControllers {
+                private static final byte ID = 'e'+2;
+
+                public static byte[] build() {return new byte[]{GUI.ID, Request.ID, ID};}
+                public static boolean equals(byte[] msg) {return Arrays.equals(msg, new byte[]{GUI.ID, Request.ID, ID});}
             }
         }
         public static class Exception {

@@ -1,10 +1,10 @@
-package Burnie;
+package Burniee;
 
-import Burnie.Communication.ControllerHandler;
-import Burnie.Communication.GUIHandler;
-import Burnie.Communication.SocketHandler;
-import Burnie.Communication.UDPCommunicationHandler;
-import Burnie.Project.Project;
+import Burniee.Communication.ControllerHandler;
+import Burniee.Communication.GUIHandler;
+import Burniee.Communication.SocketHandler;
+import Burniee.Communication.UDPCommunicationHandler;
+import Burniee.Project.Project;
 
 import java.io.*;
 import java.net.ServerSocket;

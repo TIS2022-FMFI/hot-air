@@ -1,4 +1,4 @@
-package Burnie.xml;
+package Burniee.xml;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

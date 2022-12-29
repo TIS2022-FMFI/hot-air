@@ -7,6 +7,8 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Client extends Thread {
     private Socket clientSocket;
@@ -136,6 +138,12 @@ public class Client extends Thread {
         }
     }
 
+    private static RequestResult.Controller getController(byte[] o) throws ClassNotFoundException, IOException {
+        try (ByteArrayInputStream bin = new ByteArrayInputStream(o); ObjectInput in = new ObjectInputStream(bin)) {
+            return (RequestResult.Controller) in.readObject();
+        }
+    }
+
     /**
      * Await exceptions and resolve them
      */
@@ -152,7 +160,7 @@ public class Client extends Thread {
                 msg = readMessage();
                 if (MessageBuilder.GUI.Exception.equals(msg)) {
                     Exception e = getException(readStringMessage(), readMessage());
-                    throw e; //TODO -> send e somewhere
+                    GUI.GUI.gui.alert(e);
                 } else if (MessageBuilder.GUI.Request.NumberOfProjects.equals(msg)) {
                     synchronized (RequestResult.getInstance()) {
                         RequestResult.getInstance().setIntData(ByteBuffer.wrap(readMessage()).getInt());
@@ -161,6 +169,16 @@ public class Client extends Thread {
                 } else if (MessageBuilder.GUI.Request.NumberOfControllers.equals(msg)) {
                     synchronized (RequestResult.getInstance()) {
                         RequestResult.getInstance().setIntData(ByteBuffer.wrap(readMessage()).getInt());
+                        RequestResult.getInstance().notify();
+                    }
+                } else if (MessageBuilder.GUI.Request.GetInfoAboutControllers.equals(msg)) {
+                    synchronized (RequestResult.getInstance()) {
+                        int numberOfControllers = ByteBuffer.wrap(readMessage()).getInt();
+                        RequestResult.Controller[] res = new RequestResult.Controller[numberOfControllers];
+                        for (int i = 0; i < numberOfControllers; i++) {
+                            res[i] = getController(readMessage());
+                        }
+                        RequestResult.getInstance().setControllers(res);
                         RequestResult.getInstance().notify();
                     }
                 }

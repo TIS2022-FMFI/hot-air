@@ -1,6 +1,6 @@
-package Burnie.Communication;
+package Burniee.Communication;
 
-import Burnie.xml.FileReceiver;
+import Burniee.xml.FileReceiver;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

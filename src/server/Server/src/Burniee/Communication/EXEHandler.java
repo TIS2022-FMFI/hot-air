@@ -1,7 +1,7 @@
-package Burnie.Communication;
+package Burniee.Communication;
 
-import Burnie.Project.Project;
-import Burnie.Server;
+import Burniee.Project.Project;
+import Burniee.Server;
 
 import java.net.SocketException;
 

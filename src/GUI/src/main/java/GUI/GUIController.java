@@ -304,10 +304,20 @@ public class GUIController implements Initializable {
 
     public void scanBlowers(ActionEvent actionEvent) { // todo
         System.out.println("Scan blowers button clicked");
+        try {
+            gui.client.searchForNewControllers();
+        } catch (Exception e) {
+            gui.alert(e);
+        }
     }
 
     public void stopAllBlowers(ActionEvent actionEvent) { // todo
         System.out.println("Stop all blowers button clicked");
+        try {
+            gui.client.stopAllControllers();
+        } catch (Exception e) {
+            gui.alert(e);
+        }
     }
 
     public void saveSettings(ActionEvent actionEvent) { // todo, asi sa to posle na server a pri startovani gui sa zisti ci neni na serveri nieco ulozene uz?
