@@ -17,8 +17,9 @@ Tento program funguje ako termostat, ktorý vie ovládať dúchadlo HOTWIND SYST
 | SDA `D4` | `C` |
 
 2. pre max6675
+
 | WT32-ETH01 pin |  max6675 	|
 |:-----------| :------------:| 
-| `D14`		| 		`S0` 	|
-| `D12` 		| 		`CS` 	|
-| `D15` 		| 		`SCK` 	|
+| `D14`		   | 		`S0` 	|
+| `D12` 		 | 		`CS` 	|
+| `D15` 		 | 		`SCK` 	|
