@@ -9,7 +9,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import org.omg.CORBA.PUBLIC_MEMBER;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
 
 
@@ -35,8 +38,9 @@ public class GUI extends Application {
     public void start(Stage stage) throws Exception {
         gui = this;
         try {
-            client = new ClientHandler();
+            createGUIConfigFile();
 
+            client = new ClientHandler();
             Parent root = FXMLLoader.load(Objects.requireNonNull(GUI.class.getResource("gui.fxml")));
             Scene scene = new Scene(root, 810, 510);
             String css = Objects.requireNonNull(this.getClass().getResource("styles.css")).toExternalForm();
@@ -81,6 +85,20 @@ public class GUI extends Application {
 
         alert.getDialogPane().setGraphic(icon);
         alert.show();
+    }
+
+    public void createGUIConfigFile() {
+        try {
+            File config = new File("GUIconfig.txt");
+            if (config.createNewFile()) {
+                System.out.println("File created: " + config.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+        } catch (IOException e) {
+            System.err.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 
 }
