@@ -9,7 +9,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-import org.omg.CORBA.PUBLIC_MEMBER;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,6 +52,7 @@ public class GUI extends Application {
             stage.setMinHeight(310);
             stage.setMinWidth(810);
             stage.show();
+
             this.stage = stage;
 
         } catch (Exception e) {

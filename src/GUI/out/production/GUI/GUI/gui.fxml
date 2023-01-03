@@ -178,7 +178,7 @@
                      <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="10.0">
                         <children>
                            <Label minWidth="30.0" text="port" />
-                           <TextField fx:id="port" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefHeight="25.0" prefWidth="689.0" HBox.hgrow="ALWAYS" />
+                           <TextField fx:id="portToServer" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefHeight="25.0" prefWidth="689.0" HBox.hgrow="ALWAYS" />
                         </children>
                         <padding>
                            <Insets bottom="5.0" left="10.0" right="5.0" top="5.0" />

@@ -52,7 +52,7 @@ public class GUIController implements Initializable {
     @FXML TextField filePath;
     @FXML TextField filePath2;
     @FXML TextField pathToExe;
-    @FXML TextField port;
+    @FXML TextField portToServer;
     @FXML Text blowersInfo;
     @FXML Text projectsInfo;
     @FXML Text portInfo;
@@ -75,10 +75,10 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Project,String> project_phase;
 
     public GUIController() {
-        // todo debug
 //        try {
 //            numberOfBlowers = gui.client.getNumberOfControllers();
 //            numberOfProjects = gui.client.getNumberOfProjects();
+            // todo na debug
             numberOfBlowers = 10;
             numberOfProjects = 2;
             links = new Hyperlink[numberOfBlowers];
@@ -95,11 +95,11 @@ public class GUIController implements Initializable {
         filePath2.setTooltip(new Tooltip("Enter path to xml file or search the file by clicking the search button."));
         pathToExe.setTooltip(new Tooltip("Enter default path to store exe file."));
         pathToExe.setPromptText("Enter default path to store exe file.");
-        port.setTooltip(new Tooltip("Enter port to communicate with server. [default 4002]"));
-        port.setPromptText("Enter port to communicate with server. [default 4002]");
+        portToServer.setTooltip(new Tooltip("Enter port to communicate with server. [default 4002]"));
+        portToServer.setPromptText("Enter port to communicate with server. [default 4002]");
 
-        port.getProperties().put("vkType", "numeric");
-        port.setTextFormatter(new TextFormatter<>(c -> {
+        portToServer.getProperties().put("vkType", "numeric");
+        portToServer.setTextFormatter(new TextFormatter<>(c -> {
             portInfo.setText("");
             if (c.isContentChange()) {
                 if (c.getControlNewText().length() == 0) {
@@ -108,7 +108,7 @@ public class GUIController implements Initializable {
                 try {
                     Integer.parseInt(c.getControlNewText());
                     if (c.getControlNewText().length() > 5 || c.getControlNewText().length() == 5 && c.getControlNewText().compareTo("65535") > 0 ) {
-                        portInfo.setText("wrong format: wrong port");
+                        portInfo.setText("wrong format: wrong port, choose from <1, 65535>");
                         return null;
                     }
                     return c;
@@ -121,7 +121,6 @@ public class GUIController implements Initializable {
             return c;
         }));
 
-
         try {
             File config = new File("GUIconfig.txt");
             BufferedReader reader = new BufferedReader(new FileReader(config));
@@ -129,8 +128,8 @@ public class GUIController implements Initializable {
             String port = reader.readLine();
             System.out.println("path " + path);
             System.out.println("port " + port);
-            if (!path.isEmpty()) pathToExe.setText(path);
-//            if (!port.isEmpty()) port.setText(path);
+            if (path != null && !path.isEmpty()) pathToExe.setText(path);
+            if (port != null && !port.isEmpty()) portToServer.setText(port);
             reader.close();
 
         } catch (IOException e) {
@@ -349,17 +348,28 @@ public class GUIController implements Initializable {
         }
     }
 
-    public void saveSettings(ActionEvent actionEvent) { // todo, asi sa to posle na server a pri startovani gui sa zisti ci neni na serveri nieco ulozene uz?
-        System.out.println("Save settings button clicked");
+    public void saveSettings(ActionEvent actionEvent) {
         try {
             FileWriter myWriter = new FileWriter("GUIconfig.txt");
             myWriter.write(pathToExe.getText());
             myWriter.write("\n");
-            myWriter.write(port.getText());
+            myWriter.write(portToServer.getText());
             myWriter.close();
-            System.out.println("Successfully wrote to the file.");
+
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("SUCCESSFULLY SAVED");
+            alert.setHeaderText("Settings were successfully saved");
+
+            ImageView icon = new ImageView(String.valueOf(GUI.class.getResource("success.png")));
+            icon.setFitHeight(48);
+            icon.setFitWidth(48);
+
+            alert.getDialogPane().setGraphic(icon);
+            alert.show();
+
         } catch (IOException e) {
-            System.out.println("An error occurred.");
+            gui.alert(e);
+            System.err.println("settings were not saved");
             e.printStackTrace();
         }
     }

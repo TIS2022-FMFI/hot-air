@@ -250,7 +250,7 @@
                               </font></Label>
                            <VBox HBox.hgrow="ALWAYS">
                               <children>
-                                 <TextField fx:id="port" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefHeight="27.0" prefWidth="689.0" />
+                                 <TextField fx:id="portToServer" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefHeight="27.0" prefWidth="689.0" />
                                  <Text fx:id="portInfo" fill="RED" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="745.13671875" VBox.vgrow="ALWAYS" />
                               </children>
                            </VBox>
