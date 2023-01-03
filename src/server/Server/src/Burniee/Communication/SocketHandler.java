@@ -6,6 +6,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
@@ -39,6 +40,8 @@ public class SocketHandler {
             new EXEHandler(this).start();
         } else if (MessageBuilder.Controller.is(type)) {
             new ControllerHandler(this, s.getInetAddress()).start();
+        } else {
+            throw new ConnectException("Unknown type of connection");
         }
     }
 

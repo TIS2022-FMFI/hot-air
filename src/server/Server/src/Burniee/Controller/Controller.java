@@ -5,14 +5,12 @@ import java.net.InetAddress;
 public class Controller {
     private final InetAddress IP;
     private String ID;
-    private int currentTemperature;
+    private float currentTemperature;
     private int targetTemperature;
     private short airFlow;
     private long time;
 
-    public Controller(InetAddress ip) {
-        IP = ip;
-    }
+    public Controller(InetAddress ip) {IP = ip;}
 
     public short getAirFlow() {return airFlow;}
     public void setAirFlow(short airFlow) {this.airFlow = airFlow;}
@@ -23,8 +21,8 @@ public class Controller {
     public void setID(String newID) {ID = newID;}
     public String getID() {return ID;}
 
-    public void setCurrentTemperature(int currentTemperature) {this.currentTemperature = currentTemperature;}
-    public int getCurrentTemperature() {return currentTemperature;}
+    public void setCurrentTemperature(float currentTemperature) {this.currentTemperature = currentTemperature;}
+    public float getCurrentTemperature() {return currentTemperature;}
 
     public int getTargetTemperature() {return targetTemperature;}
     public void setTargetTemperature(int targetTemperature) {this.targetTemperature = targetTemperature;}

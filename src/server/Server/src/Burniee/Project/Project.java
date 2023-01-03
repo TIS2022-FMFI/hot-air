@@ -22,16 +22,10 @@ public class Project {
         for (Map.Entry<String, List<String>> i : script.entrySet()) {
             ControllerHandler handler = findControllerByID(i.getKey());
             Queue<AbstractMap.SimpleEntry<Integer, Long>> queue = new LinkedList<>();
-            int a = 0;
             for (String tempTime : i.getValue()) { //TODO -> check if its temp$time or time$temp
                 if (!tempTime.matches("[.0-9]+\\$[.0-9]+")) {
                     throw new XMLException("Expected [.0-9]+\\$[.0-9]+, got " + tempTime);
                 }
-                if (a == 5) {
-                    break;
-                }
-                a++;
-//                System.out.println(tempTime);
                 String[] split = tempTime.split("\\$");
                 int temperature = Integer.parseInt(split[0]);
                 long time = (long)(Float.parseFloat(split[1]));
