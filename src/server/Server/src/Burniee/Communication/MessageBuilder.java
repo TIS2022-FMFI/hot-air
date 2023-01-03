@@ -105,7 +105,7 @@ public class MessageBuilder {
     }
 
     public static class Controller {
-        private static final byte ID = 'c';
+        private static final byte ID = (byte) 128;
 
         public static byte[] build() {
             return new byte[]{ID};
