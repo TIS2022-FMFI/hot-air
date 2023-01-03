@@ -24,7 +24,7 @@ public class RequestResult {
     public static class Controller {
         private final InetAddress IP;
         private String ID;
-        private int currentTemperature;
+        private float currentTemperature;
         private int targetTemperature;
         private short airFlow;
         private long time;
@@ -42,8 +42,8 @@ public class RequestResult {
         public void setID(String newID) {ID = newID;}
         public String getID() {return ID;}
 
-        public void setCurrentTemperature(int currentTemperature) {this.currentTemperature = currentTemperature;}
-        public int getCurrentTemperature() {return currentTemperature;}
+        public void setCurrentTemperature(float currentTemperature) {this.currentTemperature = currentTemperature;}
+        public float getCurrentTemperature() {return currentTemperature;}
 
         public int getTargetTemperature() {return targetTemperature;}
         public void setTargetTemperature(int targetTemperature) {this.targetTemperature = targetTemperature;}

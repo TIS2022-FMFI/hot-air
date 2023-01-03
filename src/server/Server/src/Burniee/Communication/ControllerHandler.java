@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -19,6 +20,11 @@ public class ControllerHandler extends Thread {
         Server.getInstance().addController(this);
         socket = sh;
         controller = new Controller(ip);
+//        try {
+//            changeControllerParameters(1, (short) 2, 3);
+//        } catch (IOException e){
+//            e.printStackTrace();
+//        }
     }
 
     public boolean isActive() {
@@ -100,6 +106,7 @@ public class ControllerHandler extends Thread {
                 msg = socket.readMessage(true);
                 byte flags = msg[15];
                 if (flags == 0b0000010) {
+                    System.out.println("New ID arrived");
                     controller.setID(resolveId(msg));
                 } else if ((flags&0b00000001) == 1) {
                     if ((flags&0b00000100) > 0) {
@@ -111,8 +118,8 @@ public class ControllerHandler extends Thread {
                     if ((flags&0b00010000) > 0) {
                         throw new ControllerException("All is well"); //TODO -> inform GUI that controller is still working
                     }
-                    byte[] temp = new byte[] {0, 0, msg[13], msg[14]};
-                    controller.setCurrentTemperature(ByteBuffer.wrap(temp).getInt());
+                    byte[] temp = new byte[] {msg[11], msg[12], msg[13], msg[14]};
+                    controller.setCurrentTemperature(ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getFloat());
                 } else {
                     throw new ControllerException("Unknown message" + Arrays.toString(msg));
                 }

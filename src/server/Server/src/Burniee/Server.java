@@ -10,6 +10,9 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Main server class
@@ -44,6 +47,8 @@ public class Server {
      * Start accepting clients
      */
     public void begin() {
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(() -> UDPCommunicationHandler.sendUDPPacket(UDPCommunicationHandler.LOOKING_FOR_CONTROLLERS_MESSAGE, UDPCommunicationHandler.getBroadcastAddresses()), 0, 3, TimeUnit.MINUTES);
         while (!serverSocket.isClosed()) {
             try {
                 new SocketHandler(serverSocket.accept());
