@@ -154,9 +154,15 @@ public class GUIController implements Initializable {
             private final Button button = new Button("STOP");
             {
                 button.setId("stopBtn");
-                button.setOnAction(e -> {
+                button.setOnAction(a -> {
                     Blower b = getItem();
-                    System.out.println("blower " + b.getId() + " stopped");
+                    try {
+                        gui.client.stopAController(b.getId());
+                        System.out.println("blower " + b.getId() + " stopped");
+                    } catch (Exception e) {
+                        gui.alert(e);
+                        System.err.println("blower " + b.getId() + " could not be stopped");
+                    }
                 });
                 button.setFont(Font.font("Arial", FontWeight.BOLD, 11.0));
                 button.setMinWidth(75);
@@ -302,21 +308,23 @@ public class GUIController implements Initializable {
         }
     }
 
-    public void scanBlowers(ActionEvent actionEvent) { // todo
-        System.out.println("Scan blowers button clicked");
+    public void scanBlowers(ActionEvent actionEvent) {
         try {
             gui.client.searchForNewControllers();
+            System.out.println("Search for new blowers was successful");
         } catch (Exception e) {
             gui.alert(e);
+            System.err.println("Search for new blowers was not successful");
         }
     }
 
-    public void stopAllBlowers(ActionEvent actionEvent) { // todo
-        System.out.println("Stop all blowers button clicked");
+    public void stopAllBlowers(ActionEvent actionEvent) {
         try {
             gui.client.stopAllControllers();
+            System.out.println("blowers were stopped successfully");
         } catch (Exception e) {
             gui.alert(e);
+            System.err.println("blowers could not be stopped");
         }
     }
 
