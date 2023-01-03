@@ -2,94 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="49d314fe-0014-4cb5-bdd6-82122719bc97" name="Changes" comment="gui, #64 -&gt; prepojenie so serverom, pridanie stop buttonov">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/hot-air.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/EXE.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Server.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/GUIconfig.txt" beforeDir="false" afterPath="$PROJECT_DIR$/GUIconfig.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/Client.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/ClientHandler$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/ClientHandler$ExitProcess.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/ClientHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/Message.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/MessageBuilder$Controller.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/MessageBuilder$EXE$EndOfSegment.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/MessageBuilder$EXE$FileTransfer.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/MessageBuilder$EXE.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/MessageBuilder$GUI$Exception.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/MessageBuilder$GUI$Request$BigRedButton.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/MessageBuilder$GUI$Request$ChangeControllerID.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/MessageBuilder$GUI$Request$GetInfoAboutControllers.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/MessageBuilder$GUI$Request$NumberOfControllers.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/MessageBuilder$GUI$Request$NumberOfProjects.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/MessageBuilder$GUI$Request$SearchForNewControllers.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/MessageBuilder$GUI$Request$StopThisController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/MessageBuilder$GUI$Request.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/MessageBuilder$GUI.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/MessageBuilder.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/RequestResult$Controller.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/RequestResult.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/Communication/UDPCommunicationHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/Blower.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/GUI.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/GUIController$1$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/GUIController$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/GUIController$2.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/GUIController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/Project.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/XMLLoadException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/boge.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/boge_icon.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/error.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/gui.fxml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/icon.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/save.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/search.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/styles.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/submit.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/GUI/success.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/GUI/XML/XMLEditor.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/ControllerHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/EXEHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/GUIHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/Message.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/MessageBuilder$Controller.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/MessageBuilder$EXE$EndOfSegment.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/MessageBuilder$EXE$FileTransfer.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/MessageBuilder$EXE.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/MessageBuilder$GUI$Exception.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/MessageBuilder$GUI$Request$BigRedButton.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/MessageBuilder$GUI$Request$ChangeControllerID.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/MessageBuilder$GUI$Request$GetInfoAboutControllers.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/MessageBuilder$GUI$Request$NumberOfControllers.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/MessageBuilder$GUI$Request$NumberOfProjects.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/MessageBuilder$GUI$Request$SearchForNewControllers.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/MessageBuilder$GUI$Request$StopThisController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/MessageBuilder$GUI$Request.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/MessageBuilder$GUI.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/MessageBuilder.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/SocketHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Communication/UDPCommunicationHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Controller/Controller.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Controller/ControllerException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Project/ActiveController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Project/Project.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Project/ProjectException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/Server.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/xml/FileReceiver.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/xml/XMLAnalyzer.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Burniee/xml/XMLException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/META-INF/MANIFEST.MF" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Server/Main.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GUI/out/production/GUI/GUI/gui.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/GUI/out/production/GUI/GUI/gui.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GUI/src/main/java/GUI/Blower.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GUI/src/main/java/GUI/Blower.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GUI/src/main/java/GUI/GUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GUI/src/main/java/GUI/GUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GUI/src/main/java/GUI/GUIController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GUI/src/main/java/GUI/GUIController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GUI/src/main/resources/GUI/gui.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/GUI/src/main/resources/GUI/gui.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -124,7 +37,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="extract.method.default.visibility" value="private" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/GUI" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -173,6 +86,8 @@
       <workItem from="1672171068801" duration="1279000" />
       <workItem from="1672412379301" duration="3765000" />
       <workItem from="1672767897280" duration="8036000" />
+      <workItem from="1672782344543" duration="20000" />
+      <workItem from="1672782383003" duration="83000" />
     </task>
     <task id="LOCAL-00001" summary="gui, #64 -&gt; prepojenie so serverom, pridanie stop buttonov">
       <created>1672164958780</created>
