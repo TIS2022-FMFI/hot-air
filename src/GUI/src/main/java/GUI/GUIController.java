@@ -16,6 +16,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import org.xml.sax.SAXException;
@@ -24,13 +25,11 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.function.UnaryOperator;
 
 
 /**
@@ -40,6 +39,7 @@ public class GUIController implements Initializable {
 
     private Desktop desktop = Desktop.getDesktop();
     final FileChooser fileChooser = new FileChooser();
+    final DirectoryChooser directoryChooser = new DirectoryChooser();
     private GUI gui = GUI.gui;
     private int numberOfBlowers = 0;
     private int numberOfProjects = 0;
@@ -51,8 +51,8 @@ public class GUIController implements Initializable {
 
     @FXML TextField filePath;
     @FXML TextField filePath2;
-    @FXML TextField settingsPath;
-    @FXML TextField settingsPort;
+    @FXML TextField pathToExe;
+    @FXML TextField portToServer;
     @FXML Text blowersInfo;
     @FXML Text projectsInfo;
     @FXML Text portInfo;
@@ -75,10 +75,10 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Project,String> project_phase;
 
     public GUIController() {
-        // todo debug
 //        try {
 //            numberOfBlowers = gui.client.getNumberOfControllers();
 //            numberOfProjects = gui.client.getNumberOfProjects();
+            // todo na debug
             numberOfBlowers = 10;
             numberOfProjects = 2;
             links = new Hyperlink[numberOfBlowers];
@@ -93,13 +93,13 @@ public class GUIController implements Initializable {
 
         filePath.setTooltip(new Tooltip("Enter path to xml file or search the file by clicking the search button."));
         filePath2.setTooltip(new Tooltip("Enter path to xml file or search the file by clicking the search button."));
-        settingsPath.setTooltip(new Tooltip("Enter default path to store exe file."));
-        settingsPath.setPromptText("Enter default path to store exe file.");
-        settingsPort.setTooltip(new Tooltip("Enter port to communicate with server. [default 4002]"));
-        settingsPort.setPromptText("Enter port to communicate with server. [default 4002]");
+        pathToExe.setTooltip(new Tooltip("Enter default path to store exe file."));
+        pathToExe.setPromptText("Enter default path to store exe file.");
+        portToServer.setTooltip(new Tooltip("Enter port to communicate with server. [default 4002]"));
+        portToServer.setPromptText("Enter port to communicate with server. [default 4002]");
 
-        settingsPort.getProperties().put("vkType", "numeric");
-        settingsPort.setTextFormatter(new TextFormatter<>(c -> {
+        portToServer.getProperties().put("vkType", "numeric");
+        portToServer.setTextFormatter(new TextFormatter<>(c -> {
             portInfo.setText("");
             if (c.isContentChange()) {
                 if (c.getControlNewText().length() == 0) {
@@ -107,8 +107,8 @@ public class GUIController implements Initializable {
                 }
                 try {
                     Integer.parseInt(c.getControlNewText());
-                    if (c.getControlNewText().length() > 5) {
-                        portInfo.setText("wrong format: wrong port");
+                    if (c.getControlNewText().length() > 5 || c.getControlNewText().length() == 5 && c.getControlNewText().compareTo("65535") > 0 ) {
+                        portInfo.setText("wrong format: wrong port, choose from <1, 65535>");
                         return null;
                     }
                     return c;
@@ -120,6 +120,22 @@ public class GUIController implements Initializable {
             }
             return c;
         }));
+
+        try {
+            File config = new File("GUIconfig.txt");
+            BufferedReader reader = new BufferedReader(new FileReader(config));
+            String path = reader.readLine();
+            String port = reader.readLine();
+            System.out.println("path " + path);
+            System.out.println("port " + port);
+            if (path != null && !path.isEmpty()) pathToExe.setText(path);
+            if (port != null && !port.isEmpty()) portToServer.setText(port);
+            reader.close();
+
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
 
         blower_id.setCellValueFactory(
             new PropertyValueFactory<>("id"));
@@ -241,7 +257,6 @@ public class GUIController implements Initializable {
     }
 
     private void checkType(String path) {
-//        System.out.println(path.substring(path.lastIndexOf('.')));
         blowersInfo.setText("");
         projectsInfo.setText("");
         if (!path.substring(path.lastIndexOf('.')).equals(".xml")) {
@@ -251,15 +266,15 @@ public class GUIController implements Initializable {
     }
 
     /**
-     * Search path to EXE.
+     * Search / Select directory for EXE.
      *
      * @param actionEvent the action event
      */
     public void searchEXE(ActionEvent actionEvent) {
         System.out.println("Search EXE path button clicked");
-        File file = fileChooser.showOpenDialog(gui.getStage());
+        File file = directoryChooser.showDialog(gui.getStage());
         if (file != null) {
-            settingsPath.setText(file.getPath());
+            pathToExe.setText(file.getPath());
         }
     }
 
@@ -273,7 +288,12 @@ public class GUIController implements Initializable {
             System.out.println("Submit button clicked");
             // todo zapisat do logov
 
-            XMLEditor.addPath(filePath.getText(), "A"); // todo path k .exe
+            if (pathToExe.getText().isEmpty()) {
+                XMLLoadException exception = new XMLLoadException("File can't be loaded. Set path to EXE in settings first!");
+                throw exception;
+            }
+
+            XMLEditor.addPath(filePath.getText(), pathToExe.getText()); // todo path k .exe
             System.out.println("File successfully loaded");
 
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -290,7 +310,7 @@ public class GUIController implements Initializable {
             filePath.setText("");
             filePath2.setText("");
 
-        } catch (IllegalArgumentException | ParserConfigurationException | IOException | SAXException | TransformerException e) {
+        } catch (IllegalArgumentException | ParserConfigurationException | IOException | SAXException | TransformerException | XMLLoadException e) {
             System.err.println("Error loading file");
             // todo zapisat do logov
 //            Logger.getLogger( GUI.class.getName()).log( Level.SEVERE, null, e ); ?
@@ -328,7 +348,29 @@ public class GUIController implements Initializable {
         }
     }
 
-    public void saveSettings(ActionEvent actionEvent) { // todo, asi sa to posle na server a pri startovani gui sa zisti ci neni na serveri nieco ulozene uz?
-        System.out.println("Save settings button clicked");
+    public void saveSettings(ActionEvent actionEvent) {
+        try {
+            FileWriter myWriter = new FileWriter("GUIconfig.txt");
+            myWriter.write(pathToExe.getText());
+            myWriter.write("\n");
+            myWriter.write(portToServer.getText());
+            myWriter.close();
+
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("SUCCESSFULLY SAVED");
+            alert.setHeaderText("Settings were successfully saved");
+
+            ImageView icon = new ImageView(String.valueOf(GUI.class.getResource("success.png")));
+            icon.setFitHeight(48);
+            icon.setFitWidth(48);
+
+            alert.getDialogPane().setGraphic(icon);
+            alert.show();
+
+        } catch (IOException e) {
+            gui.alert(e);
+            System.err.println("settings were not saved");
+            e.printStackTrace();
+        }
     }
 }

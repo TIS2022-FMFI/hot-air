@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="EXE">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/src/server/EXE/EXE.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

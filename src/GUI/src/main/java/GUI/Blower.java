@@ -33,7 +33,7 @@ public class Blower {
         this.currentTemp = currentTemp;
         this.targetTemp = targetTemp;
         this.project = project;
-//        this.link = new Hyperlink(IPAddress + "/settings");  // todo debug
+//        this.link = new Hyperlink(IPAddress + "/settings");  // todo na debug
         this.link = new Hyperlink("https://www.google.sk/");
         this.link.setOnAction(event -> {
             try {

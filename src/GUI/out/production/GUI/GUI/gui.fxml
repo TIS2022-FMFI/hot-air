@@ -160,7 +160,7 @@
                      <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="10.0">
                         <children>
                            <Label minWidth="30.0" text="path" />
-                           <TextField fx:id="settingsPath" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefHeight="25.0" prefWidth="700.0" HBox.hgrow="ALWAYS" />
+                           <TextField fx:id="pathToExe" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefHeight="25.0" prefWidth="700.0" HBox.hgrow="ALWAYS" />
                            <Button fx:id="searchBtn3" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#searchEXE" prefHeight="27.0" prefWidth="27.0">
                               <graphic>
                                  <ImageView fitHeight="23.0" fitWidth="23.0">
@@ -178,7 +178,7 @@
                      <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="10.0">
                         <children>
                            <Label minWidth="30.0" text="port" />
-                           <TextField fx:id="settingsPort" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefHeight="25.0" prefWidth="689.0" HBox.hgrow="ALWAYS" />
+                           <TextField fx:id="portToServer" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefHeight="25.0" prefWidth="689.0" HBox.hgrow="ALWAYS" />
                         </children>
                         <padding>
                            <Insets bottom="5.0" left="10.0" right="5.0" top="5.0" />
