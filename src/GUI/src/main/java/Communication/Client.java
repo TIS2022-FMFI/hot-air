@@ -9,6 +9,7 @@ import javafx.application.Platform;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.ConnectException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
@@ -158,11 +159,24 @@ public class Client extends Thread {
         }
     }
 
-    private static RequestResult.Controller getController(byte[] o) throws ClassNotFoundException, IOException {
-        try (ByteArrayInputStream bin = new ByteArrayInputStream(o); ObjectInput in = new ObjectInputStream(bin)) {
-            return (RequestResult.Controller) in.readObject();
-        }
+    private RequestResult.Controller getController() throws ClassNotFoundException, IOException {
+        InetAddress ip = InetAddress.getByAddress(readMessage());
+        RequestResult.Controller c = new RequestResult.Controller(ip);
+        c.setID(readStringMessage());
+        c.setCurrentTemperature(ByteBuffer.wrap(readMessage()).getFloat());
+        c.setTargetTemperature(ByteBuffer.wrap(readMessage()).getInt());
+        c.setAirFlow(ByteBuffer.wrap(readMessage()).getShort());
+        c.setTime(ByteBuffer.wrap(readMessage()).getLong());
+        c.setProjectName(readStringMessage());
+        return c;
     }
+
+
+//    private static RequestResult.Controller getController(byte[] o) throws ClassNotFoundException, IOException {
+//        try (ByteArrayInputStream bin = new ByteArrayInputStream(o); ObjectInput in = new ObjectInputStream(bin)) {
+//            return (RequestResult.Controller) in.readObject();
+//        }
+//    }
 
     /**
      * Await exceptions and resolve them
@@ -196,7 +210,7 @@ public class Client extends Thread {
                         int numberOfControllers = ByteBuffer.wrap(readMessage()).getInt();
                         RequestResult.Controller[] res = new RequestResult.Controller[numberOfControllers];
                         for (int i = 0; i < numberOfControllers; i++) {
-                            res[i] = getController(readMessage());
+                            res[i] = getController();
                         }
                         RequestResult.getInstance().setControllers(res);
                         RequestResult.getInstance().notify();
@@ -218,7 +232,7 @@ public class Client extends Thread {
                 }
             } catch (SocketException e) {
                 try {
-                    System.err.println("Server disconnected, stopping connection");
+                    System.err.println("Disconnected, stopping connection");
                     stopConnection();
                 } catch (IOException ex) {
                     ex.printStackTrace();

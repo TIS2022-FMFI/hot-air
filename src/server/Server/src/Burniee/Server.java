@@ -7,6 +7,7 @@ import Burniee.Communication.UDPCommunicationHandler;
 import Burniee.Project.Project;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.LinkedList;
 import java.util.List;
