@@ -65,6 +65,8 @@ public class GUI extends Application {
 
             this.stage = stage;
 
+            System.out.println("GUI successfully started");
+
         } catch (Exception e) {
             System.err.println(e);
             alert(e);
