@@ -87,6 +87,7 @@ public class ControllerHandler extends Thread {
      * Stop controller after big red button has been pressed
      */
     public void bigRedButton() throws IOException {
+        System.out.println("Big Red Button Function");
         socket.writeMessage(new Message(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) 0b10000000}, true));
     }
 

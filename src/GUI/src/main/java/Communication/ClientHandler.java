@@ -138,6 +138,7 @@ public class ClientHandler {
      * Stop controller(Blower) with this ID
      */
     public void stopAController(String ID) throws IOException {
+        System.out.println("Stop this controller button");
         if (!client.isConnected()) {
             throw new ConnectException("Disconnected from server");
         }
