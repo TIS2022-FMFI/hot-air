@@ -1,5 +1,7 @@
 package Communication;
 
+import GUI.Project;
+
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketException;
@@ -159,6 +161,20 @@ public class ClientHandler {
             RequestResult rr = RequestResult.getInstance();
             rr.wait();
             res = rr.getControllers();
+        }
+        return res;
+    }
+
+    public Project[] getAllProjects() throws IOException, InterruptedException {
+        if (!client.isConnected()) {
+            throw new ConnectException("Disconnected from server");
+        }
+        client.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutProjects.build()));
+        Project[] res;
+        synchronized (RequestResult.getInstance()) {
+            RequestResult rr = RequestResult.getInstance();
+            rr.wait();
+            res = rr.getProjects();
         }
         return res;
     }

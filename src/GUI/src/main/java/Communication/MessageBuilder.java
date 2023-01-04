@@ -91,6 +91,13 @@ public class MessageBuilder {
                 public static byte[] build() {return new byte[]{GUI.ID, Request.ID, ID};}
                 public static boolean equals(byte[] msg) {return Arrays.equals(msg, new byte[]{GUI.ID, Request.ID, ID});}
             }
+
+            public static class GetInfoAboutProjects {
+                private static final byte ID = 'e'+3;
+
+                public static byte[] build() {return new byte[]{GUI.ID, Request.ID, ID};}
+                public static boolean equals(byte[] msg) {return Arrays.equals(msg, new byte[]{GUI.ID, Request.ID, ID});}
+            }
         }
         public static class Exception {
             private static final byte ID = 'b';
@@ -105,7 +112,7 @@ public class MessageBuilder {
     }
 
     public static class Controller {
-        private static final byte ID = 'c';
+        private static final byte ID = (byte) 128;
 
         public static byte[] build() {
             return new byte[]{ID};

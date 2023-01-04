@@ -5,7 +5,7 @@ package GUI;
  */
 public class Project {
     private String name;
-    private float time;
+    private long time;
     private String currentPhase;
 
     /**
@@ -15,7 +15,7 @@ public class Project {
      * @param time         the time passed
      * @param currentPhase the current phase
      */
-    public Project(String name, float time, String currentPhase) {
+    public Project(String name, long time, String currentPhase) {
         this.name = name;
         this.time = time;
         this.currentPhase = currentPhase;
@@ -44,7 +44,7 @@ public class Project {
      *
      * @return the time
      */
-    public float getTime() {
+    public long getTime() {
         return time;
     }
 
@@ -53,7 +53,7 @@ public class Project {
      *
      * @param time the time
      */
-    public void setTime(float time) {
+    public void setTime(long time) {
         this.time = time;
     }
 

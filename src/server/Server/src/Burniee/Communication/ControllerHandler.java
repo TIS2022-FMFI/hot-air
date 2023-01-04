@@ -20,11 +20,6 @@ public class ControllerHandler extends Thread {
         Server.getInstance().addController(this);
         socket = sh;
         controller = new Controller(ip);
-//        try {
-//            changeControllerParameters(1, (short) 2, 3);
-//        } catch (IOException e){
-//            e.printStackTrace();
-//        }
     }
 
     public boolean isActive() {

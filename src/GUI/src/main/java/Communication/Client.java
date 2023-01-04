@@ -1,5 +1,11 @@
 package Communication;
 
+import Communication.serverExceptions.ControllerException;
+import Communication.serverExceptions.ProjectException;
+import Communication.serverExceptions.XMLException;
+import GUI.Project;
+import javafx.application.Platform;
+
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.ConnectException;
@@ -129,11 +135,25 @@ public class Client extends Thread {
         return clientSocket.isConnected() && !clientSocket.isClosed();
     }
 
-    private static Exception getException(String className, byte[] stackTrace) throws NoSuchMethodException, ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException, IOException {
-        Class<? extends Exception> c = (Class<? extends Exception>) Class.forName(className);
-        Exception e = c.getConstructor().newInstance();
+    private static Exception getException(String className, String message, byte[] stackTrace) throws NoSuchMethodException, ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException, IOException {
+        Class<? extends Exception> c;
+        try {
+            c = (Class<? extends Exception>) Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            if (className.contains("ControllerException")) {
+                c = ControllerException.class;
+            } else if (className.contains("ProjectException")) {
+                c = ProjectException.class;
+            } else if (className.contains("XMLException")) {
+                c = XMLException.class;
+            } else {
+                c = Exception.class;
+            }
+        }
+        Exception e = c.getConstructor(String.class).newInstance(message);
         try (ByteArrayInputStream bin = new ByteArrayInputStream(stackTrace); ObjectInput in = new ObjectInputStream(bin)) {
             e.setStackTrace((StackTraceElement[]) in.readObject());
+            e.printStackTrace();
             return e;
         }
     }
@@ -159,8 +179,8 @@ public class Client extends Thread {
             try {
                 msg = readMessage();
                 if (MessageBuilder.GUI.Exception.equals(msg)) {
-                    Exception e = getException(readStringMessage(), readMessage());
-                    GUI.GUI.gui.alert(e);
+                    Exception e = getException(readStringMessage(), readStringMessage(), readMessage());
+                    Platform.runLater(() -> {GUI.GUI.gui.alert(e);});
                 } else if (MessageBuilder.GUI.Request.NumberOfProjects.equals(msg)) {
                     synchronized (RequestResult.getInstance()) {
                         RequestResult.getInstance().setIntData(ByteBuffer.wrap(readMessage()).getInt());
@@ -179,6 +199,20 @@ public class Client extends Thread {
                             res[i] = getController(readMessage());
                         }
                         RequestResult.getInstance().setControllers(res);
+                        RequestResult.getInstance().notify();
+                    }
+                } else if (MessageBuilder.GUI.Request.GetInfoAboutProjects.equals(msg)) {
+                    synchronized (RequestResult.getInstance()) {
+                        int numberOfProjects = ByteBuffer.wrap(readMessage()).getInt();
+                        Project[] res = new Project[numberOfProjects];
+                        for (int i = 0; i < numberOfProjects; i++) {
+                            String projectID = readStringMessage();
+                            long time = ByteBuffer.wrap(readMessage()).getLong();
+                            String phase = readStringMessage();
+                            Project p = new Project(projectID, time, phase);
+                            res[i] = p;
+                        }
+                        RequestResult.getInstance().setProjects(res);
                         RequestResult.getInstance().notify();
                     }
                 }

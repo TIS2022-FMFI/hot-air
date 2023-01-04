@@ -14,6 +14,7 @@ import java.util.*;
 public class Project {
     private final List<ActiveController> controllers;
     private final String ID;
+    private long startedAt;
 
     public Project(String pathToXML, String id) throws ControllerException, XMLException, ParserConfigurationException, IOException, SAXException {
         HashMap<String, List<String>> script = XMLAnalyzer.XMLtoCommands(pathToXML);
@@ -36,6 +37,7 @@ public class Project {
     }
 
     public void begin() {
+        startedAt = System.nanoTime();
         Server.getInstance().addProject(this);
         for (ActiveController i : controllers) {
             if (!i.isAlive()) {
@@ -49,6 +51,8 @@ public class Project {
     }
 
     public String getID() {return ID;}
+    public long getTimeSinceStart() {return System.nanoTime()-startedAt;}
+    public String getPhaseName() {return String.valueOf(controllers.get(0).getPhaseNumber());}
 
     public void confirmEndOfPhaseForAllControllers() {
         for (ActiveController controller : controllers) {
