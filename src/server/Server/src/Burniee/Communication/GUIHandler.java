@@ -79,6 +79,7 @@ public class GUIHandler extends Thread {
                 } else if (MessageBuilder.GUI.Request.SearchForNewControllers.equals(msg)) {
                     UDPCommunicationHandler.sendUDPPacket(UDPCommunicationHandler.LOOKING_FOR_CONTROLLERS_MESSAGE, UDPCommunicationHandler.getBroadcastAddresses());
                 } else if (MessageBuilder.GUI.Request.BigRedButton.equals(msg)) {
+                    System.out.println("BIG RED BUTTON MESSAGE received");
                     for (ControllerHandler ch : Server.getInstance().getControllers()) {
                         ch.bigRedButton();
                     }
@@ -86,6 +87,7 @@ public class GUIHandler extends Thread {
                         p.end();
                     }
                 } else if (MessageBuilder.GUI.Request.StopThisController.equals(msg)) {
+                    System.out.println("Stop Controller Message Received");
                     String ID = socket.readStringMessage();
                     for (ControllerHandler ch : Server.getInstance().getControllers()) {
                         if (ch.getControllerID().equals(ID)) {
