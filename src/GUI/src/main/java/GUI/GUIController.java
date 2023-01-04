@@ -44,8 +44,6 @@ public class GUIController implements Initializable {
     private int numberOfBlowers = 0;
     private int numberOfProjects = 0;
 
-//    final Hyperlink[] links;
-
     @FXML TextField filePath;
     @FXML TextField filePath2;
     @FXML TextField pathToExe;
@@ -78,7 +76,6 @@ public class GUIController implements Initializable {
 //            // todo na debug
 //            numberOfBlowers = 10;
 //            numberOfProjects = 2;
-//            links = new Hyperlink[numberOfBlowers];
         } catch (IOException | InterruptedException e) {
             gui.alert(e);
         }
@@ -123,14 +120,12 @@ public class GUIController implements Initializable {
             BufferedReader reader = new BufferedReader(new FileReader(config));
             String path = reader.readLine();
             String port = reader.readLine();
-            System.out.println("path " + path);
-            System.out.println("port " + port);
             if (path != null && !path.isEmpty()) pathToExe.setText(path);
             if (port != null && !port.isEmpty()) portToServer.setText(port);
             reader.close();
 
         } catch (IOException e) {
-            System.out.println("An error occurred.");
+            System.err.println("An error occurred.");
             e.printStackTrace();
         }
 
@@ -170,11 +165,11 @@ public class GUIController implements Initializable {
                 button.setOnAction(a -> {
                     Blower b = getItem();
                     try {
-                        gui.client.stopAController(b.getId());
                         System.out.println("blower " + b.getId() + " stopped");
+                        gui.client.stopAController(b.getId());
                     } catch (Exception e) {
-                        gui.alert(e);
                         System.err.println("blower " + b.getId() + " could not be stopped");
+                        gui.alert(e);
                     }
                 });
                 button.setFont(Font.font("Arial", FontWeight.BOLD, 11.0));
@@ -213,12 +208,17 @@ public class GUIController implements Initializable {
             try {
                 RequestResult.Controller[] controllers = gui.client.getAllControllers();
                 for (RequestResult.Controller c : controllers) {
-                    Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), "project 1");
-//                    Blower blower = new Blower("1.2.3.4", ("id" + i), 0, 50, "project 1");
+                    String projectName = c.getProjectName();
+                    if (projectName.contains("\\")) {
+                        projectName = projectName.substring(projectName.lastIndexOf("\\")+1);
+                    }
+                    Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), projectName);
                     blowers.add(blower);
                 }
             }
             catch (IOException | InterruptedException e) {
+                // todo log
+                System.err.println("blowers were not loaded from server");
                 return blowers ;
             }
         }
@@ -226,14 +226,17 @@ public class GUIController implements Initializable {
         return blowers ;
     }
 
-    private List<Project> addProjects() {
-        List<Project> projects = new ArrayList<Project>();
-
-        for (int i = 0; i<numberOfProjects; i++) {
-            projects.add(new Project(("Project "+i), 0, "phase0"));
+    private Project[] addProjects() {
+        try {
+            Project[] projects = gui.client.getAllProjects();
+            return projects;
         }
-
-        return projects ;
+        catch (IOException | InterruptedException e) {
+            // todo log
+            System.err.println("projects were not loaded from server");
+            Project[] projects = {};
+            return projects;
+        }
     }
 
     /**
@@ -334,21 +337,21 @@ public class GUIController implements Initializable {
 
     public void scanBlowers(ActionEvent actionEvent) {
         try {
-            gui.client.searchForNewControllers();
             System.out.println("Search for new blowers was successful");
+            gui.client.searchForNewControllers();
         } catch (Exception e) {
-            gui.alert(e);
             System.err.println("Search for new blowers was not successful");
+            gui.alert(e);
         }
     }
 
     public void stopAllBlowers(ActionEvent actionEvent) {
         try {
-            gui.client.stopAllControllers();
             System.out.println("blowers were stopped successfully");
+            gui.client.stopAllControllers();
         } catch (Exception e) {
-            gui.alert(e);
             System.err.println("blowers could not be stopped");
+            gui.alert(e);
         }
     }
 
@@ -360,6 +363,7 @@ public class GUIController implements Initializable {
             writer.write(portToServer.getText());
             writer.close();
 
+            System.out.println("settings were successfully saved");
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("SUCCESSFULLY SAVED");
             alert.setHeaderText("Settings were successfully saved");
@@ -372,9 +376,9 @@ public class GUIController implements Initializable {
             alert.show();
 
         } catch (IOException e) {
-            gui.alert(e);
             System.err.println("settings were not saved");
             e.printStackTrace();
+            gui.alert(e);
         }
     }
 }
