@@ -143,6 +143,7 @@ public class Server {
     }
 
     public List<Project> getActiveProjects() {return activeProjects;}
+    public List<GUIHandler> getAllGUIS() {return activeGUIs;}
 
     /**
      * An exception has arrisen in server or other parts, and we will attempt to send it to any active GUI

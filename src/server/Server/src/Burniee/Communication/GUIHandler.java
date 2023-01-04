@@ -56,6 +56,10 @@ public class GUIHandler extends Thread {
         socket.writeMessage(new Message(exception));
     }
 
+    public void updateTemperature() throws IOException {
+        socket.writeMessage(new Message(MessageBuilder.GUI.Request.TemperatureChanged.build()));
+    }
+
     @Override
     public void run() {
         byte[] msg;
