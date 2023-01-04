@@ -1,5 +1,6 @@
 package GUI;
 
+import Communication.RequestResult;
 import XML.XMLEditor;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
@@ -37,17 +38,13 @@ import java.util.ResourceBundle;
  */
 public class GUIController implements Initializable {
 
-    private Desktop desktop = Desktop.getDesktop();
     final FileChooser fileChooser = new FileChooser();
     final DirectoryChooser directoryChooser = new DirectoryChooser();
     private GUI gui = GUI.gui;
     private int numberOfBlowers = 0;
     private int numberOfProjects = 0;
 
-    final WebView browser = new WebView();
-    final WebEngine webEngine = browser.getEngine();
-    final Hyperlink[] links;
-    final static String url = "https://www.google.sk/";
+//    final Hyperlink[] links;
 
     @FXML TextField filePath;
     @FXML TextField filePath2;
@@ -75,16 +72,16 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Project,String> project_phase;
 
     public GUIController() {
-//        try {
-//            numberOfBlowers = gui.client.getNumberOfControllers();
-//            numberOfProjects = gui.client.getNumberOfProjects();
-            // todo na debug
-            numberOfBlowers = 10;
-            numberOfProjects = 2;
-            links = new Hyperlink[numberOfBlowers];
-//        } catch (IOException | InterruptedException e) {
-//            gui.alert(e);
-//        }
+        try {
+            numberOfBlowers = gui.client.getNumberOfControllers();
+            numberOfProjects = gui.client.getNumberOfProjects();
+//            // todo na debug
+//            numberOfBlowers = 10;
+//            numberOfProjects = 2;
+//            links = new Hyperlink[numberOfBlowers];
+        } catch (IOException | InterruptedException e) {
+            gui.alert(e);
+        }
 
     }
 
@@ -213,8 +210,17 @@ public class GUIController implements Initializable {
         List<Blower> blowers = new ArrayList<Blower>();
 
         for (int i = 0; i<numberOfBlowers; i++) {
-            Blower blower = new Blower("1.2.3.4", ("id" + i), 0, 50, "project 1");
-            blowers.add(blower);
+            try {
+                RequestResult.Controller[] controllers = gui.client.getAllControllers();
+                for (RequestResult.Controller c : controllers) {
+                    Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), "project 1");
+//                    Blower blower = new Blower("1.2.3.4", ("id" + i), 0, 50, "project 1");
+                    blowers.add(blower);
+                }
+            }
+            catch (IOException | InterruptedException e) {
+                return blowers ;
+            }
         }
 
         return blowers ;
@@ -238,7 +244,6 @@ public class GUIController implements Initializable {
     public void searchXML(ActionEvent actionEvent) {
         blowersInfo.setText("");
         projectsInfo.setText("");
-
 
         System.out.println("Search XML file button clicked");
         File file = fileChooser.showOpenDialog(gui.getStage());
@@ -293,7 +298,7 @@ public class GUIController implements Initializable {
                 throw exception;
             }
 
-            XMLEditor.addPath(filePath.getText(), pathToExe.getText()); // todo path k .exe
+            XMLEditor.addPath(filePath.getText(), pathToExe.getText());
             System.out.println("File successfully loaded");
 
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -313,7 +318,6 @@ public class GUIController implements Initializable {
         } catch (IllegalArgumentException | ParserConfigurationException | IOException | SAXException | TransformerException | XMLLoadException e) {
             System.err.println("Error loading file");
             // todo zapisat do logov
-//            Logger.getLogger( GUI.class.getName()).log( Level.SEVERE, null, e ); ?
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("ERROR LOADING");
             alert.setHeaderText("Error loading file");
@@ -350,11 +354,11 @@ public class GUIController implements Initializable {
 
     public void saveSettings(ActionEvent actionEvent) {
         try {
-            FileWriter myWriter = new FileWriter("GUIconfig.txt");
-            myWriter.write(pathToExe.getText());
-            myWriter.write("\n");
-            myWriter.write(portToServer.getText());
-            myWriter.close();
+            FileWriter writer = new FileWriter("GUIconfig.txt");
+            writer.write(pathToExe.getText());
+            writer.write("\n");
+            writer.write(portToServer.getText());
+            writer.close();
 
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("SUCCESSFULLY SAVED");

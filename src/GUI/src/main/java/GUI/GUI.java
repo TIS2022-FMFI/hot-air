@@ -2,6 +2,8 @@ package GUI;
 
 import Communication.ClientHandler;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -9,6 +11,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +49,13 @@ public class GUI extends Application {
 
             scene.getStylesheets().add(css);
 
+            stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                @Override
+                public void handle(WindowEvent t) {
+                    Platform.exit();
+                    System.exit(0);
+                }
+            });
             stage.setScene(scene);
             stage.setTitle("BURNIEE");
             stage.getIcons().add(new Image(Objects.requireNonNull(GUI.class.getResourceAsStream("boge_icon.jpg"))));
@@ -59,7 +69,6 @@ public class GUI extends Application {
             System.err.println(e);
             alert(e);
             // todo zapisat do logov
-
         }
 
     }
@@ -91,9 +100,7 @@ public class GUI extends Application {
         try {
             File config = new File("GUIconfig.txt");
             if (config.createNewFile()) {
-                System.out.println("File created: " + config.getName());
-            } else {
-                System.out.println("File already exists.");
+                System.out.println("Config file created");
             }
         } catch (IOException e) {
             System.err.println("An error occurred.");
