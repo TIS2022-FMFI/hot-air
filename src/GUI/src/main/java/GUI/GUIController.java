@@ -1,5 +1,6 @@
 package GUI;
 
+import Communication.RequestResult;
 import XML.XMLEditor;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
@@ -46,7 +47,7 @@ public class GUIController implements Initializable {
 
     final WebView browser = new WebView();
     final WebEngine webEngine = browser.getEngine();
-    final Hyperlink[] links;
+//    final Hyperlink[] links;
     final static String url = "https://www.google.sk/";
 
     @FXML TextField filePath;
@@ -75,16 +76,16 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Project,String> project_phase;
 
     public GUIController() {
-//        try {
-//            numberOfBlowers = gui.client.getNumberOfControllers();
-//            numberOfProjects = gui.client.getNumberOfProjects();
-            // todo na debug
-            numberOfBlowers = 10;
-            numberOfProjects = 2;
-            links = new Hyperlink[numberOfBlowers];
-//        } catch (IOException | InterruptedException e) {
-//            gui.alert(e);
-//        }
+        try {
+            numberOfBlowers = gui.client.getNumberOfControllers();
+            numberOfProjects = gui.client.getNumberOfProjects();
+//            // todo na debug
+//            numberOfBlowers = 10;
+//            numberOfProjects = 2;
+//            links = new Hyperlink[numberOfBlowers];
+        } catch (IOException | InterruptedException e) {
+            gui.alert(e);
+        }
 
     }
 
@@ -213,10 +214,19 @@ public class GUIController implements Initializable {
         List<Blower> blowers = new ArrayList<Blower>();
 
         for (int i = 0; i<numberOfBlowers; i++) {
-            Blower blower = new Blower("1.2.3.4", ("id" + i), 0, 50, "project 1");
-            blowers.add(blower);
-        }
+            try {
+                RequestResult.Controller[] controllers = gui.client.getAllControllers();
+                for (RequestResult.Controller c : controllers) {
+                    Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), "project 1");
+                    blowers.add(blower);
+                }
+    //            Blower blower = new Blower("1.2.3.4", ("id" + i), 0, 50, "project 1");
+            }
+            catch (IOException | InterruptedException e) {
+                return blowers ;
+            }
 
+        }
         return blowers ;
     }
 
@@ -350,11 +360,11 @@ public class GUIController implements Initializable {
 
     public void saveSettings(ActionEvent actionEvent) {
         try {
-            FileWriter myWriter = new FileWriter("GUIconfig.txt");
-            myWriter.write(pathToExe.getText());
-            myWriter.write("\n");
-            myWriter.write(portToServer.getText());
-            myWriter.close();
+            FileWriter writer = new FileWriter("GUIconfig.txt");
+            writer.write(pathToExe.getText());
+            writer.write("\n");
+            writer.write(portToServer.getText());
+            writer.close();
 
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("SUCCESSFULLY SAVED");
