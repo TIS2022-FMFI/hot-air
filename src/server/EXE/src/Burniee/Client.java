@@ -113,7 +113,6 @@ public class Client {
      */
     public void sendMessage(byte[] msg, boolean stayConnected) throws IOException {
         writeMessage(new Message(msg));
-//        System.out.println("Message delivered!");
         if (!stayConnected) {
             stopConnection();
         }
@@ -143,31 +142,18 @@ public class Client {
         }
         File file = new File(pathToXmlThatIsToBeSent);
         sendMessage(file.getName());
-//        byte[] buffer = new byte[4096];
-//        BufferedInputStream input = new BufferedInputStream(Files.newInputStream(file.toPath()));
         byte[] bytes = Files.readAllBytes(file.toPath());
-//        BufferedOutputStream output = new BufferedOutputStream(clientSocket.getOutputStream());
-
-//        int count;
-//        while ((count = input.read(buffer, 0, buffer.length)) != -1) {
-//            System.out.println(count);
-//            output.write(buffer, 0, count);
-//        }
         sendMessage(bytes);
 
-//        input.close();
-//        output.close();
         stopConnection();
     }
 
     /**
      * Inform server that a project segment has come to an end
-     * @param nameOfBlock name of said block
      * @param pathToXml id by which we will distinguish projects
      */
-    public void performEndOfSegment(String nameOfBlock, String pathToXml) throws IOException {
+    public void performEndOfSegment(String pathToXml) throws IOException {
         sendMessage(MessageBuilder.EXE.EndOfSegment.build());
-        sendMessage(nameOfBlock);
         sendMessage(pathToXml, false);
     }
 
