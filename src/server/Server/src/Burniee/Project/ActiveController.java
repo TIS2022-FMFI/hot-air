@@ -17,11 +17,13 @@ public class ActiveController extends Thread {
     private static final byte AIR_FLOW = 100;
     private boolean endOfPhaseConfirmed, waitingForConfirmation;
     private static final long END_OF_PHASE_CONFIRMATION_TIMEOUT_IN_MILLIS = 5000;
+    private int phaseNumber;
 
     public ActiveController(ControllerHandler handler, Queue<AbstractMap.SimpleEntry<Integer, Long>> queue, Project project) {
         this.handler = handler;
         this.jobQueue = queue;
         this.project = project;
+        phaseNumber = 0;
     }
 
     public void confirmEndOfPhase() {
@@ -31,12 +33,15 @@ public class ActiveController extends Thread {
         }
     }
 
+    public int getPhaseNumber() {return phaseNumber;}
+
     @Override
     public void run() {
         try {
             long startTime, jobTime;
             int temperature;
             for (AbstractMap.SimpleEntry<Integer, Long> i : jobQueue) {
+                phaseNumber++;
                 if (!handler.isActive()) {break;}
                 endOfPhaseConfirmed = false;
                 waitingForConfirmation = false;

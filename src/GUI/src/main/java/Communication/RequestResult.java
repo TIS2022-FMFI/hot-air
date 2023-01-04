@@ -1,5 +1,7 @@
 package Communication;
 
+import GUI.Project;
+
 import java.net.InetAddress;
 import java.util.List;
 
@@ -11,6 +13,7 @@ public class RequestResult {
     private int intData;
     private String stringData;
     private Controller[] controllers;
+    private Project[] projects;
 
     public int getIntData() {return intData;}
     public void setIntData(int intData) {this.intData = intData;}
@@ -20,6 +23,9 @@ public class RequestResult {
 
     public Controller[] getControllers() {return controllers;}
     public void setControllers(Controller[] controllers) {this.controllers = controllers;}
+
+    public Project[] getProjects() {return projects;}
+    public void setProjects(Project[] projects) {this.projects = projects;}
 
     public static class Controller {
         private final InetAddress IP;

@@ -10,6 +10,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +23,8 @@ public class Server {
     public static Server getInstance() {return INSTANCE;}
 
     private ServerSocket serverSocket;
-    public final static int PORT = 4002;
+    public static int PORT = 4002;
+    public final static String CONFIG_FILE_NAME = "server.config";
 
     private final List<GUIHandler> activeGUIs = new LinkedList<>();
     private final List<ControllerHandler> controllers = new LinkedList<>();
@@ -32,6 +34,23 @@ public class Server {
      * Constructor, find port and initialize TCP socket
      */
     private Server() {
+        Properties prop = new Properties();
+        File f = new File(CONFIG_FILE_NAME);
+        if (f.exists()) {
+            try (FileInputStream fis = new FileInputStream(f.getName())) {
+                prop.load(fis);
+                PORT = Integer.parseInt(prop.getProperty("PORT"));
+                System.out.println("New PORT = " + PORT);
+            } catch (IOException ignored) {}
+        } else {
+            try (FileOutputStream fos = new FileOutputStream(f.getName())) {
+                prop.setProperty("PORT", "4002");
+                prop.store(fos, null);
+                System.out.println("File created");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         try {
             serverSocket = new ServerSocket(PORT);
         } catch (IOException e) {
@@ -40,7 +59,7 @@ public class Server {
             return;
         }
         UDPCommunicationHandler.getInstance().start();
-        System.out.println("Connection established!");
+        System.out.println("Server started!");
     }
 
     /**
@@ -132,6 +151,7 @@ public class Server {
         th.printStackTrace();
         try {
             String c = th.getClass().getCanonicalName();
+            String msg = th.getMessage();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oo = new ObjectOutputStream(baos);
             oo.writeObject(th.getStackTrace());
@@ -142,7 +162,7 @@ public class Server {
                     toRemove.add(gui);
                     continue;
                 }
-                gui.sendException(c, exception);
+                gui.sendException(c, msg, exception);
             }
             for (GUIHandler gui : toRemove) {
                 removeGUI(gui);

@@ -3,6 +3,7 @@ package Burniee.Communication;
 import Burniee.Controller.Controller;
 import Burniee.Controller.ControllerException;
 import Burniee.Project.Project;
+import Burniee.Project.ProjectException;
 import Burniee.Server;
 
 import java.io.ByteArrayOutputStream;
@@ -34,9 +35,10 @@ public class GUIHandler extends Thread {
         return bao.toByteArray();
     }
 
-    public void sendException(String className, byte[] exception) throws IOException {
+    public void sendException(String className, String message, byte[] exception) throws IOException {
         socket.writeMessage(new Message(MessageBuilder.GUI.Exception.build()));
         socket.writeMessage(new Message(className.getBytes(StandardCharsets.UTF_8)));
+        socket.writeMessage(new Message(message.getBytes(StandardCharsets.UTF_8)));
         socket.writeMessage(new Message(exception));
     }
 
@@ -85,10 +87,17 @@ public class GUIHandler extends Thread {
                         Controller c = ch.getController();
                         socket.writeMessage(new Message(getObjectBytes(c)));
                     }
+                } else if (MessageBuilder.GUI.Request.GetInfoAboutProjects.equals(msg)) {
+                    socket.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutProjects.build()));
+                    socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getActiveProjects().size()).array()));
+                    for (Project p : Server.getInstance().getActiveProjects()) {
+                        socket.writeMessage(new Message(p.getID().getBytes()));
+                        socket.writeMessage(new Message(ByteBuffer.allocate(8).putLong(p.getTimeSinceStart()).array()));
+                        socket.writeMessage(new Message(p.getPhaseName().getBytes()));
+                    }
                 }
             } catch (SocketException e) {
-                socket.stopSocket();
-                Server.getInstance().sendExceptionToAllActiveGUIs(e);
+                socket.stopSocket(); //log it
             } catch (Exception e) {
                 Server.getInstance().sendExceptionToAllActiveGUIs(e);
             }
