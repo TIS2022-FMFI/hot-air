@@ -72,7 +72,6 @@ public class GUIController implements Initializable {
 
     public GUIController() {
         try {
-            guiController = this;
             numberOfBlowers = gui.client.getNumberOfControllers();
             numberOfProjects = gui.client.getNumberOfProjects();
 //            // todo na debug
@@ -86,6 +85,7 @@ public class GUIController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        guiController = this;
 
         filePath.setTooltip(new Tooltip("Enter path to xml file or search the file by clicking the search button."));
         filePath2.setTooltip(new Tooltip("Enter path to xml file or search the file by clicking the search button."));
@@ -203,43 +203,50 @@ public class GUIController implements Initializable {
     }
 
     public void updateTable() {
-        blowersView.getItems().clear();
-        projectsView.getItems().clear();
+        if (!blowersView.getItems().isEmpty())
+            blowersView.getItems().clear();
+        if (!projectsView.getItems().isEmpty())
+            projectsView.getItems().clear();
         blowersView.getItems().addAll(addBlowers());
         projectsView.getItems().addAll(addProjects());
     }
 
     private List<Blower> addBlowers() {
-        List<Blower> blowers = new ArrayList<Blower>();
+        System.out.println("add blowers");
 
-        for (int i = 0; i<numberOfBlowers; i++) {
-            try {
+        List<Blower> blowers = new ArrayList<Blower>();
+        try {
+            for (int i = 0; i < gui.client.getNumberOfControllers() ; i++) {
+                System.out.println("getNumberOfControllers zbehlo");
                 RequestResult.Controller[] controllers = gui.client.getAllControllers();
+                System.out.println("getAllControllers zbehlo");
                 for (RequestResult.Controller c : controllers) {
-                    String projectName = c.getProjectName();
+                    String projectName = (c.getProjectName() == null) ? "" : c.getProjectName() ;
                     if (projectName.contains("\\")) {
                         projectName = projectName.substring(projectName.lastIndexOf("\\")+1);
                     }
                     Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), projectName);
                     blowers.add(blower);
                 }
+                System.out.println("controllers prerobene na blowers ");
             }
-            catch (IOException | InterruptedException e) {
-                // todo log
-                System.err.println("blowers were not loaded from server");
-                return blowers ;
-            }
+        } catch (Exception e) {
+            // todo log
+            System.err.println("blowers were not loaded from server");
         }
 
         return blowers ;
+
     }
 
     private Project[] addProjects() {
+        System.out.println("add projects");
         try {
             Project[] projects = gui.client.getAllProjects();
+            System.out.println("getAllProjects zbehlo");
             return projects;
         }
-        catch (IOException | InterruptedException e) {
+        catch (Exception e) {
             // todo log
             System.err.println("projects were not loaded from server");
             Project[] projects = {};
@@ -288,7 +295,7 @@ public class GUIController implements Initializable {
      */
     public void searchEXE(ActionEvent actionEvent) {
         System.out.println("Search EXE path button clicked");
-        File file = directoryChooser.showDialog(gui.getStage());
+        File file = fileChooser.showOpenDialog(gui.getStage());
         if (file != null) {
             pathToExe.setText(file.getPath());
         }

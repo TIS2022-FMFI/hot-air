@@ -24,7 +24,6 @@ import java.util.Objects;
 public class GUI extends Application {
 
     public static GUI gui;
-    private GUIController guiController = GUIController.guiController;
     private Stage stage;
     public ClientHandler client;
 
@@ -67,6 +66,7 @@ public class GUI extends Application {
             this.stage = stage;
 
             System.out.println("GUI successfully started");
+
 
         } catch (Exception e) {
             System.err.println(e);
@@ -112,7 +112,12 @@ public class GUI extends Application {
     }
 
     public void refresh() {
-        guiController.updateTable();
+        if (GUIController.guiController != null){
+            System.out.println("refresh was successful");
+            GUIController.guiController.updateTable();
+        } else {
+            System.err.println("refresh was not successful");
+        }
     }
 
 }
