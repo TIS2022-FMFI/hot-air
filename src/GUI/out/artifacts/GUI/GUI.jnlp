@@ -8,11 +8,7 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-<<<<<<< HEAD
-    <jar href="GUI.jar" size="205203" download="eager" />
-=======
-    <jar href="GUI.jar" size="205200" download="eager" />
->>>>>>> 79a1c4b37b2330e0b983b45c9c96d24888133dad
+    <jar href="GUI.jar" size="205262" download="eager" />
   </resources>
   <jfx:javafx-desc  width="600" height="400" main-class="GUI.GUI"  name="GUI" />
   <update check="background"/>
