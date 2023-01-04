@@ -45,7 +45,7 @@ public class ActiveController extends Thread {
                 startTime = System.nanoTime();
                 handler.changeControllerParameters(temperature, AIR_FLOW, jobTime);
                 try {
-                    sleep(jobTime);
+                    sleep(jobTime*1000);
                 } catch (InterruptedException e) {
                     project.end();
                     return; // TODO test if this can only happen with big red button and make a note in logs that this happened

@@ -1,0 +1,41 @@
+.scene {
+    -fx-background-color: white;
+}
+
+.button {
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+}
+
+.button:hover, .button:focused, .button:selected {
+    -fx-border-color: red;
+    -fx-background-insets: 0;
+}
+
+#stopBtn {
+    -fx-background-color: rgba(255, 0, 0, 0.25);
+}
+
+#stopAllBtn {
+    -fx-background-color: rgba(255, 0, 0, 0.50);
+}
+
+.text-field {
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+}
+
+.text-field:focused, .text-field:selected  {
+    -fx-border-color: black;
+    -fx-background-insets: 0;
+}
+
+.tab-pane:focused>.tab-header-area>.headers-region>.tab:selected .focus-indicator {
+    -fx-border-color: #000000;
+}
+
+/* na transpaerntne buttony */
+/*#submitBtn, #submitBtn2 {*/
+/*    -fx-background-color: transparent;*/
+/*}*/
+
