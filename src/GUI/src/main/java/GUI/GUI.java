@@ -110,4 +110,8 @@ public class GUI extends Application {
         }
     }
 
+    public void refresh() {
+        
+    }
+
 }
