@@ -101,8 +101,8 @@ public class ControllerHandler extends Thread {
                 msg = socket.readMessage(true);
                 byte flags = msg[15];
                 if (flags == 0b0000010) {
-                    System.out.println("New ID arrived");
                     controller.setID(resolveId(msg));
+                    System.out.println("New ID arrived = " + controller.getID());
                 } else if ((flags&0b00000001) == 1) {
                     if ((flags&0b00000100) > 0) {
                         throw new ControllerException("Temperature cannot be read");

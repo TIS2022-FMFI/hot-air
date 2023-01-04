@@ -96,7 +96,11 @@ public class Client extends Thread {
      */
     private String readStringMessage() throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        out.write(readMessage());
+        byte[] res = readMessage();
+        if (res.length == 1 && res[0] == 0) {
+            return null;
+        }
+        out.write(res);
         return out.toString();
     }
 
