@@ -214,11 +214,11 @@ public class GUIController implements Initializable {
                 RequestResult.Controller[] controllers = gui.client.getAllControllers();
                 for (RequestResult.Controller c : controllers) {
                     Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), "project 1");
-//                    Blower blower = new Blower("1.2.3.4", ("id" + i), 0, 50, "project 1");
                     blowers.add(blower);
                 }
             }
             catch (IOException | InterruptedException e) {
+                // todo log
                 return blowers ;
             }
         }
@@ -226,14 +226,16 @@ public class GUIController implements Initializable {
         return blowers ;
     }
 
-    private List<Project> addProjects() {
-        List<Project> projects = new ArrayList<Project>();
-
-        for (int i = 0; i<numberOfProjects; i++) {
-            projects.add(new Project(("Project "+i), 0, "phase0"));
+    private Project[] addProjects() {
+        try {
+            Project[] projects = gui.client.getAllProjects();
+            return projects;
         }
-
-        return projects ;
+        catch (IOException | InterruptedException e) {
+            // todo log
+            Project[] projects = {};
+            return projects;
+        }
     }
 
     /**
