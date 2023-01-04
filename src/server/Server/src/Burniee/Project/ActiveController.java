@@ -23,6 +23,7 @@ public class ActiveController extends Thread {
         this.handler = handler;
         this.jobQueue = queue;
         this.project = project;
+        handler.getController().setProjectName(project.getID());
         phaseNumber = 0;
     }
 
@@ -34,6 +35,11 @@ public class ActiveController extends Thread {
     }
 
     public int getPhaseNumber() {return phaseNumber;}
+
+    public void end() {
+        handler.getController().setProjectName(null);
+        project.end();
+    }
 
     @Override
     public void run() {
@@ -52,7 +58,7 @@ public class ActiveController extends Thread {
                 try {
                     sleep(jobTime*1000);
                 } catch (InterruptedException e) {
-                    project.end();
+                    end();
                     return; // TODO test if this can only happen with big red button and make a note in logs that this happened
 //                    e.printStackTrace();
 //                    while (System.nanoTime() - startTime < jobTime) {
@@ -71,7 +77,7 @@ public class ActiveController extends Thread {
                         if (!endOfPhaseConfirmed) {
                             System.err.println("Phase end confirmation not received");
                             handler.bigRedButton();
-                            project.end();
+                            end();
                             throw new ProjectException("Server did not receive end of phase confirmation");
                         }
                     } catch (InterruptedException ignored) {}
@@ -80,7 +86,7 @@ public class ActiveController extends Thread {
         } catch (Exception e) {
             Server.getInstance().sendExceptionToAllActiveGUIs(e);
         } finally {
-            project.end();
+            end();
         }
     }
 }

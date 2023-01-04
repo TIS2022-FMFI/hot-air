@@ -34,10 +34,12 @@ public class RequestResult {
         private int targetTemperature;
         private short airFlow;
         private long time;
+        private String projectName;
 
-        public Controller(InetAddress ip) {
-            IP = ip;
-        }
+        public Controller(InetAddress ip) {IP = ip;}
+
+        public String getProjectName() {return projectName;}
+        public void setProjectName(String projectName) {this.projectName = projectName;}
 
         public short getAirFlow() {return airFlow;}
         public void setAirFlow(short airFlow) {this.airFlow = airFlow;}

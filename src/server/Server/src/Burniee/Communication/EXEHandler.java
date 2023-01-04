@@ -25,7 +25,7 @@ public class EXEHandler extends Thread {
                     p.begin();
                     socket.stopSocket();
                 } else if (MessageBuilder.EXE.EndOfSegment.equals(msg)) {
-                    String segmentName = socket.readStringMessage(), id = socket.readStringMessage();
+                    String id = socket.readStringMessage();
                     for (Project p : Server.getInstance().getActiveProjects()) {
                         if (p.getID().equals(id)) {
                             p.confirmEndOfPhaseForAllControllers();
