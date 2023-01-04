@@ -42,7 +42,11 @@ public class GUIHandler extends Thread {
         socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(c.getTargetTemperature()).array()));
         socket.writeMessage(new Message(ByteBuffer.allocate(2).putShort(c.getAirFlow()).array()));
         socket.writeMessage(new Message(ByteBuffer.allocate(8).putLong(c.getTime()).array()));
-        socket.writeMessage(new Message(c.getProjectName().getBytes()));
+        if (c.getProjectName() == null) {
+            socket.writeMessage(new Message(new byte[]{(byte)0}));
+        } else {
+            socket.writeMessage(new Message(c.getProjectName().getBytes()));
+        }
     }
 
     public void sendException(String className, String message, byte[] exception) throws IOException {
