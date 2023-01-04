@@ -31,6 +31,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -199,6 +202,9 @@ public class GUIController implements Initializable {
             new PropertyValueFactory<>("currentPhase"));
 
         updateTable();
+
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(this::updateTable, 0, 10, TimeUnit.SECONDS);
 
     }
 
