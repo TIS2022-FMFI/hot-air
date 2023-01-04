@@ -24,6 +24,7 @@ import java.util.Objects;
 public class GUI extends Application {
 
     public static GUI gui;
+    private GUIController guiController = GUIController.guiController;
     private Stage stage;
     public ClientHandler client;
 
@@ -111,7 +112,7 @@ public class GUI extends Application {
     }
 
     public void refresh() {
-        
+        guiController.updateTable();
     }
 
 }

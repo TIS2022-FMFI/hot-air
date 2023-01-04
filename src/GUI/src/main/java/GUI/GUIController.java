@@ -41,6 +41,7 @@ public class GUIController implements Initializable {
     final FileChooser fileChooser = new FileChooser();
     final DirectoryChooser directoryChooser = new DirectoryChooser();
     private GUI gui = GUI.gui;
+    public static GUIController guiController;
     private int numberOfBlowers = 0;
     private int numberOfProjects = 0;
 
@@ -71,6 +72,7 @@ public class GUIController implements Initializable {
 
     public GUIController() {
         try {
+            guiController = this;
             numberOfBlowers = gui.client.getNumberOfControllers();
             numberOfProjects = gui.client.getNumberOfProjects();
 //            // todo na debug
@@ -196,9 +198,15 @@ public class GUIController implements Initializable {
         project_phase.setCellValueFactory(
             new PropertyValueFactory<>("currentPhase"));
 
+        updateTable();
+
+    }
+
+    public void updateTable() {
+        blowersView.getItems().clear();
+        projectsView.getItems().clear();
         blowersView.getItems().addAll(addBlowers());
         projectsView.getItems().addAll(addProjects());
-
     }
 
     private List<Blower> addBlowers() {
