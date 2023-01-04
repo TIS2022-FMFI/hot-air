@@ -112,10 +112,13 @@ public class ControllerHandler extends Thread {
                         throw new ControllerException("DAC not found");
                     }
                     if ((flags&0b00010000) > 0) {
-                        throw new ControllerException("All is well"); //TODO -> inform GUI that controller is still working
+//                        throw new ControllerException("All is well"); //TODO -> inform GUI that controller is still working
                     }
                     byte[] temp = new byte[] {msg[11], msg[12], msg[13], msg[14]};
                     controller.setCurrentTemperature(ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getFloat());
+                    for (GUIHandler guiHandler : Server.getInstance().getAllGUIS()) {
+                        guiHandler.updateTemperature();
+                    }
                 } else {
                     throw new ControllerException("Unknown message" + Arrays.toString(msg));
                 }
