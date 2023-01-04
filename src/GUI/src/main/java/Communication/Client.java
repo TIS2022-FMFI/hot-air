@@ -3,6 +3,7 @@ package Communication;
 import Communication.serverExceptions.ControllerException;
 import Communication.serverExceptions.ProjectException;
 import Communication.serverExceptions.XMLException;
+import GUI.GUI;
 import GUI.Project;
 import javafx.application.Platform;
 
@@ -198,7 +199,7 @@ public class Client extends Thread {
                 msg = readMessage();
                 if (MessageBuilder.GUI.Exception.equals(msg)) {
                     Exception e = getException(readStringMessage(), readStringMessage(), readMessage());
-                    Platform.runLater(() -> {GUI.GUI.gui.alert(e);});
+                    Platform.runLater(() -> {GUI.gui.alert(e);});
                 } else if (MessageBuilder.GUI.Request.NumberOfProjects.equals(msg)) {
                     synchronized (RequestResult.getInstance()) {
                         RequestResult.getInstance().setIntData(ByteBuffer.wrap(readMessage()).getInt());
@@ -233,6 +234,8 @@ public class Client extends Thread {
                         RequestResult.getInstance().setProjects(res);
                         RequestResult.getInstance().notify();
                     }
+                } else if (MessageBuilder.GUI.Request.TemperatureChanged.equals(msg)) {
+                    GUI.gui.refresh();
                 }
             } catch (SocketException e) {
                 try {
