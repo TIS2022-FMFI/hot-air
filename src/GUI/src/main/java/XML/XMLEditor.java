@@ -30,18 +30,20 @@ public class XMLEditor {
         NodeList blocks = doc.getElementsByTagName("B");
         Node block = blocks.item(0);
 
-        Node actions = getChildNodeWithTag(block);
+        Node actions = getChildNodeWithTag(block, "ACTIONS");
         if (actions == null){
             Element a = doc.createElement("ACTIONS");
             block.appendChild(a);
             actions = block.getLastChild();
         }
 
-        Element e = doc.createElement("COM");
-        e.setAttribute("APP", pathToExe + "%" + xmlPath + "%");
-        e.setAttribute("CMD", "RUNAPP");
-        e.setAttribute("PARAMS", "%" + xmlPath + "%");
-        actions.appendChild(e);
+        if (getChildNodeWithTag(actions, "COM") == null){
+            Element e = doc.createElement("COM");
+            e.setAttribute("APP", pathToExe + "%" + xmlPath + "%");
+            e.setAttribute("CMD", "RUNAPP");
+            e.setAttribute("PARAMS", "%" + xmlPath + "%");
+            actions.appendChild(e);
+        }
 
         for (int i = 1; i < blocks.getLength(); i++){
             block = blocks.item(i);
@@ -49,14 +51,21 @@ public class XMLEditor {
             if (! name.contains("$")){
                 block.getAttributes().getNamedItem("NAME").setNodeValue(name + "#blower_id1$temperature#blower_id2$temperature");
             }
-            Element a = doc.createElement("ACTIONS");
-            block.appendChild(a);
-            actions = block.getLastChild();
-            e = doc.createElement("COM");
-            e.setAttribute("APP", pathToExe + "%" + xmlPath + "%");
-            e.setAttribute("CMD", "RUNAPP");
-            e.setAttribute("PARAMS", "%" + xmlPath + "%");
-            actions.appendChild(e);
+
+            actions = getChildNodeWithTag(block, "ACTIONS");
+            if (actions == null){
+                Element a = doc.createElement("ACTIONS");
+                block.appendChild(a);
+                actions = block.getLastChild();
+            }
+
+            if (getChildNodeWithTag(actions, "COM") == null){
+                Element e = doc.createElement("COM");
+                e.setAttribute("APP", pathToExe + "%" + "$" + xmlPath + "%");
+                e.setAttribute("CMD", "RUNAPP");
+                e.setAttribute("PARAMS", "%" + "$" + xmlPath + "%");
+                actions.appendChild(e);
+            }
         }
 
 
@@ -64,13 +73,13 @@ public class XMLEditor {
         writeXml(doc, output);
     }
 
-    private static Node getChildNodeWithTag(Node parent) {
+    private static Node getChildNodeWithTag(Node parent, String tagName) {
         NodeList children = parent.getChildNodes();
 
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if (child.getNodeType() == Node.ELEMENT_NODE && child.getNodeName().equals("ACTIONS")) {
+            if (child.getNodeType() == Node.ELEMENT_NODE && child.getNodeName().equals(tagName)) {
                 return child;
             }
         }

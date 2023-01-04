@@ -16,6 +16,7 @@ import java.util.*;
 public class XMLAnalyzer {
     static HashMap<String, String> waveforms = new HashMap<>();
     static HashMap<String, HashMap<String, List<String>>> subroutines = new HashMap<>();
+    private static Set<String> blowers = new HashSet<>();
 
     public static HashMap<String, List<String>> XMLtoCommands(String xmlPath)
             throws ParserConfigurationException, IOException, SAXException {
@@ -26,11 +27,30 @@ public class XMLAnalyzer {
 
         setWaveforms(doc);
         setSubroutines(doc);
+        blowers = allBlowers(doc);
 
         Element firstChild = getFirstElemChild(doc.getDocumentElement());
         if (firstChild != null) return getThreadTimeAndTemp(firstChild);
 
         return new HashMap<>();
+    }
+
+    public static Set<String> getAllBlowers(String xmlPath)
+            throws ParserConfigurationException, IOException, SAXException {
+        File file = new File(xmlPath);
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document doc = db.parse(file);
+        return allBlowers(doc);
+    }
+
+    public static String getProjectName(String xmlPath)
+            throws ParserConfigurationException, IOException, SAXException {
+        File file = new File(xmlPath);
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document doc = db.parse(file);
+        return doc.getDocumentElement().getAttributeNode("NAME").getNodeValue();
     }
 
     private static void setWaveforms(Document doc){
@@ -56,6 +76,9 @@ public class XMLAnalyzer {
                 throw new NumberFormatException("Incorrect temperature value in block: "
                         + block.getAttributes().getNamedItem("NAME"));
             }
+        }
+        for (String blower : blowers){
+            result.putIfAbsent(blower, "0");
         }
         try {
             Element gen = getFirstElemChild(Objects.requireNonNull(getFirstElemChild(block)));
@@ -150,5 +173,20 @@ public class XMLAnalyzer {
             }
         }
         return null;
+    }
+
+    private static Set<String> allBlowers(Document doc){
+        Set<String> blowers = new HashSet<>();
+        NodeList blocks = doc.getElementsByTagName("B");
+
+        for (int i = 0; i < blocks.getLength(); i++){
+            Node block = blocks.item(i);
+            String[] name = block.getAttributes().getNamedItem("NAME").getNodeValue().split("#");
+            for (int j = 1; j < name.length; j++){
+                String[] s = name[j].split("\\$");
+                blowers.add(s[0]);
+            }
+        }
+        return blowers;
     }
 }
