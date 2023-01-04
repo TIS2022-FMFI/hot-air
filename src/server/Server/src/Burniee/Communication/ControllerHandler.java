@@ -120,7 +120,7 @@ public class ControllerHandler extends Thread {
                 }
             } catch (SocketException e) {
                 stopConnection();
-                Server.getInstance().sendExceptionToAllActiveGUIs(e);
+//                Server.getInstance().sendExceptionToAllActiveGUIs(e);
             } catch (Exception e) {
                 Server.getInstance().sendExceptionToAllActiveGUIs(e);
             }
