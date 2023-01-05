@@ -37,6 +37,9 @@ class Preferences {
       if (flags == 0xFF){
         erasureAll();
       }
+      //Serial.println("Preferences:");
+      //Serial.print("ID: ");
+      //Serial.write(getID(), 15);
     }
 
     bool isIPset(){
@@ -90,7 +93,7 @@ class Preferences {
       return EEPROM.readShort(addresses::PORT);
     }
 
-    bool setID(unsigned char id_name[]){
+    bool setID(char id_name[]){
       char c = 0;
       
       for (uint8_t i = 0; i < 16; i++){
@@ -110,8 +113,8 @@ class Preferences {
         return "";
       }
 
-      char id[16];
-      for (uint8_t i = 0; i < 16; i++){
+      char id[15];
+      for (uint8_t i = 0; i < 15; i++){
         id[i] = EEPROM.readChar(addresses::ID + i);
       }
       return id;

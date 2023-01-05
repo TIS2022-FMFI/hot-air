@@ -38,7 +38,6 @@ DFRobot_GP8403 dac(&Wire,0x5F);
 AsyncUDP udp;
 AsyncClient tcpClient;
 
-
 // flags for TCP
 enum controller_flags{SEND_TEMP = 0x01, ERROR_THERMO = 0x04, ERROR_DAC = 0x08, HEATING = 0x10};
 enum communication_flags{IM_CONTROLLER = 0x80, EMERGENCY_STOP = 0x80, NEW_ID = 0x02, SET_TEMPERATURE = 0x01};
@@ -61,14 +60,16 @@ IPAddress remote_serverIP(0,0,0,0); //IP for burnee server
 uint16_t SERVER_LISTENING_PORT = 4002;
 bool remote_server_conected = false;
 bool remote_server_connection_error = false;
+bool trying_connect_TCP = false;
+bool listening_for_UDP = false;
 
-// PID regulatro
-volatile float p_reg = 0;
-volatile float d_reg = 0;
-volatile float i_reg = 0;
+// PID regulator
+volatile float p_reg = 40;
+volatile float d_reg = 5;
+volatile float i_reg = 40;
 volatile int temp_reg = 0;
-volatile float alpha = 0;
-volatile int delaj = 100;
+volatile float alpha = 1000;
+volatile int delaj = 250;
 volatile float current_power = 0;
 volatile float suma = 0;
 
@@ -138,7 +139,11 @@ void setup()
   //                                 PREFERENCES
   //**************************************************************************
     memory = Preferences();
-
+    Serial.println("Preferences");
+    Serial.print("ID: ");
+    //Serial.write(memory.getID(), 15);
+    Serial.println("");
+    
   //**************************************************************************
   //                                 ETH
   //**************************************************************************
@@ -199,7 +204,7 @@ void setup()
   //**************************************************************************
   //                              DISCOVERY //todo
   //**************************************************************************
-tcpClient.connect(IPAddress(192,168,0,22), (uint16_t)4002);
+//tcpClient.connect(IPAddress(192,168,0,22), (uint16_t)4002);
 //  if (memory.isIPset() == false){
 //    
 //    Serial.println("waiting to be discovered by the server");
@@ -294,11 +299,34 @@ tcpClient.connect(IPAddress(192,168,0,22), (uint16_t)4002);
     Serial.println("\n\nonConnect successful! sending data...");
     remote_server_conected = true;
     remote_server_connection_error = false;
+    trying_connect_TCP = false;
     
-    char buffer[] = {(uint8_t)IM_CONTROLLER}; // send to server that Im controller not a GUI
-    tcpClient.add(buffer, sizeof(buffer), ASYNC_WRITE_FLAG_COPY);
+    char data[] = {(uint8_t)IM_CONTROLLER}; // send to server that Im controller not a GUI
+    tcpClient.add(data, sizeof(data), ASYNC_WRITE_FLAG_COPY);
      
     client->send();
+
+    char data_id[15] = {'i','d','1','\x00','\x00','\x00','\x00','\x00','\x00','\x00','\x00','\x00','\x00','\x00','\x00'};; //memory.getID();
+    //if (memory.isIDset() == false){
+    //  data_id = {'n','o','n','s','e','t','i','d','1','2','3','4','5','6','7'};
+    //}
+    
+    //char *c = memory.getID();
+    /*
+    for (int i = 0; i < 15; i++){
+      data_id[i] = c[i];
+    }
+    */
+    char buffer[16];
+    buffer[15] = communication_flags::NEW_ID;
+    for (uint8_t i = 0; i < 15; i++){
+      buffer[i] = data_id[i];
+    }
+    
+    tcpClient.add(buffer, sizeof(buffer), ASYNC_WRITE_FLAG_COPY);
+    
+    
+    
   },
   NULL
   );
@@ -332,20 +360,20 @@ tcpClient.connect(IPAddress(192,168,0,22), (uint16_t)4002);
 
     // debug only
     Serial.println("Buffer in HEX: ");
-    for (int i = 0; i < len - 1; i++){
+    for (int i = 0; i < len; i++){
       Serial.printf("%5d",i);
     }
     Serial.println("");
     
     char hex_string[5];
-    for (int i = 0; i < len - 1; i++){
+    for (int i = 0; i < len; i++){
       sprintf(hex_string, "%X", buffer[i]);
       Serial.printf("%5s", hex_string);
       Serial.print("");
     }
     
     Serial.println("");
-    for (int i = 0; i < len - 1; i++){
+    for (int i = 0; i < len; i++){
       Serial.printf("%5d",buffer[i]); // indexing
     }
     Serial.println("");
@@ -377,20 +405,30 @@ tcpClient.connect(IPAddress(192,168,0,22), (uint16_t)4002);
       if (temp > 0 && temp < 600){
         temp_reg = temp;
       }
+
+      if (air_flow > 0 && air_flow <= 100){
+        dac.outputSquare(air_flow * 100, 10000, 0, 100, 1);
+        
+      }
       
       Serial.printf("New settings:\nTime: %d\nAirFlow: %u\nTemperature: %u\n", time,air_flow,temp);
 
       // new ID
     } else if (buffer[15] == communication_flags::NEW_ID){
-      unsigned char new_id[15];
-      for (uint8_t i = 0; i < 16; i++){
-        new_id[i] = (unsigned char)buffer[i];
+      char new_id[15];
+      for (uint8_t i = 0; i < 15; i++){
+        new_id[i] = (char)buffer[i];
       }
       
       memory.setID(new_id);
-      
+      Serial.print("Got new ID: ");
+      Serial.write(new_id, 15);
+      Serial.println("");
+
+      // emergecy stop
     }else if (buffer[15] == communication_flags::EMERGENCY_STOP){
       temp_reg = 0;
+      Serial.println("\n\n\nEMERGENY STOP\n\n\n");
     }
     
     
@@ -428,6 +466,7 @@ tcpClient.connect(IPAddress(192,168,0,22), (uint16_t)4002);
   // - on failure to connect, right after the onError callback
   tcpClient.onDisconnect([](void * ctx_ptr, AsyncClient * client) {
     remote_server_conected = false;
+    trying_connect_TCP = false;
     Serial.println("\n\nonDisconnect socket disconnected!");
 
   },
@@ -436,7 +475,9 @@ tcpClient.connect(IPAddress(192,168,0,22), (uint16_t)4002);
 
   // Callback on error event
   tcpClient.onError([](void * ctx_ptr, AsyncClient * client, int8_t error) {
+    remote_server_conected = false;
     remote_server_connection_error = true;
+    trying_connect_TCP = false;
     Serial.printf("\n\nonError socket reported error %d\r\n", error);
 
   },
@@ -493,6 +534,10 @@ void udpListen(uint16_t port){
         
         remote_serverIP = packet.remoteIP();
 
+
+        //flags
+        remote_server_connection_error = false;
+        listening_for_UDP = false;
         
         //reply to the client
 
@@ -524,7 +569,6 @@ void pd_step()
     
     delay(delaj);
     if (temp_reg == 0) {
-      Serial.println(temperature);
       return;
     }
         
@@ -557,29 +601,16 @@ void pd_step()
     
 }
 
-
-void loop()
-{
-//  if (remote_server_conected == false){
-//    if (memory.isIPset() == true && remote_server_connection_error == false){
-//      // pripoj sa ku serveru bez hladania IP
-//      udpListen(0); // stop udp listener
-//      tcpClient.connect(memory.getIP(), memory.getPORT());
-//      
-//    } else {
-//      // hladaj server
-//      udpListen(memory.getPORT()); // start udp listener
-//      
-//    }
-//    
-//  }
-  
-  //pd_step();
-
-  if (last_send_temperature != temperature){
-    sendNewTempTCP();
-  }
-  
+void float2Bytes(float val,byte* bytes_array){
+  // Create union of shared memory space
+  union {
+    float float_variable;
+    byte temp_array[4];
+  } u;
+  // Overite bytes of union with float variable
+  u.float_variable = val;
+  // Assign bytes to input array
+  memcpy(bytes_array, u.temp_array, 4);
 }
 
 void sendNewTempTCP(){
@@ -592,18 +623,35 @@ void sendNewTempTCP(){
   //        └ IF 1 In progress
 
   
-  uint8_t data[16];
+  char data[16];
 
   // 2^104 padding
-  for (int i = 0; i <= 13; i++){
+  for (int i = 0; i < 11; i++){
     data[i] = 0;
   }
-  // 2^16 temperature
-  data[14] = ((uint16_t)temperature >> 8);
-  data[15] = (uint8_t)temperature;
+
+  union {
+    float float_variable;
+    byte temp_array[4];
+  } u;
+  // Overite bytes of union with float variable
+  u.float_variable = temperature;
+  // Assign bytes to input array
+  memcpy(&data[11], u.temp_array, 4);
+
+
+  /*
+  // 2^32 temperature
+  data[11] = ((uint8_t)temperature >> 32);
+  data[12] = ((uint8_t)temperature >> 16);
+  data[13] = ((uint8_t)temperature >> 8);
+  data[14] = (uint8_t)temperature;
+  */
   // 2^8 flag
   data[15] = controller_flags::SEND_TEMP; //+ flag 
 
+
+  tcpClient.write(data, sizeof(data), ASYNC_WRITE_FLAG_COPY);
 }
 
 
@@ -772,4 +820,34 @@ void setpd(AsyncWebServerRequest * request){
     Serial.println("po atoi");
     request->send(200, F("text/plain"), F("OK"));
     */
+}
+
+void loop()
+{
+  if (remote_server_conected == false){
+    Serial.printf("is IP set: %i Conn_err: %i Try to conn: %i UDPlis: %i", memory.isIPset(), remote_server_connection_error, trying_connect_TCP, listening_for_UDP);
+    if (/*memory.isIPset() == true &&*/ remote_server_connection_error == false && trying_connect_TCP == false && listening_for_UDP == false){
+      // pripoj sa ku serveru bez hladania IP
+      udpListen(0); // stop udp listener
+      tcpClient.connect(memory.getIP(), memory.getPORT());
+      trying_connect_TCP = true;
+      listening_for_UDP = false;
+      
+    } else if (((listening_for_UDP == false && remote_server_connection_error == true && trying_connect_TCP == false)) || memory.isIPset() == false) {
+      // hladaj server
+      udpListen(memory.getPORT()); // start udp listener
+      listening_for_UDP = true;
+    }
+    
+  }
+  
+  pd_step();
+
+  if (last_send_temperature != temperature){
+      sendNewTempTCP();
+      Serial.print("temp: ");
+      Serial.println(temperature);
+      last_send_temperature = temperature;
+  }
+  
 }
