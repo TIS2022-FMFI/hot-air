@@ -13,25 +13,16 @@ public class Client {
     private Socket clientSocket;
     private BufferedOutputStream out;
     private BufferedInputStream in;
-    private final static int PORT = 4002;
+    private int PORT;
     private final static byte[] SERVER_PASSWORD = new byte[]{'a', 'b', 'c', 'd'};
     private final String SERVER_IP;
 
     /**
-     * Connect to server using differentIp
-     * @param differentIp server ip
+     * Connect to server using this port
      * @throws ConnectException if connecting goes wrong
      */
-    public Client(String differentIp) throws ConnectException {
-        SERVER_IP = differentIp;
-        connectToServer(SERVER_IP);
-    }
-
-    /**
-     * Use UDP to find server ip
-     * @throws ConnectException if connecting goes wrong
-     */
-    public Client() throws ConnectException {
+    public Client(int port) throws ConnectException {
+        PORT = port;
         String IP = "";
         try {
             connectToServer("127.0.0.1");
@@ -42,6 +33,14 @@ public class Client {
         } finally {
             SERVER_IP = IP;
         }
+    }
+
+    /**
+     * Use UDP to find server ip
+     * @throws ConnectException if connecting goes wrong
+     */
+    public Client() throws ConnectException {
+        this(4002);
     }
 
     private void writeMessage(Message msg) throws IOException {
