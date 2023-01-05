@@ -65,8 +65,10 @@ public class GUIHandler extends Thread {
         byte[] msg;
         while (socket.isActive()) {
             try {
+                System.out.println("Message from GUI arrived");
                 msg = socket.readMessage();
                 if (MessageBuilder.GUI.Request.NumberOfControllers.equals(msg)) {
+                    System.out.println("NumberOfControllers");
                     socket.writeMessage(new Message(MessageBuilder.GUI.Request.NumberOfControllers.build()));
                     socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getControllers().size()).array()));
                 } else if (MessageBuilder.GUI.Request.NumberOfProjects.equals(msg)) {
@@ -101,6 +103,7 @@ public class GUIHandler extends Thread {
                     }
                     throw new ControllerException("No controller with ID = " + ID);
                 } else if (MessageBuilder.GUI.Request.GetInfoAboutControllers.equals(msg)) {
+                    System.out.println("GetInfoAboutControllers");
                     socket.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutControllers.build()));
                     socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getControllers().size()).array()));
                     for (ControllerHandler ch : Server.getInstance().getControllers()) {
@@ -109,6 +112,7 @@ public class GUIHandler extends Thread {
 //                        socket.writeMessage(new Message(getObjectBytes(c)));
                     }
                 } else if (MessageBuilder.GUI.Request.GetInfoAboutProjects.equals(msg)) {
+                    System.out.println("GetInfoAboutProjects");
                     socket.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutProjects.build()));
                     socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getActiveProjects().size()).array()));
                     for (Project p : Server.getInstance().getActiveProjects()) {
@@ -118,7 +122,7 @@ public class GUIHandler extends Thread {
                     }
                 }
             } catch (SocketException e) {
-                socket.stopSocket(); //log it
+                stopSocket();
             } catch (Exception e) {
                 Server.getInstance().sendExceptionToAllActiveGUIs(e);
             }

@@ -25,8 +25,8 @@ public class Controller {
     public void setID(String newID) {ID = newID;}
     public String getID() {return ID;}
 
-    public void setCurrentTemperature(float currentTemperature) {this.currentTemperature = currentTemperature;}
-    public float getCurrentTemperature() {return currentTemperature;}
+    public void setCurrentTemperature(float currentTemperature) {synchronized (this) {this.currentTemperature = currentTemperature;}}
+    public float getCurrentTemperature() {float temp;synchronized (this) {temp = currentTemperature;}return temp;}
 
     public int getTargetTemperature() {return targetTemperature;}
     public void setTargetTemperature(int targetTemperature) {this.targetTemperature = targetTemperature;}

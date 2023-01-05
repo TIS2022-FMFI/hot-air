@@ -11,6 +11,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ControllerHandler extends Thread {
     private final SocketHandler socket;
@@ -116,9 +119,6 @@ public class ControllerHandler extends Thread {
                     }
                     byte[] temp = new byte[] {msg[11], msg[12], msg[13], msg[14]};
                     controller.setCurrentTemperature(ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getFloat());
-                    for (GUIHandler guiHandler : Server.getInstance().getAllGUIS()) {
-                        guiHandler.updateTemperature();
-                    }
                 } else {
                     throw new ControllerException("Unknown message" + Arrays.toString(msg));
                 }
