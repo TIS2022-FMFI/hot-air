@@ -44,7 +44,7 @@ public class GUI extends Application {
 
             client = new ClientHandler();
             Parent root = FXMLLoader.load(Objects.requireNonNull(GUI.class.getResource("gui.fxml")));
-            Scene scene = new Scene(root, 810, 510);
+            Scene scene = new Scene(root, 815, 510);
             String css = Objects.requireNonNull(this.getClass().getResource("styles.css")).toExternalForm();
 
             scene.getStylesheets().add(css);
@@ -60,7 +60,7 @@ public class GUI extends Application {
             stage.setTitle("BURNIEE");
             stage.getIcons().add(new Image(Objects.requireNonNull(GUI.class.getResourceAsStream("boge_icon.jpg"))));
             stage.setMinHeight(310);
-            stage.setMinWidth(810);
+            stage.setMinWidth(815);
             stage.show();
 
             this.stage = stage;
