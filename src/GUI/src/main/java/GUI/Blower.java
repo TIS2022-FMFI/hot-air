@@ -23,8 +23,8 @@ public class Blower {
      *
      * @param IPAddress   the ip address
      * @param id          the id
-     * @param currentTemp the current temp
-     * @param targetTemp  the target temp
+     * @param currentTemp the current temperature
+     * @param targetTemp  the target temperature
      * @param project     the corresponding project
      */
     public Blower(String IPAddress, String id, float currentTemp, float targetTemp, String project) {
@@ -33,11 +33,12 @@ public class Blower {
         this.currentTemp = currentTemp;
         this.targetTemp = targetTemp;
         this.project = project;
-        this.link = new Hyperlink("http://" + IPAddress + "/control");
+        this.link = new Hyperlink(this.id);
         this.link.setOnAction(event -> {
             try {
-                System.out.println(link.getText());
-                Desktop.getDesktop().browse(new URI(this.link.getText()));
+                String url = "http://" + IPAddress + "/control";
+                System.out.println(url);
+                Desktop.getDesktop().browse(new URI(url));
             } catch (IOException | URISyntaxException e) {
                 // todo zapisat do logov
                 e.printStackTrace();
