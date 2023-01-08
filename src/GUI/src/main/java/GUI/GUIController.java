@@ -9,12 +9,14 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.xml.sax.SAXException;
 
@@ -23,10 +25,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  *  Gui controller.
@@ -170,13 +169,24 @@ public class GUIController implements Initializable {
                 button.setId("stopBtn");
                 button.setOnAction(a -> {
                     Blower b = getItem();
-                    try {
-                        System.out.println("blower " + b.getId() + " stopped");
-                        // todo debug
+
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("STOPPING BLOWER");
+                    alert.setHeaderText("Do you really want to stop blower " + b.getId() + "?");
+                    setAlertIcons(alert);
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get() == ButtonType.OK){
+                        try {
+                            System.out.println("blower " + b.getId() + " stopped");
+                            // todo debug
 //                        gui.client.stopAController(b.getId());
-                    } catch (Exception e) {
-                        System.err.println("blower " + b.getId() + " could not be stopped");
-                        gui.alert(e);
+                        } catch (Exception e) {
+                            System.err.println("blower " + b.getId() + " could not be stopped");
+                            gui.alert(e);
+                        }
+                    } else {
+                        System.out.println("blower " + b.getId() + " will not be stopped");
                     }
                 });
                 button.setFont(Font.font("Arial", FontWeight.BOLD, 11.0));
@@ -209,12 +219,23 @@ public class GUIController implements Initializable {
                 button.setId("stopBtn");
                 button.setOnAction(a -> {
                     Project p = getItem();
-                    try {
-                        System.out.println("project " + p.getName() + " stopped");
-                        // todo funkcia na stopnutie projektu
-                    } catch (Exception e) {
-                        System.err.println("project " + p.getName() + " could not be stopped");
-                        gui.alert(e);
+
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("STOPPING PROJECT");
+                    alert.setHeaderText("Do you really want to stop project " + p.getName() + "?");
+                    setAlertIcons(alert);
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get() == ButtonType.OK){
+                        try {
+                            System.out.println("project " + p.getName() + " stopped");
+                            // todo funkcia na stopnutie projektu
+                        } catch (Exception e) {
+                            System.err.println("project " + p.getName() + " could not be stopped");
+                            gui.alert(e);
+                        }
+                    } else {
+                        System.out.println("project " + p.getName() + " will not be stopped");
                     }
                 });
                 button.setFont(Font.font("Arial", FontWeight.BOLD, 11.0));
@@ -244,6 +265,15 @@ public class GUIController implements Initializable {
 //        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 //        scheduler.scheduleAtFixedRate(this::updateTable, 0, 10, TimeUnit.SECONDS);
 
+    }
+
+    private void setAlertIcons(Alert alert) {
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
+        ImageView icon = new ImageView(String.valueOf(GUI.class.getResource("question-mark.png")));
+        icon.setFitHeight(48);
+        icon.setFitWidth(48);
+        alert.getDialogPane().setGraphic(icon);
     }
 
     public void updateTable() {

@@ -19,14 +19,8 @@
 }
 
 .check-box:selected .mark {
-    /*-fx-background-color: #4ccff5;*/
     -fx-background-color: #28cbff;
 }
-
-/*.check-box:hover .box , .check-box:focused .box {*/
-/*    -fx-border-color: red;*/
-/*    -fx-background-insets: 0;*/
-/*}*/
 
 #stopAllBtn, #stopBtn {
     -fx-background-color: rgba(255, 48, 48, 0.73);

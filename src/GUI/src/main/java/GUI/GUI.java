@@ -92,6 +92,9 @@ public class GUI extends Application {
         alert.setHeaderText(e.getMessage());
         alert.setContentText(e.toString());
 
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
+
         ImageView icon = new ImageView(String.valueOf(GUI.class.getResource("error.png")));
         icon.setFitHeight(48);
         icon.setFitWidth(48);
