@@ -74,7 +74,7 @@ public class GUIController implements Initializable {
     @FXML TableView<Blower> blowersView;
     @FXML TableColumn<Blower,Hyperlink> blowerID;
     @FXML TableColumn<Blower,String> blowerIP;
-    @FXML TableColumn<Blower,Float> blowerCurrentTmp;
+    @FXML TableColumn<Blower,Hyperlink> blowerCurrentTmp;
     @FXML TableColumn<Blower,Float> blowerTargetTmp;
     @FXML TableColumn<Blower,String> blowerProject;
     @FXML TableColumn<Blower, Blower> blowerStop;
@@ -194,10 +194,8 @@ public class GUIController implements Initializable {
         blowerID.setSortType(TableColumn.SortType.ASCENDING);
         blowerID.setComparator((o2, o1) -> o2.getText().compareTo(o1.getText()));
         blowerID.setSortType(TableColumn.SortType.DESCENDING);
-
         blowerIP.setCellValueFactory(
                 new PropertyValueFactory<>("IPAddress"));
-
         blowerIP.setComparator(new Comparator<String>() {
             @Override
             public int compare(String o1 , String o2) {
@@ -212,15 +210,28 @@ public class GUIController implements Initializable {
                 return 0;
             }
         });
-
-        //ako string tj 1.1.111.1 < 1.1.5.1
-//        blowerIP.setComparator((o1, o2) -> o1.replaceAll("\\.", "").compareTo(o2.replaceAll("\\.", "")));
-//        blowerIP.setSortType(TableColumn.SortType.ASCENDING);
-//        blowerIP.setComparator((o2, o1) -> o2.replaceAll("\\.", "").compareTo(o1.replaceAll("\\.", "")));
-//        blowerIP.setSortType(TableColumn.SortType.DESCENDING);
-
         blowerCurrentTmp.setCellValueFactory(
-                new PropertyValueFactory<>("currentTemp"));
+                new PropertyValueFactory<>("graph"));
+        blowerCurrentTmp.setCellFactory(new Callback<TableColumn<Blower, Hyperlink>, TableCell<Blower, Hyperlink>>() {
+            @Override
+            public TableCell<Blower, Hyperlink> call(TableColumn<Blower, Hyperlink> param) {
+                return new TableCell<Blower, Hyperlink>() {
+                    @Override
+                    protected void updateItem(Hyperlink item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                        } else {
+                            setGraphic(item);
+                        }
+                    }
+                };
+            }
+        });
+        blowerCurrentTmp.setComparator((o1, o2) -> Float.valueOf(o1.getText()).compareTo(Float.valueOf(o2.getText())));
+        blowerCurrentTmp.setSortType(TableColumn.SortType.ASCENDING);
+        blowerCurrentTmp.setComparator((o2, o1) -> Float.valueOf(o2.getText()).compareTo(Float.valueOf(o1.getText())));
+        blowerCurrentTmp.setSortType(TableColumn.SortType.DESCENDING);
         blowerTargetTmp.setCellValueFactory(
                 new PropertyValueFactory<>("targetTemp"));
         blowerProject.setCellValueFactory(
@@ -282,7 +293,7 @@ public class GUIController implements Initializable {
                 imageView.setFitWidth(25);
                 imageView.setFitHeight(20);
                 button.setId("caution");
-                button.setVisible(getItem() != null && !getItem().getStopped());
+//                button.setVisible(getItem() != null && !getItem().getStopped());
                 button.setOnAction(a -> {
                     Blower b = getItem();
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -583,6 +594,8 @@ public class GUIController implements Initializable {
         try {
             System.out.println("Search for new blowers was successful");
             gui.client.searchForNewControllers();  // todo debug
+//            blowers.clear();  // todo
+//            blowers.addAll(addBlowers());
         } catch (Exception e) {
             System.err.println("Search for new blowers was not successful");
             gui.alert(e);

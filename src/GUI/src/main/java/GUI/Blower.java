@@ -1,6 +1,17 @@
 package GUI;
 
+import javafx.animation.AnimationTimer;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Hyperlink;
+import javafx.scene.image.Image;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import javax.swing.text.html.ImageView;
 import java.awt.*;
@@ -8,6 +19,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Class for blowers.
@@ -16,10 +30,14 @@ public class Blower {
     private String id;  // do 15 znakov, ascii,
     private String IPAddress;
     private float currentTemp;
+    private Hyperlink graph;
     private float targetTemp;
     private String project;
     private Hyperlink link;
     private Boolean stopped;
+
+    private int count = 0;
+
 //    private ImageView stopped;
 
     /**
@@ -35,6 +53,32 @@ public class Blower {
         this.IPAddress = IPAddress;
         this.id = id;
         this.currentTemp = currentTemp;
+        this.graph = new Hyperlink("" + this.currentTemp);
+        this.graph.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                LineChart<Number, Number> lineChart = new LineChart<>(new NumberAxis(), new NumberAxis());
+                XYChart.Series<Number, Number> series = new XYChart.Series<>();
+                series.setName("Blower " + getId());
+                lineChart.getData().add(series);
+
+                ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+                executor.scheduleAtFixedRate(() -> {
+                    series.getData().add(new XYChart.Data<>(count, Math.random()));
+                    count++;
+                }, 0, 2, TimeUnit.SECONDS);
+
+                Scene scene = new Scene(lineChart, 400, 300);
+                Stage newWindow = new Stage();
+                newWindow.setTitle("GRAPH " + id);
+                newWindow.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
+                newWindow.setScene(scene);
+                newWindow.setX(GUI.gui.getStage().getX() + 200);
+                newWindow.setY(GUI.gui.getStage().getY() + 100);
+                newWindow.show();
+            }
+        });
         this.targetTemp = targetTemp;
         this.project = project;
         this.link = new Hyperlink(this.id);
@@ -107,6 +151,24 @@ public class Blower {
     }
 
     /**
+     * Gets current link to graph.
+     *
+     * @return the link to graph
+     */
+    public Hyperlink getGraph() {
+        return graph;
+    }
+
+    /**
+     * Sets link to open the graph.
+     *
+     * @param graph the link to graph
+     */
+    public void setGraph(Hyperlink graph) {
+        this.graph = graph;
+    }
+
+    /**
      * Gets target temp.
      *
      * @return the target temp
@@ -160,11 +222,20 @@ public class Blower {
         this.link = link;
     }
 
-
+    /**
+     * Gets if blower is stopped.
+     *
+     * @return boolean if blower is stopped
+     */
     public Boolean getStopped() {
         return stopped;
     }
 
+    /**
+     * Sets if blower is stopped.
+     *
+     * @param stopped boolean if blower is stopped
+     */
     public void setStopped(Boolean stopped) {
         this.stopped = stopped;
     }
