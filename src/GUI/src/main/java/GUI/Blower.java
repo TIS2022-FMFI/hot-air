@@ -19,7 +19,8 @@ public class Blower {
     private float targetTemp;
     private String project;
     private Hyperlink link;
-    private ImageView stopped;
+    private Boolean stopped;
+//    private ImageView stopped;
 
     /**
      * Instantiates a new Blower.
@@ -47,6 +48,7 @@ public class Blower {
                 e.printStackTrace();
             }
         });
+        this.stopped = false;
 
     }
 
@@ -157,4 +159,27 @@ public class Blower {
     public void setLink(Hyperlink link) {
         this.link = link;
     }
+
+
+    public Boolean getStopped() {
+        return stopped;
+    }
+
+    public void setStopped(Boolean stopped) {
+        this.stopped = stopped;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Blower blower = (Blower) o;
+        return Objects.equals(id, blower.id) && Objects.equals(IPAddress, blower.IPAddress);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, IPAddress);
+    }
+
 }

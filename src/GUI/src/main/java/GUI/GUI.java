@@ -42,10 +42,10 @@ public class GUI extends Application {
         try {
             createGUIConfigFile();
 
-            client = new ClientHandler();   // todo debug
+//            client = new ClientHandler();   // todo debug
 
             Parent root = FXMLLoader.load(Objects.requireNonNull(GUI.class.getResource("gui.fxml")));
-            Scene scene = new Scene(root, 870, 510);
+            Scene scene = new Scene(root, 850, 510);
             String css = Objects.requireNonNull(this.getClass().getResource("styles.css")).toExternalForm();
 
             scene.getStylesheets().add(css);

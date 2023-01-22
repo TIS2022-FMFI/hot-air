@@ -13,6 +13,10 @@
     -fx-background-insets: 0;
 }
 
+.button#caution {
+    -fx-border-color: inherit;
+}
+
 .check-box .box {
     -fx-background-radius: 3;
     -fx-border-radius: 3;

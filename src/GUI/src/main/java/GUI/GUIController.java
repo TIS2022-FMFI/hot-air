@@ -3,6 +3,8 @@ package GUI;
 import Communication.RequestResult;
 import XML.XMLEditor;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -12,7 +14,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -20,6 +27,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.xml.sax.SAXException;
+import sun.security.krb5.KdcComm;
 
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -51,9 +59,6 @@ public class GUIController implements Initializable {
     @FXML Text projectsInfo;
     @FXML Text portInfo;
 
-    @FXML BorderPane blowers;
-    @FXML BorderPane projects;
-
     @FXML CheckBox  showID;
     @FXML CheckBox  showIP;
     @FXML CheckBox  showCurrentTmp;
@@ -73,7 +78,7 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Blower,Float> blowerTargetTmp;
     @FXML TableColumn<Blower,String> blowerProject;
     @FXML TableColumn<Blower, Blower> blowerStop;
-    @FXML TableColumn<Blower, String> blowerButtonStopped;
+    @FXML TableColumn<Blower, Blower> blowerButtonStopped;
 
     @FXML TableView<Project> projectsView;
     @FXML TableColumn<Project,String> projectName;
@@ -81,18 +86,20 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Project,String> projectPhase;
     @FXML TableColumn<Project,Project> projectStop;
 
-    public ArrayList<ImageView> cautionImages = new ArrayList<>();
+    ObservableList<Blower> blowers = FXCollections.observableArrayList();
+    ObservableList<Project> projects = FXCollections.observableArrayList();
 
     public GUIController() {
-        try {
-            numberOfBlowers = gui.client.getNumberOfControllers();
-            numberOfProjects = gui.client.getNumberOfProjects();
-//            // todo na debug
-//            numberOfBlowers = 10;
-//            numberOfProjects = 2;
-        } catch (IOException | InterruptedException e) {
-            gui.alert(e);
-        }
+        // todo na debug
+        numberOfBlowers = 10;
+        numberOfProjects = 2;
+
+//        try {
+//            numberOfBlowers = gui.client.getNumberOfControllers();
+//            numberOfProjects = gui.client.getNumberOfProjects();
+//        } catch (IOException | InterruptedException e) {
+//            gui.alert(e);
+//        }
 
     }
 
@@ -104,7 +111,12 @@ public class GUIController implements Initializable {
         setBlowersTable();
         setProjectsTable();
 
-        updateTable();
+        blowersView.setItems(blowers);
+        blowers.addAll(addBlowers());
+        projectsView.setItems(projects);
+        projects.addAll(addProjects());
+
+//        updateTable();
 
 //        blowersView.getColumns().forEach(column -> column.setMinWidth(30));
 
@@ -178,20 +190,41 @@ public class GUIController implements Initializable {
                 };
             }
         });
+        blowerID.setComparator((o1, o2) -> o1.getText().compareTo(o2.getText()));
+        blowerID.setSortType(TableColumn.SortType.ASCENDING);
+        blowerID.setComparator((o2, o1) -> o2.getText().compareTo(o1.getText()));
+        blowerID.setSortType(TableColumn.SortType.DESCENDING);
+
         blowerIP.setCellValueFactory(
                 new PropertyValueFactory<>("IPAddress"));
+
+        blowerIP.setComparator(new Comparator<String>() {
+            @Override
+            public int compare(String o1 , String o2) {
+                String[] v1 = o1.split("\\.");
+                String[] v2 = o2.split("\\.");
+                for (int i=0; i<v1.length; i++) {
+                    if (Integer.valueOf(v1[i]) < Integer.valueOf(v2[i]))
+                        return -1;
+                    if (Integer.valueOf(v1[i]) > Integer.valueOf(v2[i]))
+                        return 1;
+                }
+                return 0;
+            }
+        });
+
+        //ako string tj 1.1.111.1 < 1.1.5.1
+//        blowerIP.setComparator((o1, o2) -> o1.replaceAll("\\.", "").compareTo(o2.replaceAll("\\.", "")));
+//        blowerIP.setSortType(TableColumn.SortType.ASCENDING);
+//        blowerIP.setComparator((o2, o1) -> o2.replaceAll("\\.", "").compareTo(o1.replaceAll("\\.", "")));
+//        blowerIP.setSortType(TableColumn.SortType.DESCENDING);
+
         blowerCurrentTmp.setCellValueFactory(
                 new PropertyValueFactory<>("currentTemp"));
         blowerTargetTmp.setCellValueFactory(
                 new PropertyValueFactory<>("targetTemp"));
         blowerProject.setCellValueFactory(
                 new PropertyValueFactory<>("project"));
-//        blowerButtonStopped.setCellValueFactory(
-//                new PropertyValueFactory<>("project"));
-        blowerButtonStopped.setCellFactory(
-                column -> new CautionImage() {
-                }
-        );
         blowerStop.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue()));
         blowerStop.setCellFactory(column -> new TableCell<Blower, Blower>() {
             private Button button = new Button("STOP");
@@ -199,7 +232,6 @@ public class GUIController implements Initializable {
                 button.setId("stopBtn");
                 button.setOnAction(a -> {
                     Blower b = getItem();
-                    System.out.println(blowerButtonStopped.getCellFactory().toString());
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                     alert.setResizable(true);
                     alert.setTitle("STOPPING BLOWER");
@@ -209,8 +241,9 @@ public class GUIController implements Initializable {
                     Optional<ButtonType> result = alert.showAndWait();
                     if (result.get() == ButtonType.OK){
                         try {
+                            b.setStopped(true);
                             System.out.println("blower " + b.getId() + " stopped");
-                            gui.client.stopAController(b.getId());  // todo debug
+//                            gui.client.stopAController(b.getId());  // todo debug
                         } catch (Exception e) {
                             System.err.println("blower " + b.getId() + " could not be stopped");
                             gui.alert(e);
@@ -232,6 +265,60 @@ public class GUIController implements Initializable {
                     setGraphic(null);
                 } else {
                     setGraphic(button);
+                }
+            }
+        });
+//        blowerButtonStopped.setCellValueFactory(
+//                new PropertyValueFactory<>("project"));
+//        blowerButtonStopped.setCellFactory(
+//                column -> new CautionImage() {
+//                }
+//        );
+        blowerButtonStopped.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue()));
+        blowerButtonStopped.setCellFactory(column -> new TableCell<Blower, Blower>() {
+            private Button button = new Button("");
+            {
+                ImageView imageView = new ImageView(Objects.requireNonNull(getClass().getResource("caution.png")).toExternalForm());
+                imageView.setFitWidth(25);
+                imageView.setFitHeight(20);
+                button.setId("caution");
+                button.setVisible(getItem() != null && !getItem().getStopped());
+                button.setOnAction(a -> {
+                    Blower b = getItem();
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setResizable(true);
+                    alert.setTitle("RESUMING BLOWER");
+                    alert.setHeaderText("Do you really want to resume blower " + b.getId() + "?");
+                    setAlertIcons(alert);
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get() == ButtonType.OK){
+                        try {
+                            b.setStopped(false);
+                            System.out.println("blower " + b.getId() + " was resumed");
+//                            gui.client.stopAController(b.getId());  // todo debug
+                        } catch (Exception e) {
+                            System.err.println("blower " + b.getId() + " could not be resumed");
+                            gui.alert(e);
+                        }
+                    } else {
+                        System.out.println("blower " + b.getId() + " will not be resumed");
+                    }
+                });
+                button.setGraphic(imageView);
+                button.setStyle("-fx-background-color: transparent;");
+                button.setPrefWidth(25);
+                button.setPrefHeight(Region.USE_COMPUTED_SIZE);
+                button.setMinWidth(25);
+                button.setMaxHeight(Region.USE_COMPUTED_SIZE);
+            }
+
+            @Override
+            protected void updateItem(Blower item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
                     setGraphic(button);
                 }
             }
@@ -313,68 +400,68 @@ public class GUIController implements Initializable {
 
         List<Blower> blowers = new ArrayList<Blower>();
 //        todo debug
-//        Random random = new Random();
-//        for (int i = 0; i<numberOfBlowers; i++) {
-//            String ip1 = String.valueOf(random.nextInt(255));
-//            String ip2 = String.valueOf(random.nextInt(255));
-//            int temp1= random.nextInt(70);
-//            int temp2= random.nextInt(70);
-//            Blower blower = new Blower("192.165." + ip1 + "." + ip2, ("id" + i), temp1, temp2, "project 1");
-//            blowers.add(blower);
-//        }
+        Random random = new Random();
+        for (int i = 0; i<numberOfBlowers; i++) {
+            String ip1 = String.valueOf(random.nextInt(255));
+            String ip2 = String.valueOf(random.nextInt(255));
+            int temp1= random.nextInt(70);
+            int temp2= random.nextInt(70);
+            Blower blower = new Blower("192.165." + ip1 + "." + ip2, ("id" + i), temp1, temp2, "project 1");
+            blowers.add(blower);
+        }
 
 //        todo debug
-        try {
-            for (int i = 0; i < gui.client.getNumberOfControllers() ; i++) {
-                RequestResult.Controller[] controllers = gui.client.getAllControllers();
-                for (RequestResult.Controller c : controllers) {
-                    String projectName = (c.getProjectName() == null) ? "" : c.getProjectName() ; // todo project name z tagu v xml nie cesty !!
-                    if (projectName.contains("\\")) {
-                        projectName = projectName.substring(projectName.lastIndexOf("\\")+1);
-                    }
-                    Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), projectName);
-                    blowers.add(blower);
-                }
-            }
-        } catch (Exception e) {
-            // todo log
-            System.err.println("blowers were not loaded from server");
-        }
+//        try {
+//            for (int i = 0; i < gui.client.getNumberOfControllers() ; i++) {
+//                RequestResult.Controller[] controllers = gui.client.getAllControllers();
+//                for (RequestResult.Controller c : controllers) {
+//                    String projectName = (c.getProjectName() == null) ? "" : c.getProjectName() ; // todo project name z tagu v xml nie cesty !!
+//                    if (projectName.contains("\\")) {
+//                        projectName = projectName.substring(projectName.lastIndexOf("\\")+1);
+//                    }
+//                    Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), projectName);
+//                    blowers.add(blower);
+//                }
+//            }
+//        } catch (Exception e) {
+//            // todo log
+//            System.err.println("blowers were not loaded from server");
+//        }
 
         return blowers ;
 
     }
 
 //    todo debug
-//    private List<Project> addProjects() {
-//        List<Project> projects = new ArrayList<Project>();
-//
-//        Random random = new Random();
-//
-//        for (int i = 0; i<numberOfProjects; i++) {
-//            int time= random.nextInt(200);
-//            int phase= random.nextInt(5) + 1;
-//            projects.add(new Project(("Project "+i), time, "phase" + phase));
-//        }
-//
-//        return projects ;
-//    }
+    private List<Project> addProjects() {
+        List<Project> projects = new ArrayList<Project>();
+
+        Random random = new Random();
+
+        for (int i = 0; i<numberOfProjects; i++) {
+            int time= random.nextInt(200);
+            int phase= random.nextInt(5) + 1;
+            projects.add(new Project(("Project "+i), time, "phase" + phase));
+        }
+
+        return projects ;
+    }
 
 //    todo debug
-    private Project[] addProjects() {
-        System.out.println("add projects");
-        try {
-//            todo project name z tagu v xml nie cesty !!
-            Project[] projects = gui.client.getAllProjects();
-            return projects;
-        }
-        catch (Exception e) {
-            // todo log
-            System.err.println("projects were not loaded from server");
-            Project[] projects = {};
-            return projects;
-        }
-    }
+//    private Project[] addProjects() {
+//        System.out.println("add projects");
+//        try {
+////            todo project name z tagu v xml nie cesty !!
+//            Project[] projects = gui.client.getAllProjects();
+//            return projects;
+//        }
+//        catch (Exception e) {
+//            // todo log
+//            System.err.println("projects were not loaded from server");
+//            Project[] projects = {};
+//            return projects;
+//        }
+//    }
 
     /**
      * Search XML file.
