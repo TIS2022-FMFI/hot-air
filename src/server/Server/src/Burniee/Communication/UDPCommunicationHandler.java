@@ -19,6 +19,7 @@ public class UDPCommunicationHandler extends Thread {
 
     private static final UDPCommunicationHandler INSTANCE = new UDPCommunicationHandler();
     private UDPCommunicationHandler() {
+        System.out.println("[UDP] Attempting to start UDP socket");
         DatagramSocket s = null;
         for (int i = 0; i < 5; i++) {
             try {
@@ -26,15 +27,17 @@ public class UDPCommunicationHandler extends Thread {
                 break;
             } catch (IOException e) {
                 if (i == 4) {
-                    System.err.println("UDP socket failed to start, UDP discovery may not work");
+                    System.err.println("[UDP] socket failed to start, UDP discovery may not work"); //TODO try again later
+                    return;
                 } else {
-                    System.err.println("UDP socket failed to start, trying again");
+                    System.err.println("[UDP] socket failed to start, trying again");
                     try {
                         sleep(1500);
                     } catch (InterruptedException ignored) {}
                 }
             }
         }
+        System.out.println("[UDP] Socket started successfully");
         socket = s;
     }
     public static UDPCommunicationHandler getInstance() {return INSTANCE;}
@@ -100,11 +103,15 @@ public class UDPCommunicationHandler extends Thread {
                 if (socket == null) {
                     return;
                 }
+                System.out.println("[UDP] awaiting arrival of a packet");
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
+                System.out.println("[UDP] packet arrived");
 
                 if (areMessagesEqual(packet.getData(), LOOKING_FOR_SERVER_MESSAGE)) {
+                    System.out.println("[UDP] packet is looking for server");
                     sendUDPPacket(I_AM_THE_SERVER_MESSAGE, Collections.singletonList(packet.getAddress()));
+                    sendUDPPacket(I_AM_THE_SERVER_MESSAGE, getBroadcastAddresses()); //one of them will work
                 }
 
             } catch (IOException e) {

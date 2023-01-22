@@ -13,23 +13,23 @@ public class Controller {
 
     public Controller(InetAddress ip) {IP = ip;}
 
-    public String getProjectName() {return projectName;}
-    public void setProjectName(String projectName) {this.projectName = projectName;}
+    public synchronized String getProjectName() {return projectName;}
+    public synchronized void setProjectName(String projectName) {this.projectName = projectName;}
 
-    public short getAirFlow() {return airFlow;}
-    public void setAirFlow(short airFlow) {this.airFlow = airFlow;}
+    public synchronized short getAirFlow() {return airFlow;}
+    public synchronized void setAirFlow(short airFlow) {this.airFlow = airFlow;}
 
-    public long getTime() {return time;}
-    public void setTime(long time) {this.time = time;}
+    public synchronized long getTime() {return time;}
+    public synchronized void setTime(long time) {this.time = time;}
 
-    public void setID(String newID) {ID = newID;}
-    public String getID() {return ID;}
+    public synchronized void setID(String newID) {ID = newID;}
+    public synchronized String getID() {return ID;}
 
-    public void setCurrentTemperature(float currentTemperature) {synchronized (this) {this.currentTemperature = currentTemperature;}}
-    public float getCurrentTemperature() {float temp;synchronized (this) {temp = currentTemperature;}return temp;}
+    public synchronized void setCurrentTemperature(float currentTemperature) {this.currentTemperature = currentTemperature;}
+    public synchronized float getCurrentTemperature() {return currentTemperature;}
 
-    public int getTargetTemperature() {return targetTemperature;}
-    public void setTargetTemperature(int targetTemperature) {this.targetTemperature = targetTemperature;}
+    public synchronized int getTargetTemperature() {return targetTemperature;}
+    public synchronized void setTargetTemperature(int targetTemperature) {this.targetTemperature = targetTemperature;}
 
     public InetAddress getIP() {return IP;}
 }

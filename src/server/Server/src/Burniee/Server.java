@@ -68,7 +68,10 @@ public class Server {
      */
     public void begin() {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(() -> UDPCommunicationHandler.sendUDPPacket(UDPCommunicationHandler.LOOKING_FOR_CONTROLLERS_MESSAGE, UDPCommunicationHandler.getBroadcastAddresses()), 0, 3, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(() -> {
+                System.out.println("[UDP] Sending regular UDP discovery packet to broadcast");
+                UDPCommunicationHandler.sendUDPPacket(UDPCommunicationHandler.LOOKING_FOR_CONTROLLERS_MESSAGE, UDPCommunicationHandler.getBroadcastAddresses());
+            }, 0, 3, TimeUnit.MINUTES);
         while (!serverSocket.isClosed()) {
             try {
                 new SocketHandler(serverSocket.accept());
@@ -83,7 +86,7 @@ public class Server {
      * new GUI has connected to server
      * @param sh GUI
      */
-    public void addGUI(GUIHandler sh) {
+    public synchronized void addGUI(GUIHandler sh) {
         synchronized (activeGUIs) {
             activeGUIs.add(sh);
         }
@@ -93,17 +96,19 @@ public class Server {
      * A GUI has disconnected from server
      * @param sh GUI
      */
-    public void removeGUI(GUIHandler sh) {
+    public synchronized void removeGUI(GUIHandler sh) {
         synchronized (activeGUIs) {
             activeGUIs.remove(sh);
         }
     }
 
+    public synchronized List<GUIHandler> getAllGUIS() {return activeGUIs;}
+
     /**
      * Add a newly connected controller to list of controllers
      * @param ch handler for said controller
      */
-    public void addController(ControllerHandler ch) {
+    public synchronized void addController(ControllerHandler ch) {
         synchronized (controllers) {
             controllers.add(ch);
         }
@@ -113,19 +118,19 @@ public class Server {
      * Remove a controller that suddenly disconnected from server
      * @param ch handler for said controller
      */
-    public void removeController(ControllerHandler ch) {
+    public synchronized void removeController(ControllerHandler ch) {
         synchronized (controllers) {
             controllers.remove(ch);
         }
     }
 
-    public List<ControllerHandler> getControllers() {return controllers;}
+    public synchronized List<ControllerHandler> getControllers() {return controllers;}
 
     /**
      * Add a newly started project to list of Projects
      * @param p Project
      */
-    public void addProject(Project p) {
+    public synchronized void addProject(Project p) {
         synchronized (activeProjects) {
             activeProjects.add(p);
         }
@@ -135,22 +140,22 @@ public class Server {
      * Remove a project that is at its end
      * @param p Project
      */
-    public void removeProject(Project p) {
-        System.out.println("Removing project");
+    public synchronized void removeProject(Project p) {
+//        System.out.println("Removing project");
         synchronized (activeProjects) {
             activeProjects.remove(p);
         }
     }
 
-    public List<Project> getActiveProjects() {return activeProjects;}
-    public List<GUIHandler> getAllGUIS() {return activeGUIs;}
+    public synchronized List<Project> getActiveProjects() {return activeProjects;}
 
     /**
      * An exception has arrisen in server or other parts, and we will attempt to send it to any active GUI
      * @param th the exception
      */
-    public synchronized void sendExceptionToAllActiveGUIs(Throwable th) {
+    public void sendExceptionToAllActiveGUIs(Throwable th) {
         th.printStackTrace();
+        System.out.println("[TCP] Sending exception to " + getAllGUIS().size() + " GUIs");
         try {
             String c = th.getClass().getCanonicalName();
             String msg = th.getMessage();
@@ -159,16 +164,19 @@ public class Server {
             oo.writeObject(th.getStackTrace());
             byte[] exception = baos.toByteArray();
             List<GUIHandler> toRemove = new LinkedList<>();
-            for (GUIHandler gui : activeGUIs) {
-                if (!gui.getSocket().isActive()) {
-                    toRemove.add(gui);
-                    continue;
+            synchronized (activeGUIs) {
+                for (GUIHandler gui : activeGUIs) {
+                    if (!gui.getSocket().isActive()) {
+                        toRemove.add(gui);
+                        continue;
+                    }
+                    gui.sendException(c, msg, exception);
                 }
-                gui.sendException(c, msg, exception);
             }
             for (GUIHandler gui : toRemove) {
                 removeGUI(gui);
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
