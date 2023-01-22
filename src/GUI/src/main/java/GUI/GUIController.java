@@ -33,6 +33,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  *  Gui controller.
@@ -111,11 +114,9 @@ public class GUIController implements Initializable {
         projectsView.setItems(projectsList);
         projectsList.addAll(addProjects());
 
-//        updateTable();
-
 //        todo debug
-//        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-//        scheduler.scheduleAtFixedRate(this::updateTable, 0, 10, TimeUnit.SECONDS);
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(this::updateTable, 0, 1, TimeUnit.SECONDS);
 
     }
 
@@ -495,8 +496,7 @@ public class GUIController implements Initializable {
     public void scanBlowers(ActionEvent actionEvent) {
         try {
             gui.client.searchForNewControllers();  // todo debug
-//            blowers.clear();  // todo
-//            blowers.addAll(addBlowers());
+            updateTable();
             System.out.println("Search for new blowers was successful");
         } catch (Exception e) {
             System.err.println("Search for new blowers was not successful");
