@@ -1,2 +1,8 @@
 **/.idea
-**/out
+**/cmake-build-debug/.cmake
+**/cmake-build-debug/CMakeFiles
+**/cmake-build-debug/Testing
+*/.ninja_deps
+*/.ninja_log
+*/CMakeCache.txt
+*.xml
