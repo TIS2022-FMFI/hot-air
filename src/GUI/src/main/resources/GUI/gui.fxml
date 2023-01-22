@@ -20,7 +20,7 @@
 
 <TabPane minHeight="310.0" minWidth="900.0" prefHeight="510.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.GUIController">
    <Tab text="BLOWERS">
-      <BorderPane fx:id="blowersList" prefHeight="481.0" prefWidth="900.0">
+      <BorderPane fx:id="blowers" prefHeight="481.0" prefWidth="900.0">
          <top>
             <VBox BorderPane.alignment="CENTER">
                <BorderPane.margin>

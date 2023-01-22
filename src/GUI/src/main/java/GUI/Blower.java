@@ -149,7 +149,7 @@ public class Blower {
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == ButtonType.OK){
                 try {
-//                    gui.client.stopAController(getId());  // todo debug
+                    gui.client.stopAController(getId());  // todo debug
                     hiddenButton.setVisible(true);
                     System.out.println("blower " + getId() + " stopped");
                 } catch (Exception e) {
