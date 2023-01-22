@@ -19,6 +19,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class XMLEditor {
     public static void addPath(String xmlPath, String pathToExe) throws ParserConfigurationException, IOException, SAXException, TransformerException {
@@ -26,46 +29,18 @@ public class XMLEditor {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc = db.parse(file);
+        if (!xmlPath.contains("_tmp_added.xml")) {
+            xmlPath = xmlPath.replace(".xml", "_tmp_added.xml");
+        }
 
         NodeList blocks = doc.getElementsByTagName("B");
         Node block = blocks.item(0);
 
-        Node actions = getChildNodeWithTag(block, "ACTIONS");
-        if (actions == null){
-            Element a = doc.createElement("ACTIONS");
-            block.appendChild(a);
-            actions = block.getLastChild();
-        }
-
-        if (getChildNodeWithTag(actions, "COM") == null){
-            Element e = doc.createElement("COM");
-            e.setAttribute("APP", pathToExe + "%" + xmlPath + "%");
-            e.setAttribute("CMD", "RUNAPP");
-            e.setAttribute("PARAMS", "%" + xmlPath + "%");
-            actions.appendChild(e);
-        }
+        updateBlock(block, doc, pathToExe, xmlPath);
 
         for (int i = 1; i < blocks.getLength(); i++){
             block = blocks.item(i);
-            String name = block.getAttributes().getNamedItem("NAME").getNodeValue();
-            if (! name.contains("$")){
-                block.getAttributes().getNamedItem("NAME").setNodeValue(name + "#blower_id1$temperature#blower_id2$temperature");
-            }
-
-            actions = getChildNodeWithTag(block, "ACTIONS");
-            if (actions == null){
-                Element a = doc.createElement("ACTIONS");
-                block.appendChild(a);
-                actions = block.getLastChild();
-            }
-
-            if (getChildNodeWithTag(actions, "COM") == null){
-                Element e = doc.createElement("COM");
-                e.setAttribute("APP", pathToExe + "%" + "$" + xmlPath + "%");
-                e.setAttribute("CMD", "RUNAPP");
-                e.setAttribute("PARAMS", "%" + "$" + xmlPath + "%");
-                actions.appendChild(e);
-            }
+            updateBlock(block, doc, pathToExe, "$" + xmlPath);
         }
 
 
@@ -75,15 +50,54 @@ public class XMLEditor {
 
     private static Node getChildNodeWithTag(Node parent, String tagName) {
         NodeList children = parent.getChildNodes();
-
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
-
             if (child.getNodeType() == Node.ELEMENT_NODE && child.getNodeName().equals(tagName)) {
                 return child;
             }
         }
         return null;
+    }
+
+    private static List<Node> getAllChildNodesWithTag(Node parent, String tagName){
+        NodeList children = parent.getChildNodes();
+        List<Node> result = new ArrayList<>();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node child = children.item(i);
+            if (child.getNodeType() == Node.ELEMENT_NODE && child.getNodeName().equals(tagName)) {
+                result.add(child);
+            }
+        }
+        return result;
+    }
+
+    private static void updateBlock(Node block, Document doc, String pathToExe, String xmlPath){
+        String name = block.getAttributes().getNamedItem("NAME").getNodeValue();
+        if (! name.contains("@")){
+            block.getAttributes().getNamedItem("NAME").setNodeValue(name + "#blower_id1@temperature");
+        }
+
+        Node actions = getChildNodeWithTag(block, "ACTIONS");
+        if (actions == null){
+            Element a = doc.createElement("ACTIONS");
+            block.appendChild(a);
+            actions = block.getLastChild();
+        }
+
+        List<Node> coms = getAllChildNodesWithTag(actions, "COM");
+        for (Node com : coms){
+            Element e = (Element) com;
+            Node atr = e.getAttributeNode("PARAMS");
+            if (Objects.equals(atr.getNodeValue(), xmlPath)){
+                e.setAttribute("APP", pathToExe);
+                return;
+            }
+        }
+        Element e = doc.createElement("COM");
+        e.setAttribute("APP", pathToExe);
+        e.setAttribute("CMD", "RUNAPP");
+        e.setAttribute("PARAMS", xmlPath);
+        actions.appendChild(e);
     }
 
     private static void writeXml(Document doc, OutputStream output) throws TransformerException {
