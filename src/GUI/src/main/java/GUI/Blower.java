@@ -122,7 +122,7 @@ public class Blower {
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == ButtonType.OK){
                 try {
-//                    gui.client.stopAController(getId());  // todo debug
+                    // todo resume blower funckia    // todo debug
                     hiddenButton.setVisible(false);
                     System.out.println("blower " + getId() + " was resumed");
                 } catch (Exception e) {

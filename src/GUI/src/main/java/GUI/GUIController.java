@@ -72,8 +72,6 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Blower,Hyperlink> blowerCurrentTmp;
     @FXML TableColumn<Blower,Float> blowerTargetTmp;
     @FXML TableColumn<Blower,String> blowerProject;
-//    @FXML TableColumn<Blower, Blower> blowerStop;
-//    @FXML TableColumn<Blower, Blower> blowerButtonStopped;
     @FXML TableColumn<Blower, Button> blowerStop;
     @FXML TableColumn<Blower, Button> blowerCaution;
 
@@ -114,8 +112,6 @@ public class GUIController implements Initializable {
         projects.addAll(addProjects());
 
 //        updateTable();
-
-//        blowersView.getColumns().forEach(column -> column.setMinWidth(30));
 
 //        todo debug
 //        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -493,10 +489,10 @@ public class GUIController implements Initializable {
 
     public void scanBlowers(ActionEvent actionEvent) {
         try {
-            System.out.println("Search for new blowers was successful");
-            gui.client.searchForNewControllers();  // todo debug
+//            gui.client.searchForNewControllers();  // todo debug
 //            blowers.clear();  // todo
 //            blowers.addAll(addBlowers());
+            System.out.println("Search for new blowers was successful");
         } catch (Exception e) {
             System.err.println("Search for new blowers was not successful");
             gui.alert(e);
@@ -505,8 +501,8 @@ public class GUIController implements Initializable {
 
     public void stopAllBlowers(ActionEvent actionEvent) {
         try {
+//            gui.client.stopAllControllers();  // todo debug
             System.out.println("blowers were stopped successfully");
-            gui.client.stopAllControllers();  // todo debug
         } catch (Exception e) {
             System.err.println("blowers could not be stopped");
             gui.alert(e);
