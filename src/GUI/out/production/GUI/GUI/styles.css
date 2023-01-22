@@ -19,7 +19,9 @@
 }
 
 .check-box:selected .mark {
-    -fx-background-color: #28cbff;
+    -fx-background-color: #39caf4;
+    /*-fx-background-color: #28cbff;*/
+    /*-fx-background-color: #002aff;*/
 }
 
 #stopAllBtn, #stopBtn {
