@@ -283,14 +283,21 @@ public class GUIController implements Initializable {
     }
 
     public void updateTable() {
-        // todo alebo s tym observable list iba
-        if (!blowersView.getItems().isEmpty())
+        if (!blowersView.getItems().isEmpty()) {
             blowersView.getItems().clear();
-        if (!projectsView.getItems().isEmpty())
+            blowersList.clear();
+        }
+        if (!projectsView.getItems().isEmpty()) {
             projectsView.getItems().clear();
+            projectsList.clear();
+        }
 
-        blowersView.getItems().addAll(addBlowers());
-        projectsView.getItems().addAll(addProjects());
+        blowersView.setItems(blowersList);
+        blowersList.addAll(addBlowers());
+        projectsView.setItems(projectsList);
+        projectsList.addAll(addProjects());
+
+        System.out.println("tables updated");
     }
 
     public static void setAlertIcons(Alert alert) {
@@ -303,7 +310,7 @@ public class GUIController implements Initializable {
     }
 
     private List<Blower> addBlowers() {
-        System.out.println("add blowers");
+        System.out.println("adding blowers");
 
         List<Blower> blowers = new ArrayList<Blower>();
 //        todo debug
@@ -330,6 +337,7 @@ public class GUIController implements Initializable {
                     blowers.add(blower);
                 }
             }
+            System.out.println("blowers were loaded successfully from server");
         } catch (Exception e) {
             // todo log
             System.err.println("blowers were not loaded from server");
@@ -355,9 +363,10 @@ public class GUIController implements Initializable {
 
 //    todo debug
     private Project[] addProjects() {
-        System.out.println("add projects");
+        System.out.println("adding projects");
         try {
             Project[] projects = gui.client.getAllProjects();
+            System.out.println("projects were loaded successfully from server");
             return projects;
         }
         catch (Exception e) {
