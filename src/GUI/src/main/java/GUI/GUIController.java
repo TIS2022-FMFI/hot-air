@@ -1,6 +1,5 @@
 package GUI;
 
-import Communication.RequestResult;
 import XML.XMLEditor;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -14,12 +13,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -27,7 +20,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.xml.sax.SAXException;
-import sun.security.krb5.KdcComm;
 
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -50,6 +42,7 @@ public class GUIController implements Initializable {
     public static GUIController guiController;
     private int numberOfBlowers = 0;
     private int numberOfProjects = 0;
+    private ArrayList<Button> cautionButtons = new ArrayList<>();
 
     @FXML TextField filePath;
     @FXML TextField filePath2;
@@ -58,6 +51,8 @@ public class GUIController implements Initializable {
     @FXML Text blowersInfo;
     @FXML Text projectsInfo;
     @FXML Text portInfo;
+
+    public static @FXML TableView blowers;
 
     @FXML CheckBox  showID;
     @FXML CheckBox  showIP;
@@ -77,8 +72,10 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Blower,Hyperlink> blowerCurrentTmp;
     @FXML TableColumn<Blower,Float> blowerTargetTmp;
     @FXML TableColumn<Blower,String> blowerProject;
-    @FXML TableColumn<Blower, Blower> blowerStop;
-    @FXML TableColumn<Blower, Blower> blowerButtonStopped;
+//    @FXML TableColumn<Blower, Blower> blowerStop;
+//    @FXML TableColumn<Blower, Blower> blowerButtonStopped;
+    @FXML TableColumn<Blower, Button> blowerStop;
+    @FXML TableColumn<Blower, Button> blowerCaution;
 
     @FXML TableView<Project> projectsView;
     @FXML TableColumn<Project,String> projectName;
@@ -86,7 +83,7 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Project,String> projectPhase;
     @FXML TableColumn<Project,Project> projectStop;
 
-    ObservableList<Blower> blowers = FXCollections.observableArrayList();
+    ObservableList<Blower> blowersList = FXCollections.observableArrayList();
     ObservableList<Project> projects = FXCollections.observableArrayList();
 
     public GUIController() {
@@ -111,8 +108,8 @@ public class GUIController implements Initializable {
         setBlowersTable();
         setProjectsTable();
 
-        blowersView.setItems(blowers);
-        blowers.addAll(addBlowers());
+        blowersView.setItems(blowersList);
+        blowersList.addAll(addBlowers());
         projectsView.setItems(projects);
         projects.addAll(addProjects());
 
@@ -236,104 +233,8 @@ public class GUIController implements Initializable {
                 new PropertyValueFactory<>("targetTemp"));
         blowerProject.setCellValueFactory(
                 new PropertyValueFactory<>("project"));
-        blowerStop.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue()));
-        blowerStop.setCellFactory(column -> new TableCell<Blower, Blower>() {
-            private Button button = new Button("STOP");
-            {
-                button.setId("stopBtn");
-                button.setOnAction(a -> {
-                    Blower b = getItem();
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                    alert.setResizable(true);
-                    alert.setTitle("STOPPING BLOWER");
-                    alert.setHeaderText("Do you really want to stop blower " + b.getId() + "?");
-                    setAlertIcons(alert);
-
-                    Optional<ButtonType> result = alert.showAndWait();
-                    if (result.get() == ButtonType.OK){
-                        try {
-                            b.setStopped(true);
-                            System.out.println("blower " + b.getId() + " stopped");
-//                            gui.client.stopAController(b.getId());  // todo debug
-                        } catch (Exception e) {
-                            System.err.println("blower " + b.getId() + " could not be stopped");
-                            gui.alert(e);
-                        }
-                    } else {
-                        System.out.println("blower " + b.getId() + " will not be stopped");
-                    }
-                });
-                button.setFont(Font.font("Arial", FontWeight.BOLD, 11.0));
-                button.setMinWidth(75);
-                button.setPrefWidth(75);
-                button.setMaxWidth(USE_COMPUTED_SIZE);
-            }
-
-            @Override
-            protected void updateItem(Blower item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(button);
-                }
-            }
-        });
-//        blowerButtonStopped.setCellValueFactory(
-//                new PropertyValueFactory<>("project"));
-//        blowerButtonStopped.setCellFactory(
-//                column -> new CautionImage() {
-//                }
-//        );
-        blowerButtonStopped.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue()));
-        blowerButtonStopped.setCellFactory(column -> new TableCell<Blower, Blower>() {
-            private Button button = new Button("");
-            {
-                ImageView imageView = new ImageView(Objects.requireNonNull(getClass().getResource("caution.png")).toExternalForm());
-                imageView.setFitWidth(25);
-                imageView.setFitHeight(20);
-                button.setId("caution");
-//                button.setVisible(getItem() != null && !getItem().getStopped());
-                button.setOnAction(a -> {
-                    Blower b = getItem();
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                    alert.setResizable(true);
-                    alert.setTitle("RESUMING BLOWER");
-                    alert.setHeaderText("Do you really want to resume blower " + b.getId() + "?");
-                    setAlertIcons(alert);
-
-                    Optional<ButtonType> result = alert.showAndWait();
-                    if (result.get() == ButtonType.OK){
-                        try {
-                            b.setStopped(false);
-                            System.out.println("blower " + b.getId() + " was resumed");
-//                            gui.client.stopAController(b.getId());  // todo debug
-                        } catch (Exception e) {
-                            System.err.println("blower " + b.getId() + " could not be resumed");
-                            gui.alert(e);
-                        }
-                    } else {
-                        System.out.println("blower " + b.getId() + " will not be resumed");
-                    }
-                });
-                button.setGraphic(imageView);
-                button.setStyle("-fx-background-color: transparent;");
-                button.setPrefWidth(25);
-                button.setPrefHeight(Region.USE_COMPUTED_SIZE);
-                button.setMinWidth(25);
-                button.setMaxHeight(Region.USE_COMPUTED_SIZE);
-            }
-
-            @Override
-            protected void updateItem(Blower item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(button);
-                }
-            }
-        });
+        blowerStop.setCellValueFactory(new PropertyValueFactory<>("stopButton"));
+        blowerCaution.setCellValueFactory(new PropertyValueFactory<>("hiddenButton"));
     }
 
     private void setProjectsTable() {
@@ -397,9 +298,9 @@ public class GUIController implements Initializable {
         projectsView.getItems().addAll(addProjects());
     }
 
-    private void setAlertIcons(Alert alert) {
+    public static void setAlertIcons(Alert alert) {
         Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
+        stage.getIcons().add(new Image(Objects.requireNonNull(GUIController.class.getResource("boge_icon.jpg")).toString()));
         ImageView icon = new ImageView(String.valueOf(GUI.class.getResource("question.png")));
         icon.setFitHeight(48);
         icon.setFitWidth(48);

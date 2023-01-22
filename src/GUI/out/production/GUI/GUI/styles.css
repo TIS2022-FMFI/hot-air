@@ -13,7 +13,7 @@
     -fx-background-insets: 0;
 }
 
-.button#caution {
+.button#cautionBtn {
     -fx-border-color: inherit;
 }
 

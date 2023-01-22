@@ -1,27 +1,35 @@
 package GUI;
 
-import javafx.animation.AnimationTimer;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.image.Image;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Modality;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Region;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
-import javax.swing.text.html.ImageView;
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static GUI.GUI.gui;
+import static GUI.GUIController.setAlertIcons;
+import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 
 /**
  * Class for blowers.
@@ -34,11 +42,11 @@ public class Blower {
     private float targetTemp;
     private String project;
     private Hyperlink link;
-    private Boolean stopped;
+
+    private final Button stopButton;
+    private final Button hiddenButton;
 
     private int count = 0;
-
-//    private ImageView stopped;
 
     /**
      * Instantiates a new Blower.
@@ -74,8 +82,8 @@ public class Blower {
                 newWindow.setTitle("GRAPH " + id);
                 newWindow.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
                 newWindow.setScene(scene);
-                newWindow.setX(GUI.gui.getStage().getX() + 200);
-                newWindow.setY(GUI.gui.getStage().getY() + 100);
+                newWindow.setX(gui.getStage().getX() + 200);
+                newWindow.setY(gui.getStage().getY() + 100);
                 newWindow.show();
             }
         });
@@ -92,8 +100,66 @@ public class Blower {
                 e.printStackTrace();
             }
         });
-        this.stopped = false;
+        ImageView imageView = new ImageView(Objects.requireNonNull(getClass().getResource("caution.png")).toExternalForm());
+        imageView.setFitWidth(25);
+        imageView.setFitHeight(20);
+        this.hiddenButton = new Button("");
+        hiddenButton.setId("cautionBtn");
+        hiddenButton.setVisible(false);
+        hiddenButton.setGraphic(imageView);
+        hiddenButton.setStyle("-fx-background-color: transparent;");
+        hiddenButton.setPrefWidth(25);
+        hiddenButton.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        hiddenButton.setMinWidth(25);
+        hiddenButton.setMaxHeight(Region.USE_COMPUTED_SIZE);
+        hiddenButton.setOnAction(event -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setResizable(true);
+            alert.setTitle("RESUMING BLOWER");
+            alert.setHeaderText("Do you really want to resume blower " + getId() + "?");
+            setAlertIcons(alert);
 
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK){
+                try {
+//                    gui.client.stopAController(getId());  // todo debug
+                    hiddenButton.setVisible(false);
+                    System.out.println("blower " + getId() + " was resumed");
+                } catch (Exception e) {
+                    System.err.println("blower " + getId() + " could not be resumed");
+                    gui.alert(e);
+                }
+            } else {
+                System.out.println("blower " + getId() + " will not be resumed");
+            }
+        });
+        this.stopButton = new Button("STOP");
+        stopButton.setId("stopBtn");
+        stopButton.setFont(Font.font("Arial", FontWeight.BOLD, 11.0));
+        stopButton.setMinWidth(75);
+        stopButton.setPrefWidth(75);
+        stopButton.setMaxWidth(USE_COMPUTED_SIZE);
+        stopButton.setOnAction(event -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setResizable(true);
+            alert.setTitle("STOPPING BLOWER");
+            alert.setHeaderText("Do you really want to stop blower " + getId() + "?");
+            setAlertIcons(alert);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK){
+                try {
+//                    gui.client.stopAController(getId());  // todo debug
+                    hiddenButton.setVisible(true);
+                    System.out.println("blower " + getId() + " stopped");
+                } catch (Exception e) {
+                    System.err.println("blower " + getId() + " could not be stopped");
+                    gui.alert(e);
+                }
+            } else {
+                System.out.println("blower " + getId() + " will not be stopped");
+            }
+        });
     }
 
     /**
@@ -223,22 +289,23 @@ public class Blower {
     }
 
     /**
-     * Gets if blower is stopped.
+     * Gets stop button.
      *
-     * @return boolean if blower is stopped
+     * @return the stop button
      */
-    public Boolean getStopped() {
-        return stopped;
+    public Button getStopButton() {
+        return stopButton;
     }
 
     /**
-     * Sets if blower is stopped.
+     * Gets caution button.
      *
-     * @param stopped boolean if blower is stopped
+     * @return the caution button, that is (by default) hidden
      */
-    public void setStopped(Boolean stopped) {
-        this.stopped = stopped;
+    public Button getHiddenButton() {
+        return hiddenButton;
     }
+
 
     @Override
     public boolean equals(Object o) {

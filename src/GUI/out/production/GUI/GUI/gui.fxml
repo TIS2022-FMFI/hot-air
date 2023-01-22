@@ -20,7 +20,7 @@
 
 <TabPane minHeight="310.0" minWidth="900.0" prefHeight="510.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.GUIController">
    <Tab text="BLOWERS">
-      <BorderPane fx:id="blowers" prefHeight="481.0" prefWidth="900.0">
+      <BorderPane fx:id="blowersList" prefHeight="481.0" prefWidth="900.0">
          <top>
             <VBox BorderPane.alignment="CENTER">
                <BorderPane.margin>
@@ -121,7 +121,7 @@
                <TableColumn fx:id="blowerTargetTmp" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" resizable="false" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="Target TMP" />
                <TableColumn fx:id="blowerProject" maxWidth="1.7976931348623157E308" minWidth="300.0" prefWidth="-1.0" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="Project" />
                <TableColumn fx:id="blowerStop" maxWidth="-1.0" minWidth="95.0" prefWidth="-1.0" resizable="false" sortable="false" style="-fx-alignment: CENTER; -fx-cell-size: 30;" text="STOP" />
-                  <TableColumn fx:id="blowerButtonStopped" maxWidth="-1.0" minWidth="40.0" prefWidth="-1.0" resizable="false" style="-fx-alignment: CENTER; -fx-padding: 0 0 0 5;" />
+                  <TableColumn fx:id="blowerCaution" maxWidth="-1.0" minWidth="40.0" prefWidth="-1.0" resizable="false" style="-fx-alignment: CENTER; -fx-padding: 0 0 0 5;" />
               </columns>
                <BorderPane.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
