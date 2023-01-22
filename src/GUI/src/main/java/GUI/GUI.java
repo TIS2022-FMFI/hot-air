@@ -66,6 +66,8 @@ public class GUI extends Application {
             System.out.println("GUI successfully started");
         } catch (Exception e) {
             System.err.println(e);
+            System.err.println(e.getMessage());
+            e.printStackTrace();
             alert(e);
             // todo zapisat do logov
         }

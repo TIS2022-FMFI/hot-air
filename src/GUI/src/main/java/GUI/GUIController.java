@@ -14,6 +14,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -52,6 +53,9 @@ public class GUIController implements Initializable {
     @FXML Text projectsInfo;
     @FXML Text portInfo;
 
+    @FXML BorderPane blowers;
+    @FXML BorderPane projects;
+
     @FXML CheckBox  showID;
     @FXML CheckBox  showIP;
     @FXML CheckBox  showCurrentTmp;
@@ -80,13 +84,12 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Project,Project> projectStop;
 
     ObservableList<Blower> blowersList = FXCollections.observableArrayList();
-    ObservableList<Project> projects = FXCollections.observableArrayList();
+    ObservableList<Project> projectsList = FXCollections.observableArrayList();
 
     public GUIController() {
         // todo na debug
 //        numberOfBlowers = 10;
 //        numberOfProjects = 2;
-
         try {
             numberOfBlowers = gui.client.getNumberOfControllers();
             numberOfProjects = gui.client.getNumberOfProjects();
@@ -105,8 +108,8 @@ public class GUIController implements Initializable {
 
         blowersView.setItems(blowersList);
         blowersList.addAll(addBlowers());
-        projectsView.setItems(projects);
-        projects.addAll(addProjects());
+        projectsView.setItems(projectsList);
+        projectsList.addAll(addProjects());
 
 //        updateTable();
 
