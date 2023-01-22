@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
  * Class for handling all communication between GUI and Server
  */
 public class ClientHandler {
-    private Client client;
+    private final Client client;
     private String IP = "";
 
     /**
@@ -50,18 +50,18 @@ public class ClientHandler {
         this(4002);
     }
 
-    /**
-     * Try to reconnect to server
-     */
-    public void reconnect() throws IOException {
-        if (!client.isConnected()) {
-            if (IP.equals("")) {
-                client = new Client();
-            } else {
-                client = new Client(IP);
-            }
-        }
-    }
+//    /**
+//     * Try to reconnect to server
+//     */
+//    public void reconnect() throws IOException {
+//        if (!client.isConnected()) {
+//            if (IP.equals("")) {
+//                client = new Client();
+//            } else {
+//                client = new Client(IP);
+//            }
+//        }
+//    }
 
 //    /**
 //     * change ID of a specific controller
@@ -87,9 +87,9 @@ public class ClientHandler {
         if (!client.isConnected()) {
             throw new ConnectException("Disconnected from server");
         }
-        client.writeMessage(new Message(MessageBuilder.GUI.Request.NumberOfProjects.build()));
         int result;
         synchronized (RequestResult.getInstance()) {
+            client.writeMessage(new Message(MessageBuilder.GUI.Request.NumberOfProjects.build()));
             RequestResult rr = RequestResult.getInstance();
             rr.wait();
             result = rr.getIntData();
@@ -104,9 +104,9 @@ public class ClientHandler {
         if (!client.isConnected()) {
             throw new ConnectException("Disconnected from server");
         }
-        client.writeMessage(new Message(MessageBuilder.GUI.Request.NumberOfControllers.build()));
         int result;
-        synchronized (RequestResult.getInstance()) {
+        synchronized (client) {
+            client.writeMessage(new Message(MessageBuilder.GUI.Request.NumberOfControllers.build()));
             RequestResult rr = RequestResult.getInstance();
             rr.wait();
             result = rr.getIntData();
@@ -121,7 +121,9 @@ public class ClientHandler {
         if (!client.isConnected()) {
             throw new ConnectException("Disconnected from server");
         }
-        client.writeMessage(new Message(MessageBuilder.GUI.Request.SearchForNewControllers.build()));
+        synchronized (client) {
+            client.writeMessage(new Message(MessageBuilder.GUI.Request.SearchForNewControllers.build()));
+        }
     }
 
     /**
@@ -131,22 +133,25 @@ public class ClientHandler {
         if (!client.isConnected()) {
             throw new ConnectException("Disconnected from server");
         }
-        client.writeMessage(new Message(MessageBuilder.GUI.Request.BigRedButton.build()));
+        synchronized (client) {
+            client.writeMessage(new Message(MessageBuilder.GUI.Request.BigRedButton.build()));
+        }
     }
 
     /**
      * Stop controller(Blower) with this ID
      */
     public void stopAController(String ID) throws IOException {
-        System.out.println("Stop this controller button");
         if (!client.isConnected()) {
             throw new ConnectException("Disconnected from server");
         }
         if (!ID.matches("\\A\\p{ASCII}*\\z")) {
             throw new SocketException("Non ascii characters found!");
         }
-        client.writeMessage(new Message(MessageBuilder.GUI.Request.StopThisController.build()));
-        client.writeMessage(new Message(ID.getBytes(StandardCharsets.US_ASCII)));
+        synchronized (client) {
+            client.writeMessage(new Message(MessageBuilder.GUI.Request.StopThisController.build()));
+            client.writeMessage(new Message(ID.getBytes(StandardCharsets.US_ASCII)));
+        }
     }
 
     /**
@@ -156,9 +161,9 @@ public class ClientHandler {
         if (!client.isConnected()) {
             throw new ConnectException("Disconnected from server");
         }
-        client.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutControllers.build()));
         RequestResult.Controller[] res;
-        synchronized (RequestResult.getInstance()) {
+        synchronized (client) {
+            client.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutControllers.build()));
             RequestResult rr = RequestResult.getInstance();
             rr.wait();
             res = rr.getControllers();
@@ -166,18 +171,34 @@ public class ClientHandler {
         return res;
     }
 
+    /**
+     * @return array of GUI.Project objects with initialized values from server
+     */
     public Project[] getAllProjects() throws IOException, InterruptedException {
         if (!client.isConnected()) {
             throw new ConnectException("Disconnected from server");
         }
-        client.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutProjects.build()));
         Project[] res;
-        synchronized (RequestResult.getInstance()) {
+        synchronized (client) {
+            client.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutProjects.build()));
             RequestResult rr = RequestResult.getInstance();
             rr.wait();
             res = rr.getProjects();
         }
         return res;
+    }
+
+    public void unlockController(String id) throws IOException {
+        if (!client.isConnected()) {
+            throw new ConnectException("Disconnected from server");
+        }
+        if (!id.matches("\\A\\p{ASCII}*\\z")) {
+            throw new SocketException("Non ascii characters found!");
+        }
+        synchronized (client) {
+            client.writeMessage(new Message(MessageBuilder.GUI.Request.UnlockThisController.build()));
+            client.writeMessage(new Message(id.getBytes(StandardCharsets.US_ASCII)));
+        }
     }
 
     private class ExitProcess extends Thread {

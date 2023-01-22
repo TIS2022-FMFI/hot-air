@@ -105,6 +105,13 @@ public class MessageBuilder {
                 public static byte[] build() {return new byte[]{GUI.ID, Request.ID, ID};}
                 public static boolean equals(byte[] msg) {return Arrays.equals(msg, new byte[]{GUI.ID, Request.ID, ID});}
             }
+
+            public static class UnlockThisController {
+                private static final byte ID = 'e'+5;
+
+                public static byte[] build() {return new byte[]{GUI.ID, Request.ID, ID};}
+                public static boolean equals(byte[] msg) {return Arrays.equals(msg, new byte[]{GUI.ID, Request.ID, ID});}
+            }
         }
         public static class Exception {
             private static final byte ID = 'b';
