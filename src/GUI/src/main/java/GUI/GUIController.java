@@ -1,5 +1,6 @@
 package GUI;
 
+import Communication.RequestResult;
 import XML.XMLEditor;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -42,7 +43,6 @@ public class GUIController implements Initializable {
     public static GUIController guiController;
     private int numberOfBlowers = 0;
     private int numberOfProjects = 0;
-    private ArrayList<Button> cautionButtons = new ArrayList<>();
 
     @FXML TextField filePath;
     @FXML TextField filePath2;
@@ -51,8 +51,6 @@ public class GUIController implements Initializable {
     @FXML Text blowersInfo;
     @FXML Text projectsInfo;
     @FXML Text portInfo;
-
-    public static @FXML TableView blowers;
 
     @FXML CheckBox  showID;
     @FXML CheckBox  showIP;
@@ -86,16 +84,15 @@ public class GUIController implements Initializable {
 
     public GUIController() {
         // todo na debug
-        numberOfBlowers = 10;
-        numberOfProjects = 2;
+//        numberOfBlowers = 10;
+//        numberOfProjects = 2;
 
-//        try {
-//            numberOfBlowers = gui.client.getNumberOfControllers();
-//            numberOfProjects = gui.client.getNumberOfProjects();
-//        } catch (IOException | InterruptedException e) {
-//            gui.alert(e);
-//        }
-
+        try {
+            numberOfBlowers = gui.client.getNumberOfControllers();
+            numberOfProjects = gui.client.getNumberOfProjects();
+        } catch (IOException | InterruptedException e) {
+            gui.alert(e);
+        }
     }
 
     @Override
@@ -144,7 +141,6 @@ public class GUIController implements Initializable {
                     portInfo.setText("wrong format: enter numbers only");
                 }
                 return null;
-
             }
             return c;
         }));
@@ -157,7 +153,6 @@ public class GUIController implements Initializable {
             if (path != null && !path.isEmpty()) pathToExe.setText(path);
             if (port != null && !port.isEmpty()) portToServer.setText(port);
             reader.close();
-
         } catch (IOException e) {
             System.err.println("An error occurred when loading settings.");
             System.err.println(e);
@@ -285,6 +280,7 @@ public class GUIController implements Initializable {
     }
 
     public void updateTable() {
+        // todo alebo s tym observable list iba
         if (!blowersView.getItems().isEmpty())
             blowersView.getItems().clear();
         if (!projectsView.getItems().isEmpty())
@@ -308,68 +304,66 @@ public class GUIController implements Initializable {
 
         List<Blower> blowers = new ArrayList<Blower>();
 //        todo debug
-        Random random = new Random();
-        for (int i = 0; i<numberOfBlowers; i++) {
-            String ip1 = String.valueOf(random.nextInt(255));
-            String ip2 = String.valueOf(random.nextInt(255));
-            int temp1= random.nextInt(70);
-            int temp2= random.nextInt(70);
-            Blower blower = new Blower("192.165." + ip1 + "." + ip2, ("id" + i), temp1, temp2, "project 1");
-            blowers.add(blower);
-        }
+//        Random random = new Random();
+//        for (int i = 0; i<numberOfBlowers; i++) {
+//            String ip1 = String.valueOf(random.nextInt(255));
+//            String ip2 = String.valueOf(random.nextInt(255));
+//            int temp1= random.nextInt(70);
+//            int temp2= random.nextInt(70);
+//            Blower blower = new Blower("192.165." + ip1 + "." + ip2, ("id" + i), temp1, temp2, "project 1");
+//            blowers.add(blower);
+//        }
 
 //        todo debug
-//        try {
-//            for (int i = 0; i < gui.client.getNumberOfControllers() ; i++) {
-//                RequestResult.Controller[] controllers = gui.client.getAllControllers();
-//                for (RequestResult.Controller c : controllers) {
-//                    String projectName = (c.getProjectName() == null) ? "" : c.getProjectName() ; // todo project name z tagu v xml nie cesty !!
-//                    if (projectName.contains("\\")) {
-//                        projectName = projectName.substring(projectName.lastIndexOf("\\")+1);
-//                    }
-//                    Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), projectName);
-//                    blowers.add(blower);
-//                }
-//            }
-//        } catch (Exception e) {
-//            // todo log
-//            System.err.println("blowers were not loaded from server");
-//        }
-
-        return blowers ;
-
-    }
-
-//    todo debug
-    private List<Project> addProjects() {
-        List<Project> projects = new ArrayList<Project>();
-
-        Random random = new Random();
-
-        for (int i = 0; i<numberOfProjects; i++) {
-            int time= random.nextInt(200);
-            int phase= random.nextInt(5) + 1;
-            projects.add(new Project(("Project "+i), time, "phase" + phase));
+        try {
+            for (int i = 0; i < gui.client.getNumberOfControllers() ; i++) {
+                RequestResult.Controller[] controllers = gui.client.getAllControllers();
+                for (RequestResult.Controller c : controllers) {
+                    String projectName = (c.getProjectName() == null) ? "" : c.getProjectName() ;
+                    if (projectName.contains("\\")) {
+                        projectName = projectName.substring(projectName.lastIndexOf("\\")+1);
+                    }
+                    Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), projectName);
+                    blowers.add(blower);
+                }
+            }
+        } catch (Exception e) {
+            // todo log
+            System.err.println("blowers were not loaded from server");
         }
 
-        return projects ;
+        return blowers ;
     }
 
 //    todo debug
-//    private Project[] addProjects() {
-//        System.out.println("add projects");
-//        try {
-////            todo project name z tagu v xml nie cesty !!
-//            Project[] projects = gui.client.getAllProjects();
-//            return projects;
+//    private List<Project> addProjects() {
+//        List<Project> projects = new ArrayList<Project>();
+//
+//        Random random = new Random();
+//
+//        for (int i = 0; i<numberOfProjects; i++) {
+//            int time= random.nextInt(200);
+//            int phase= random.nextInt(5) + 1;
+//            projects.add(new Project(("Project "+i), time, "phase" + phase));
 //        }
-//        catch (Exception e) {
-//            // todo log
-//            System.err.println("projects were not loaded from server");
-//            Project[] projects = {};
-//            return projects;
-//        }
+//
+//        return projects;
 //    }
+
+//    todo debug
+    private Project[] addProjects() {
+        System.out.println("add projects");
+        try {
+            Project[] projects = gui.client.getAllProjects();
+            return projects;
+        }
+        catch (Exception e) {
+            // todo log
+            System.err.println("projects were not loaded from server");
+            Project[] projects = {};
+            return projects;
+        }
+    }
 
     /**
      * Search XML file.
@@ -384,7 +378,6 @@ public class GUIController implements Initializable {
         File file = fileChooser.showOpenDialog(gui.getStage());
         if (file != null) {
             String path = file.getPath();
-
             filePath.setText(path);
             filePath2.setText(path);
             checkType(path);
@@ -489,7 +482,7 @@ public class GUIController implements Initializable {
 
     public void scanBlowers(ActionEvent actionEvent) {
         try {
-//            gui.client.searchForNewControllers();  // todo debug
+            gui.client.searchForNewControllers();  // todo debug
 //            blowers.clear();  // todo
 //            blowers.addAll(addBlowers());
             System.out.println("Search for new blowers was successful");
@@ -501,7 +494,7 @@ public class GUIController implements Initializable {
 
     public void stopAllBlowers(ActionEvent actionEvent) {
         try {
-//            gui.client.stopAllControllers();  // todo debug
+            gui.client.stopAllControllers();  // todo debug
             System.out.println("blowers were stopped successfully");
         } catch (Exception e) {
             System.err.println("blowers could not be stopped");
@@ -530,7 +523,6 @@ public class GUIController implements Initializable {
 
             alert.getDialogPane().setGraphic(icon);
             alert.show();
-
         } catch (IOException e) {
             System.err.println("settings were not saved");
             e.printStackTrace();
