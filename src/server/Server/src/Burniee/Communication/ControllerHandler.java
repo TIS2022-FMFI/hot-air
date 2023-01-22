@@ -127,7 +127,7 @@ public class ControllerHandler extends Thread {
         while (socket.isActive()) {
             try {
                 msg = socket.readMessage(true);
-                System.out.println("[Controller] new message from controller arrived");
+//                System.out.println("[Controller] new message from controller arrived");
                 byte flags = msg[15];
                 if (flags == 0b0000010) {
                     controller.setID(resolveId(msg));
@@ -176,7 +176,7 @@ public class ControllerHandler extends Thread {
                     }
                     byte[] temp = new byte[] {msg[11], msg[12], msg[13], msg[14]};
                     controller.setCurrentTemperature(ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getFloat());
-                    System.out.println("[Controller] temperature arrived = " + controller.getCurrentTemperature());
+//                    System.out.println("[Controller] temperature arrived = " + controller.getCurrentTemperature());
                 } else {
                     throw new ControllerException("Unknown message" + Arrays.toString(msg));
                 }

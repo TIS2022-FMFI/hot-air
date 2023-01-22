@@ -80,7 +80,7 @@ public class SocketHandler {
      * @return byte[] -> received message
      */
     public synchronized byte[] readMessage(boolean special) throws IOException {
-        System.out.println("[TCP] reading a message");
+//        System.out.println("[TCP] reading a message");
         int len;
         if (special) {
             len = 16;
@@ -94,12 +94,12 @@ public class SocketHandler {
             }
             len = ByteBuffer.wrap(msgLength).getInt();
         }
-        System.out.println("[TCP] Receiving a message of size = " + len);
+//        System.out.println("[TCP] Receiving a message of size = " + len);
         byte[] res = new byte[len];
         for (int i = 0; i < len; i++) {
             res[i] = (byte) in.read(); // this is required because in.read(res) ignores part of xml file for some wild reason
         }
-        System.out.println("[TCP] message received");
+//        System.out.println("[TCP] message received");
         return res;
     }
 
