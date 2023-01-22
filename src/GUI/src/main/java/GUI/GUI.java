@@ -42,13 +42,12 @@ public class GUI extends Application {
         try {
             createGUIConfigFile();
 
-            client = new ClientHandler();
+            client = new ClientHandler();   // todo debug
+
             Parent root = FXMLLoader.load(Objects.requireNonNull(GUI.class.getResource("gui.fxml")));
-            Scene scene = new Scene(root, 815, 510);
+            Scene scene = new Scene(root, 850, 510);
             String css = Objects.requireNonNull(this.getClass().getResource("styles.css")).toExternalForm();
-
             scene.getStylesheets().add(css);
-
             stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
                 @Override
                 public void handle(WindowEvent t) {
@@ -60,20 +59,16 @@ public class GUI extends Application {
             stage.setTitle("BURNIEE");
             stage.getIcons().add(new Image(Objects.requireNonNull(GUI.class.getResourceAsStream("boge_icon.jpg"))));
             stage.setMinHeight(310);
-            stage.setMinWidth(815);
+            stage.setMinWidth(900);
             stage.show();
-
             this.stage = stage;
 
             System.out.println("GUI successfully started");
-
-
         } catch (Exception e) {
             System.err.println(e);
             alert(e);
             // todo zapisat do logov
         }
-
     }
 
     /**
@@ -87,14 +82,15 @@ public class GUI extends Application {
 
     public void alert(Exception e) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setResizable(true);
         alert.setTitle("ERROR");
         alert.setHeaderText(e.getMessage());
         alert.setContentText(e.toString());
-
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
         ImageView icon = new ImageView(String.valueOf(GUI.class.getResource("error.png")));
         icon.setFitHeight(48);
         icon.setFitWidth(48);
-
         alert.getDialogPane().setGraphic(icon);
         alert.show();
     }
