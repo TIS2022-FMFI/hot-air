@@ -118,6 +118,7 @@ public class ClientHandler {
      * Server will try to discover new controllers(Blowers)
      */
     public void searchForNewControllers() throws IOException {
+        System.out.println("[ClientHandler] Search for new controllers");
         if (!client.isConnected()) {
             throw new ConnectException("Disconnected from server");
         }
@@ -142,16 +143,22 @@ public class ClientHandler {
      * Stop controller(Blower) with this ID
      */
     public void stopAController(String ID) throws IOException {
+        System.out.println("[ClientHandler] Stop a controller with id = " + ID);
         if (!client.isConnected()) {
             throw new ConnectException("Disconnected from server");
         }
         if (!ID.matches("\\A\\p{ASCII}*\\z")) {
             throw new SocketException("Non ascii characters found!");
         }
+        System.out.println("1");
         synchronized (RequestResult.getInstance()) {
+            System.out.println("2");
             client.writeMessage(new Message(MessageBuilder.GUI.Request.StopThisController.build()));
+            System.out.println("3");
             client.writeMessage(new Message(ID.getBytes(StandardCharsets.US_ASCII)));
+            System.out.println("4");
         }
+        System.out.println("5");
     }
 
     /**
@@ -189,6 +196,7 @@ public class ClientHandler {
     }
 
     public void unlockController(String id) throws IOException {
+        System.out.println("[ClientHandler] Unlock a controller with id = " + id);
         if (!client.isConnected()) {
             throw new ConnectException("Disconnected from server");
         }
