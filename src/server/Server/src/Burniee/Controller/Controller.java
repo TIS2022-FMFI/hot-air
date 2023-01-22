@@ -3,6 +3,7 @@ package Burniee.Controller;
 import java.net.InetAddress;
 
 public class Controller {
+    public enum Error {BOTH, DAC_NOT_FOUND, TEMP_CAN_NOT_BE_READ, NONE};
     private final InetAddress IP;
     private String ID;
     private float currentTemperature;
@@ -10,8 +11,12 @@ public class Controller {
     private short airFlow;
     private long time;
     private String projectName;
+    private Error activeError = Error.NONE;
 
     public Controller(InetAddress ip) {IP = ip;}
+
+    public synchronized Error getActiveError() {return activeError;}
+    public synchronized void setActiveError(Error activeError) {this.activeError = activeError;}
 
     public synchronized String getProjectName() {return projectName;}
     public synchronized void setProjectName(String projectName) {this.projectName = projectName;}
