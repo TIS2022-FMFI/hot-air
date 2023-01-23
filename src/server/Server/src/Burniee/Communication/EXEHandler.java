@@ -18,6 +18,7 @@ public class EXEHandler extends Thread {
         while (socket.isActive()) {
             try {
                 msg = socket.readMessage();
+<<<<<<< Updated upstream
                 System.out.println("[EXE] received a message from EXE");
                 if (MessageBuilder.EXE.FileTransfer.equals(msg)) {
                     System.out.println("[EXE] starting a file transfer");
@@ -39,6 +40,22 @@ public class EXEHandler extends Thread {
                         }
                     }
                     System.err.println("[EXE] Project with this id not found");
+=======
+                if (MessageBuilder.EXE.FileTransfer.equals(msg)) {
+                    String projectID = socket.readStringMessage();
+                    String pathToFile = socket.receiveAFile();
+                    Project p = new Project(pathToFile, projectID);
+                    p.begin();
+                    socket.stopSocket();
+                } else if (MessageBuilder.EXE.EndOfSegment.equals(msg)) {
+                    String id = socket.readStringMessage();
+                    for (Project p : Server.getInstance().getActiveProjects()) {
+                        if (p.getID().equals(id)) {
+                            p.confirmEndOfPhaseForAllControllers();
+                            break;
+                        }
+                    }
+>>>>>>> Stashed changes
                     socket.stopSocket();
                 }
             } catch (SocketException e) {
