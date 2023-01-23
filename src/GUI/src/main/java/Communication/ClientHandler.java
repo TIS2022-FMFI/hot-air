@@ -210,7 +210,6 @@ public class ClientHandler {
         if (!client.isConnected()) {
             throw new ConnectException("Disconnected from server");
         }
-
         String res;
         synchronized (RequestResult.getInstance()) {
             client.writeMessage(new Message(MessageBuilder.GUI.Request.RequestTemperatureLog.build()));

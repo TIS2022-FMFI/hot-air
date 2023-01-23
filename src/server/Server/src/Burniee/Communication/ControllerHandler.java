@@ -8,6 +8,7 @@ import Burniee.Server;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
@@ -54,7 +55,7 @@ public class ControllerHandler extends Thread {
     private String resolveId(byte[] msg) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 15; i++) {
-            if (msg[i] == 0) {
+            if (msg[i] == '\0') {
                 break;
             }
             sb.append((char) msg[i]);
@@ -124,6 +125,9 @@ public class ControllerHandler extends Thread {
     @Override
     public void run() {
         byte[] msg;
+        try {
+            socket.getSocket().setSoTimeout(10000);
+        } catch (IOException e) {e.printStackTrace();}
         while (socket.isActive()) {
             try {
                 msg = socket.readMessage(true);
@@ -180,7 +184,7 @@ public class ControllerHandler extends Thread {
                 } else {
                     throw new ControllerException("Unknown message" + Arrays.toString(msg));
                 }
-            } catch (SocketException e) {
+            } catch (SocketException | SocketTimeoutException e) {
                 stopConnection();
                 System.out.println("[Controller] Lost connection to controller");
 //                Server.getInstance().sendExceptionToAllActiveGUIs(e);

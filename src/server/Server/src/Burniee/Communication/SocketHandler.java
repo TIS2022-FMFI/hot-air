@@ -64,6 +64,7 @@ public class SocketHandler {
     public boolean isActive() {
         return socket.isConnected() && !socket.isClosed();
     }
+    public Socket getSocket() {return socket;}
 
     public synchronized void writeMessage(Message msg) throws IOException {
         out.write(msg.getMessage());
@@ -98,6 +99,9 @@ public class SocketHandler {
         byte[] res = new byte[len];
         for (int i = 0; i < len; i++) {
             res[i] = (byte) in.read(); // this is required because in.read(res) ignores part of xml file for some wild reason
+            if (res[i] == -1) {
+                throw new SocketException("Stream has been closed");
+            }
         }
 //        System.out.println("[TCP] message received");
         return res;

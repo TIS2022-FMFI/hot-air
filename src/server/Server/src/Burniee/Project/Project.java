@@ -32,42 +32,40 @@ public class Project extends Thread {
 
     public Project(String pathToXML, String id) throws ProjectException, XMLException, ParserConfigurationException, IOException, SAXException, ControllerException {
         ID = id;
-        HashMap<String, List<String>> script = XMLAnalyzer.XMLtoCommands(pathToXML);
+        List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> script = XMLAnalyzer.XMLtoCommands(pathToXML);
         name = XMLAnalyzer.getProjectName(pathToXML);
         temperatureLogger = new TemperatureLogger(name);
+        if (TemperatureLogger.numFilesToDelete() > 0) {
+            Server.getInstance().sendRequestForDeletingOldLogFiles();
+        }
         System.out.println("[Project] starting project " + name);
-//        handlers = new HashMap<>();
         handlerIDs = new LinkedList<>();
         jobs = new LinkedList<>();
-        int numberOfPhases = script.entrySet().iterator().next().getValue().size(); //TODO change
         List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>> phaseJobs;
         System.out.println("[Project] searching for controllers");
-        for (int i = 0; i < numberOfPhases; i++) {
+        for (AbstractMap.SimpleEntry<String, String> controller : script.get(0).getValue()) {
+            ControllerHandler ch = findControllerByID(controller.getKey());
+            if (ch == null || ch.isActive()) {
+                throw new ControllerException("Controller with ID = " + controller.getKey() + " is currently being used by another project");
+            }
+            ch.startUsing(this);
+            System.out.println("[Project] controller with id = " + ch.getControllerID() + " found");
+            handlerIDs.add(controller.getKey());
+        }
+
+        for (AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>> phase : script) {
             phaseJobs = new LinkedList<>();
-            for (Map.Entry<String, List<String>> phase : script.entrySet()) {
-                if (i == 0) {
-                    if (phase.getValue().size() != numberOfPhases) {
-                        throw new XMLException("Number of phases for each controller is not the same");
-                    }
-                    ControllerHandler ch = findControllerByID(phase.getKey());
-                    if (ch == null || ch.isActive()) {
-                        throw new ControllerException("Controller with ID = " + phase.getKey() + " is currently being used by another project");
-                    }
-                    ch.startUsing(this);
-                    System.out.println("[Project] controller with id = " + ch.getControllerID() + " found");
-                    handlerIDs.add(phase.getKey());
-//                    handlers.put(phase.getKey(), ch);
-                }
-                String tempTime = phase.getValue().get(i);
+            for (AbstractMap.SimpleEntry<String, String> controller : phase.getValue()) {
+                String tempTime = controller.getValue();
                 if (!tempTime.matches("[.0-9]+\\$[.0-9]+")) {
                     throw new XMLException("Expected [.0-9]+\\$[.0-9]+, got " + tempTime);
                 }
                 String[] split = tempTime.split("\\$");
                 int temperature = Integer.parseInt(split[0]);
                 long time = (long)(Float.parseFloat(split[1]));
-                phaseJobs.add(new AbstractMap.SimpleEntry<>(phase.getKey(), new AbstractMap.SimpleEntry<>(temperature, time)));
+                phaseJobs.add(new AbstractMap.SimpleEntry<>(controller.getKey(), new AbstractMap.SimpleEntry<>(temperature, time)));
             }
-            jobs.add(new AbstractMap.SimpleEntry<>(String.valueOf(i), phaseJobs));
+            jobs.add(new AbstractMap.SimpleEntry<>(phase.getKey(), phaseJobs));
         }
         System.out.println("[Project] job queue prepared");
 
@@ -86,33 +84,9 @@ public class Project extends Thread {
                 Server.getInstance().sendExceptionToAllActiveGUIs(e);
                 e.printStackTrace();
             }
-        }, 0, 1, TimeUnit.SECONDS); //phasename;c1;t1;c2;t2
-
-//        for (Map.Entry<String, List<String>> i : script.entrySet()) {
-//            ControllerHandler handler = findControllerByID(i.getKey());
-//            Queue<AbstractMap.SimpleEntry<Integer, Long>> queue = new LinkedList<>();
-//            for (String tempTime : i.getValue()) {
-//                if (!tempTime.matches("[.0-9]+\\$[.0-9]+")) {
-//                    throw new XMLException("Expected [.0-9]+\\$[.0-9]+, got " + tempTime);
-//                }
-//                String[] split = tempTime.split("\\$");
-//                int temperature = Integer.parseInt(split[0]);
-//                long time = (long)(Float.parseFloat(split[1]));
-//                queue.add(new AbstractMap.SimpleEntry<>(temperature, time));
-//            }
-//            controllers.add(new ActiveController(handler, queue, this));
-//        }
+        }, 0, 1, TimeUnit.SECONDS);
     }
 
-//    public void begin() {
-//        startedAt = System.nanoTime();
-//        Server.getInstance().addProject(this);
-//        for (ActiveController i : controllers) {
-//            if (!i.isAlive()) {
-//                i.start();
-//            }
-//        }
-//    }
 
     public TemperatureLogger getLogger() {return temperatureLogger;}
 
@@ -127,10 +101,6 @@ public class Project extends Thread {
             }
         }
         logger.shutdown();
-//        for (Map.Entry<String, ControllerHandler> entry : handlers.entrySet()) {
-//            entry.getValue().freeFromService();
-//            entry.getValue().getController().setProjectName(null);
-//        }
     }
 
     public String getID() {return ID;}

@@ -86,7 +86,7 @@ public class Server {
      * new GUI has connected to server
      * @param sh GUI
      */
-    public synchronized void addGUI(GUIHandler sh) {
+    public void addGUI(GUIHandler sh) {
         synchronized (activeGUIs) {
             activeGUIs.add(sh);
         }
@@ -96,23 +96,29 @@ public class Server {
      * A GUI has disconnected from server
      * @param sh GUI
      */
-    public synchronized void removeGUI(GUIHandler sh) {
+    public void removeGUI(GUIHandler sh) {
         synchronized (activeGUIs) {
             activeGUIs.remove(sh);
         }
     }
 
-    public synchronized List<GUIHandler> getAllGUIS() {return activeGUIs;}
+    public List<GUIHandler> getAllGUIS() {
+        List<GUIHandler> res;
+        synchronized (activeGUIs) {
+            res = activeGUIs;
+        }
+        return res;
+    }
 
     /**
      * Add a newly connected controller to list of controllers
      * @param ch handler for said controller
      */
-    public synchronized void addController(ControllerHandler ch) {
+    public void addController(ControllerHandler ch) {
         synchronized (controllers) {
             List<ControllerHandler> toRemove = new LinkedList<>();
             for (ControllerHandler i : controllers) {
-                if (i.getControllerID().equals(ch.getControllerID())) {
+                if (i.getController().getIP().equals(ch.getController().getIP())) {
                     toRemove.add(i);
                 }
             }
@@ -130,7 +136,7 @@ public class Server {
      * Remove a controller that suddenly disconnected from server
      * @param ch handler for said controller
      */
-    public synchronized void removeController(ControllerHandler ch) {
+    public void removeController(ControllerHandler ch) {
         synchronized (controllers) {
             controllers.remove(ch);
         }
@@ -148,7 +154,7 @@ public class Server {
      * Add a newly started project to list of Projects
      * @param p Project
      */
-    public synchronized void addProject(Project p) {
+    public void addProject(Project p) {
         synchronized (activeProjects) {
             activeProjects.add(p);
         }
@@ -174,7 +180,25 @@ public class Server {
         return null;
     }
 
-    public List<Project> getActiveProjects() {return activeProjects;}
+    public List<Project> getActiveProjects() {
+        List<Project> res;
+        synchronized (activeProjects) {
+            res = activeProjects;
+        }
+        return res;
+    }
+
+    public void sendRequestForDeletingOldLogFiles() {
+        synchronized (activeGUIs) {
+            for (GUIHandler gui : activeGUIs) {
+                try {
+                    gui.sendRequestForDeletingOldFiles();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     /**
      * An exception has arrisen in server or other parts, and we will attempt to send it to any active GUI
