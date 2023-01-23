@@ -1,24 +1,31 @@
 package GUI;
 
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleStringProperty;
+
+import java.sql.Time;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Class for projects.
  */
 public class Project {
     private String name;
-    private long time;
-    private String currentPhase;
+    private SimpleLongProperty time;
+    private SimpleStringProperty currentPhase;
 
     /**
      * Instantiates a new Project.
      *
      * @param name         the name
-     * @param time         the time passed
+     * @param time         the time passed in milis // todo hlupost
      * @param currentPhase the current phase
      */
     public Project(String name, long time, String currentPhase) {
         this.name = name;
-        this.time = time;
-        this.currentPhase = currentPhase;
+        this.time = new SimpleLongProperty(TimeUnit.MILLISECONDS.toMinutes(time));
+        this.currentPhase = new SimpleStringProperty(currentPhase);
     }
 
     /**
@@ -44,7 +51,7 @@ public class Project {
      *
      * @return the time
      */
-    public long getTime() {
+    public SimpleLongProperty timeProperty() {
         return time;
     }
 
@@ -53,7 +60,7 @@ public class Project {
      *
      * @param time the time
      */
-    public void setTime(long time) {
+    public void setTimeProperty(SimpleLongProperty time) {
         this.time = time;
     }
 
@@ -62,7 +69,7 @@ public class Project {
      *
      * @return the current phase
      */
-    public String getCurrentPhase() {
+    public SimpleStringProperty currentPhaseProperty() {
         return currentPhase;
     }
 
@@ -71,7 +78,20 @@ public class Project {
      *
      * @param currentPhase the current phase
      */
-    public void setCurrentPhase(String currentPhase) {
+    public void setCurrentPhaseProperty(SimpleStringProperty currentPhase) {
         this.currentPhase = currentPhase;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Project project = (Project) o;
+        return Objects.equals(name, project.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }
