@@ -150,15 +150,10 @@ public class ClientHandler {
         if (!ID.matches("\\A\\p{ASCII}*\\z")) {
             throw new SocketException("Non ascii characters found!");
         }
-        System.out.println("1");
         synchronized (RequestResult.getInstance()) {
-            System.out.println("2");
             client.writeMessage(new Message(MessageBuilder.GUI.Request.StopThisController.build()));
-            System.out.println("3");
             client.writeMessage(new Message(ID.getBytes(StandardCharsets.US_ASCII)));
-            System.out.println("4");
         }
-        System.out.println("5");
     }
 
     /**

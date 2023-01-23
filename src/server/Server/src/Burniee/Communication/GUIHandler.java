@@ -79,13 +79,16 @@ public class GUIHandler extends Thread {
                 } else if (MessageBuilder.GUI.Request.ChangeControllerID.equals(msg)) { //TODO -> check if new id is unique
                     String oldID = socket.readStringMessage(), newID = socket.readStringMessage();
                     System.out.println("[GUI] request for new id = " + newID + " for controller with id = " + oldID);
+                    boolean gut = false;
                     for (ControllerHandler i : Server.getInstance().getControllers()) {
                         if (i.getControllerID().equals(oldID)) {
                             i.changeId(newID);
-                            return;
+                            gut = true;
                         }
                     }
-                    throw new ControllerException("No controller with id = " + oldID + " found!");
+                    if (!gut) {
+                        throw new ControllerException("No controller with id = " + oldID + " found!");
+                    }
                 } else if (MessageBuilder.GUI.Request.SearchForNewControllers.equals(msg)) {
                     System.out.println("[GUI] request to search for new controllers");
                     UDPCommunicationHandler.sendUDPPacket(UDPCommunicationHandler.LOOKING_FOR_CONTROLLERS_MESSAGE, UDPCommunicationHandler.getBroadcastAddresses());
@@ -100,13 +103,16 @@ public class GUIHandler extends Thread {
                 } else if (MessageBuilder.GUI.Request.StopThisController.equals(msg)) {
                     String ID = socket.readStringMessage();
                     System.out.println("[GUI] request to stop controller with id = " + ID);
+                    boolean gut = false;
                     for (ControllerHandler ch : Server.getInstance().getControllers()) {
                         if (ch.getControllerID().equals(ID)) {
                             ch.bigRedButton();
-                            return;
+                            gut = true;
                         }
                     }
-                    throw new ControllerException("No controller with ID = " + ID);
+                    if (!gut) {
+                        throw new ControllerException("No controller with ID = " + ID);
+                    }
                 } else if (MessageBuilder.GUI.Request.GetInfoAboutControllers.equals(msg)) {
                     System.out.println("[GUI] request for info about all " + Server.getInstance().getControllers().size() + " controllers");
                     socket.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutControllers.build()));
@@ -128,13 +134,16 @@ public class GUIHandler extends Thread {
                 } else if (MessageBuilder.GUI.Request.UnlockThisController.equals(msg)) {
                     String ID = socket.readStringMessage();
                     System.out.println("[GUI] request to unlock controller with id = " + ID);
+                    boolean gut = false;
                     for (ControllerHandler ch : Server.getInstance().getControllers()) {
                         if (ch.getControllerID().equals(ID)) {
                             ch.unlock();
-                            return;
+                            gut = true;
                         }
                     }
-                    throw new ControllerException("No controller with ID = " + ID);
+                    if (!gut) {
+                        throw new ControllerException("No controller with ID = " + ID);
+                    }
                 }
             } catch (SocketException e) {
                 stopSocket();
