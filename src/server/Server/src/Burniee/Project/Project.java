@@ -27,7 +27,7 @@ public class Project extends Thread {
     private final ScheduledExecutorService logger;
     private final TemperatureLogger temperatureLogger;
 //    private final Map<String, ControllerHandler> handlers;
-    private final Queue<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>>> jobs;
+    private final List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>>> jobs;
     //           ^Queue<Pair<PhaseName, List<Pair<ControllerID, Pair<Temperature, Time>>>>>
 
     public Project(String pathToXML, String id) throws ProjectException, XMLException, ParserConfigurationException, IOException, SAXException, ControllerException {
@@ -147,7 +147,7 @@ public class Project extends Thread {
     public void run() {
         try {
             startedAt = System.nanoTime();
-            System.out.println("[Project] project started at " + getReadableTime(startedAt));
+//            System.out.println("[Project] project started at " + getReadableTime(startedAt));
             Server.getInstance().addProject(this);
             for (String entry : handlerIDs) {
                 ControllerHandler ch = findControllerByID(entry);
@@ -161,7 +161,10 @@ public class Project extends Thread {
             int temperature;
             long time = 0;
             System.out.println("[Project] Starting first job");
-            for (AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>> job : jobs) {
+            AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>> job;
+            for (int i = 0; i < jobs.size(); i++) {
+                job = jobs.get(i);
+//            for (AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>> job : jobs) {
                 setPhaseName(job.getKey());
                 System.out.println("[Project] Phase " + job.getKey() + " started");
                 for (AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>> controllerJob : job.getValue()) {
@@ -173,7 +176,17 @@ public class Project extends Thread {
                     }
                 }
                 System.out.println("[Project] Instructions sent to controller(s), awaiting end of phase confirmation");
-//                sleep(time*1000); //TODO should this be here or not?
+                phaseEnded = false;
+                if (i == jobs.size()-1) {
+                    sleep(time*1000);
+                    for (String controller : handlerIDs) {
+                        ControllerHandler ch = findControllerByID(controller);
+                        if (ch != null) {
+                            ch.changeControllerParameters(0, (short) 100, 0);
+                        }
+                    }
+                    return;
+                }
                 awaitEndOfPhase();
                 System.out.println("[Project] End of phase received, continuing to another phase");
             }
