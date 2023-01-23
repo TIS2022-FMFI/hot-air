@@ -244,6 +244,8 @@ public class Client extends Thread {
                         rr.setByteData(readMessage());
                         rr.notifyAll();
                     }
+                } else if (MessageBuilder.GUI.Request.RequestCheckForOldLogFiles.equals(msg)) {
+                    writeMessage(new Message(MessageBuilder.GUI.Request.RequestCheckForOldLogFiles.build()));
                 }
             } catch (SocketException e) {
                 try {

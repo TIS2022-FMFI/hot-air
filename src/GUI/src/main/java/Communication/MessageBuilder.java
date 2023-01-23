@@ -119,6 +119,13 @@ public class MessageBuilder {
                 public static byte[] build() {return new byte[]{GUI.ID, Request.ID, ID};}
                 public static boolean equals(byte[] msg) {return Arrays.equals(msg, new byte[]{GUI.ID, Request.ID, ID});}
             }
+
+            public static class RequestCheckForOldLogFiles {
+                private static final byte ID = 'e'+7;
+
+                public static byte[] build() {return new byte[]{GUI.ID, Request.ID, ID};}
+                public static boolean equals(byte[] msg) {return Arrays.equals(msg, new byte[]{GUI.ID, Request.ID, ID});}
+            }
         }
         public static class Exception {
             private static final byte ID = 'b';

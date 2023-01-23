@@ -2,6 +2,7 @@ package Burniee.Communication;
 
 import Burniee.Controller.Controller;
 import Burniee.Controller.ControllerException;
+import Burniee.Logs.TemperatureLogger;
 import Burniee.Project.Project;
 import Burniee.Project.ProjectException;
 import Burniee.Server;
@@ -75,6 +76,10 @@ public class GUIHandler extends Thread {
         socket.writeMessage(new Message(file.getName().getBytes()));
         byte[] bytes = Files.readAllBytes(file.toPath());
         socket.writeMessage(new Message(bytes));
+    }
+
+    public void sendRequestForDeletingOldFiles() throws IOException {
+        socket.writeMessage(new Message(MessageBuilder.GUI.Request.RequestCheckForOldLogFiles.build()));
     }
 
     @Override
@@ -165,6 +170,8 @@ public class GUIHandler extends Thread {
                     System.out.println("[GUI] request to get temperature log file for project with name = " + projectName);
                     Project p = Server.getInstance().findProjectByName(projectName);
                     sendFile(p.getLogger().getFileName());
+                } else if (MessageBuilder.GUI.Request.RequestCheckForOldLogFiles.equals(msg)) {
+                    TemperatureLogger.deleteFiles();
                 }
             } catch (SocketException e) {
                 stopSocket();

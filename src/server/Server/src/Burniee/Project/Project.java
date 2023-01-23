@@ -35,6 +35,9 @@ public class Project extends Thread {
         List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> script = XMLAnalyzer.XMLtoCommands(pathToXML);
         name = XMLAnalyzer.getProjectName(pathToXML);
         temperatureLogger = new TemperatureLogger(name);
+        if (TemperatureLogger.numFilesToDelete() > 0) {
+            Server.getInstance().sendRequestForDeletingOldLogFiles();
+        }
         System.out.println("[Project] starting project " + name);
         handlerIDs = new LinkedList<>();
         jobs = new LinkedList<>();
