@@ -13,6 +13,7 @@ import java.util.*;
 public class TemperatureLogger {
     private final BufferedWriter bufferedWriter;
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
+    private String fileName = "";
 
     public TemperatureLogger(String projectName) throws IOException {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -22,9 +23,9 @@ public class TemperatureLogger {
 
         } catch (FileAlreadyExistsException ignored){
         }
-
-        bufferedWriter = new BufferedWriter(new FileWriter("temperature_logs\\" + projectName
-                + "_temperatures_" + sdf.format(timestamp) + ".csv", true));
+        fileName = "temperature_logs\\" + projectName
+                + "_temperatures_" + sdf.format(timestamp) + ".csv";
+        bufferedWriter = new BufferedWriter(new FileWriter(fileName, true));
     }
 
     public int numFilesToDelete(){
@@ -62,6 +63,10 @@ public class TemperatureLogger {
         }
         bufferedWriter.newLine();
         bufferedWriter.flush();
+    }
+
+    public String getFileName(){
+        return fileName;
     }
 }
 
