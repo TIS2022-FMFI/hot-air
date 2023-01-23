@@ -110,6 +110,19 @@ public class Server {
      */
     public synchronized void addController(ControllerHandler ch) {
         synchronized (controllers) {
+            ControllerHandler toRemove = null;
+            for (ControllerHandler i : controllers) {
+                if (i.getControllerID().equals(ch.getControllerID()) &&
+                    i.getController().getIP().equals(ch.getController().getIP())) {
+                    toRemove = i;
+                }
+            }
+            if (toRemove != null) {
+                if (toRemove.isActive()) {
+                    ch.startUsing(toRemove.getProject());
+                }
+                toRemove.stopConnection();
+            }
             controllers.add(ch);
         }
     }

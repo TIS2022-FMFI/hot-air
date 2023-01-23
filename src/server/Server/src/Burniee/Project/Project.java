@@ -18,7 +18,8 @@ public class Project extends Thread {
     private static final byte AIR_FLOW = 100;
     private String phaseName = "";
     private boolean phaseEnded = false;
-    private final Map<String, ControllerHandler> handlers;
+    private final List<String> handlerIDs;
+//    private final Map<String, ControllerHandler> handlers;
     private final Queue<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>>> jobs;
     //           ^Queue<Pair<PhaseName, List<Pair<ControllerID, Pair<Temperature, Time>>>>>
 
@@ -27,7 +28,8 @@ public class Project extends Thread {
         HashMap<String, List<String>> script = XMLAnalyzer.XMLtoCommands(pathToXML);
         name = XMLAnalyzer.getProjectName(pathToXML);
         System.out.println("[Project] starting project " + name);
-        handlers = new HashMap<>();
+//        handlers = new HashMap<>();
+        handlerIDs = new LinkedList<>();
         jobs = new LinkedList<>();
         int numberOfPhases = script.entrySet().iterator().next().getValue().size(); //TODO change
         List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>> phaseJobs;
@@ -40,12 +42,13 @@ public class Project extends Thread {
                         throw new XMLException("Number of phases for each controller is not the same");
                     }
                     ControllerHandler ch = findControllerByID(phase.getKey());
-                    if (ch.isActive()) {
+                    if (ch == null || ch.isActive()) {
                         throw new ControllerException("Controller with ID = " + phase.getKey() + " is currently being used by another project");
                     }
                     ch.startUsing(this);
                     System.out.println("[Project] controller with id = " + ch.getControllerID() + " found");
-                    handlers.put(phase.getKey(), ch);
+                    handlerIDs.add(phase.getKey());
+//                    handlers.put(phase.getKey(), ch);
                 }
                 String tempTime = phase.getValue().get(i);
                 if (!tempTime.matches("[.0-9]+\\$[.0-9]+")) {
@@ -89,10 +92,17 @@ public class Project extends Thread {
     public void end() {
         System.out.println("[Project] Project with ID = " + ID + ", name = " + name + " ended");
         Server.getInstance().removeProject(this);
-        for (Map.Entry<String, ControllerHandler> entry : handlers.entrySet()) {
-            entry.getValue().freeFromService();
-            entry.getValue().getController().setProjectName(null);
+        for (String entry : handlerIDs) {
+            ControllerHandler ch = findControllerByID(entry);
+            if (ch != null) {
+                ch.freeFromService();
+                ch.getController().setProjectName(null);
+            }
         }
+//        for (Map.Entry<String, ControllerHandler> entry : handlers.entrySet()) {
+//            entry.getValue().freeFromService();
+//            entry.getValue().getController().setProjectName(null);
+//        }
     }
 
     public String getID() {return ID;}
@@ -115,14 +125,14 @@ public class Project extends Thread {
         }
     }
 
-    private ControllerHandler findControllerByID(String id) throws ControllerException {
+    private ControllerHandler findControllerByID(String id) {
         List<ControllerHandler> controllers = Server.getInstance().getControllers();
         for (ControllerHandler c : controllers) {
             if (c.getControllerID().equals(id)) {
                 return c;
             }
         }
-        throw new ControllerException("No controller with id = " + id + ", stopping");
+        return null;
     }
 
     private String getReadableTime(Long nanos){
@@ -141,9 +151,15 @@ public class Project extends Thread {
             startedAt = System.nanoTime();
             System.out.println("[Project] project started at " + getReadableTime(startedAt));
             Server.getInstance().addProject(this);
-            for (Map.Entry<String, ControllerHandler> entry : handlers.entrySet()) {
-                entry.getValue().getController().setProjectName(name);
+            for (String entry : handlerIDs) {
+                ControllerHandler ch = findControllerByID(entry);
+                if (ch != null) {
+                    ch.getController().setProjectName(name);
+                }
             }
+//            for (Map.Entry<String, ControllerHandler> entry : handlers.entrySet()) {
+//                entry.getValue().getController().setProjectName(name);
+//            }
             int temperature;
             long time = 0;
             System.out.println("[Project] Starting first job");
@@ -153,7 +169,10 @@ public class Project extends Thread {
                 for (AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>> controllerJob : job.getValue()) {
                     time = controllerJob.getValue().getValue();
                     temperature = controllerJob.getValue().getKey();
-                    handlers.get(controllerJob.getKey()).changeControllerParameters(temperature, AIR_FLOW, time);
+                    ControllerHandler ch = findControllerByID(controllerJob.getKey());
+                    if (ch != null) {
+                        ch.changeControllerParameters(temperature, AIR_FLOW, time);
+                    }
                 }
                 System.out.println("[Project] Instructions sent to controller(s), awaiting end of phase confirmation");
 //                sleep(time*1000); //TODO should this be here or not?
