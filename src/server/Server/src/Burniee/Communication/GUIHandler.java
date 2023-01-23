@@ -7,11 +7,15 @@ import Burniee.Project.ProjectException;
 import Burniee.Server;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Paths;
 
 public class GUIHandler extends Thread {
     private final SocketHandler socket;
@@ -59,6 +63,18 @@ public class GUIHandler extends Thread {
 
     public void updateTemperature() throws IOException {
         socket.writeMessage(new Message(MessageBuilder.GUI.Request.TemperatureChanged.build()));
+    }
+
+    public void sendFile(String pathToFile) throws IOException {
+        socket.writeMessage(new Message(MessageBuilder.GUI.Request.RequestTemperatureLog.build()));
+        if (!Files.exists(Paths.get(pathToFile), LinkOption.NOFOLLOW_LINKS)) {
+            System.err.println("No file found!");
+            return;
+        }
+        File file = new File(pathToFile);
+        socket.writeMessage(new Message(file.getName().getBytes()));
+        byte[] bytes = Files.readAllBytes(file.toPath());
+        socket.writeMessage(new Message(bytes));
     }
 
     @Override
@@ -144,6 +160,11 @@ public class GUIHandler extends Thread {
                     if (!gut) {
                         throw new ControllerException("No controller with ID = " + ID);
                     }
+                } else if (MessageBuilder.GUI.Request.RequestTemperatureLog.equals(msg)) {
+                    String projectName = socket.readStringMessage();
+                    System.out.println("[GUI] request to get temperature log file for project with name = " + projectName);
+                    Project p = Server.getInstance().findProjectByName(projectName);
+                    sendFile(p.getLogger().getFileName());
                 }
             } catch (SocketException e) {
                 stopSocket();

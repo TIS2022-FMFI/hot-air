@@ -95,7 +95,7 @@ public class Client extends Thread {
      * read message from server and convert it to string
      * @return message from server in string form
      */
-    private String readStringMessage() throws IOException {
+    public String readStringMessage() throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         byte[] res = readMessage();
         if (res.length == 1 && res[0] == 0) {
@@ -237,6 +237,13 @@ public class Client extends Thread {
                     }
                 } else if (MessageBuilder.GUI.Request.TemperatureChanged.equals(msg)) {
                     GUI.gui.refresh();
+                } else if (MessageBuilder.GUI.Request.RequestTemperatureLog.equals(msg)) {
+                    synchronized (RequestResult.getInstance()) {
+                        RequestResult rr = RequestResult.getInstance();
+                        rr.setStringData(readStringMessage());
+                        rr.setByteData(readMessage());
+                        rr.notifyAll();
+                    }
                 }
             } catch (SocketException e) {
                 try {
