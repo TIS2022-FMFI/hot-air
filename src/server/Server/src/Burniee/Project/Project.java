@@ -98,8 +98,8 @@ public class Project extends Thread {
         for (String entry : handlerIDs) {
             ControllerHandler ch = findControllerByID(entry);
             if (ch != null) {
-                ch.freeFromService();
                 ch.getController().setProjectName(null);
+                ch.freeFromService();
             }
         }
         logger.shutdown();
