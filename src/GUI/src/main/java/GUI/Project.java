@@ -49,7 +49,7 @@ public class Project {
      */
     public Project(String name, String currentPhase) {
         this.name = name;
-        setGraph();
+//        setGraph();
         this.currentPhase = new SimpleStringProperty(currentPhase);
 
         ImageView imageView = new ImageView(Objects.requireNonNull(getClass().getResource("caution.png")).toExternalForm());

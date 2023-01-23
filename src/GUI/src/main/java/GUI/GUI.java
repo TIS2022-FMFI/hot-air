@@ -25,7 +25,7 @@ public class GUI extends Application {
 
     public static GUI gui;
     private Stage stage;
-    public ClientHandler client;
+    public static ClientHandler client;
 
     /**
      * The entry point of application.

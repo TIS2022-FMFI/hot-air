@@ -20,11 +20,13 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -41,11 +43,14 @@ public class Blower {
     private Hyperlink link;
     private String IPAddress;
     private SimpleFloatProperty currentTemp;
+    private Hyperlink graph;
     private SimpleFloatProperty targetTemp;
     private SimpleStringProperty projectName;
 
     private final Button stopButton;
     private final Button hiddenButton;
+
+    private int count = 0;
 
     /**
      * Instantiates a new Blower.
@@ -58,8 +63,56 @@ public class Blower {
      */
     public Blower(String IPAddress, String id, float currentTemp, float targetTemp, String projectName) {
         this.IPAddress = IPAddress.trim();
-        this.id = new SimpleStringProperty(id.trim());
+        this.id = new SimpleStringProperty(id);
         this.currentTemp = new SimpleFloatProperty(currentTemp);
+//        setGraph();
+        this.graph = new Hyperlink("a");
+        this.graph.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    System.out.println(projectNameProperty().getValue());
+                    String pathToTempLog = GUI.client.getTempLogFile(projectNameProperty().getValue()); // cesta ku suboru
+                    System.out.println(pathToTempLog);
+
+                    List<List<String>> records = new ArrayList<List<String>>();
+                    try (BufferedReader br = new BufferedReader(new FileReader(pathToTempLog))) {
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            System.out.println(line);
+                            String[] values = line.split(",");
+                            records.add(Arrays.asList(values));
+                        }
+                        records.forEach(System.out::println);
+                    }
+
+                } catch (IOException | InterruptedException | NullPointerException e) {
+                    gui.alert(e);
+                    e.printStackTrace();
+                }
+
+
+                LineChart<Number, Number> lineChart = new LineChart<>(new NumberAxis(), new NumberAxis());
+                XYChart.Series<Number, Number> series = new XYChart.Series<>();
+                series.setName("Blower " + idProperty().getValue());
+                lineChart.getData().add(series);
+
+                ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+                executor.scheduleAtFixedRate(() -> {
+                    series.getData().add(new XYChart.Data<>(count, Math.random()));
+                    count++;
+                }, 0, 2, TimeUnit.SECONDS);
+
+                Scene scene = new Scene(lineChart, 400, 300);
+                Stage newWindow = new Stage();
+                newWindow.setTitle("GRAPH " + idProperty().getValue());
+                newWindow.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
+                newWindow.setScene(scene);
+                newWindow.setX(gui.getStage().getX() + 200);
+                newWindow.setY(gui.getStage().getY() + 100);
+                newWindow.show();
+            }
+        });
         this.targetTemp = new SimpleFloatProperty(targetTemp);;
         this.projectName = new SimpleStringProperty(projectName.trim());
         this.link = new Hyperlink(idProperty().getValue());
@@ -190,6 +243,27 @@ public class Blower {
     }
 
     /**
+     * Gets current link to graph.
+     *
+     * @return the link to graph
+     */
+    public Hyperlink getGraph() {
+        return graph;
+    }
+
+    /**
+     * Sets link to open the graph.
+     *
+     */
+    public void setGraph(Hyperlink graph) {
+        this.graph.setText(graph.getText());
+    }
+
+    public void updateGraph() {
+        this.graph.setText("" + currentTempProperty().getValue());
+    }
+
+    /**
      * Gets target temp.
      *
      * @return the target temp
@@ -260,8 +334,6 @@ public class Blower {
     public Button getHiddenButton() {
         return hiddenButton;
     }
-
-
 
     @Override
     public boolean equals(Object o) {

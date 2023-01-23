@@ -73,6 +73,8 @@ public class GUIController implements Initializable {
     @FXML TableView<Blower> blowersView;
     @FXML TableColumn<Blower,Hyperlink> blowerID;
     @FXML TableColumn<Blower,String> blowerIP;
+    @FXML TableColumn<Blower, Hyperlink> graph;
+//    @FXML TableColumn<Blower, Hyperlink> blowerCurrentTmp;
     @FXML TableColumn<Blower, Float> blowerCurrentTmp;
     @FXML TableColumn<Blower,Float> blowerTargetTmp;
     @FXML TableColumn<Blower,String> blowerProject;
@@ -80,8 +82,8 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Blower, Button> blowerCaution;
 
     @FXML TableView<Project> projectsView;
-//    @FXML TableColumn<Project,String> projectName;
-    @FXML TableColumn<Project, Hyperlink> projectName;
+    @FXML TableColumn<Project,String> projectName;
+//    @FXML TableColumn<Project, Hyperlink> projectName;
     @FXML TableColumn<Project,String> projectPhase;
     @FXML TableColumn<Project,Button> projectStop;
     @FXML TableColumn<Project,Button> projectCaution;
@@ -200,21 +202,11 @@ public class GUIController implements Initializable {
                 return 0;
             }
         });
-
-        blowerCurrentTmp.setCellValueFactory(new PropertyValueFactory<>("currentTemp"));
-        blowerTargetTmp.setCellValueFactory(new PropertyValueFactory<>("targetTemp"));
-        blowerProject.setCellValueFactory(new PropertyValueFactory<>("project"));
-        blowerStop.setCellValueFactory(new PropertyValueFactory<>("stopButton"));
-        blowerCaution.setCellValueFactory(new PropertyValueFactory<>("hiddenButton"));
-    }
-
-    private void setProjectsTable() {
-//        projectName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        projectName.setCellValueFactory(new PropertyValueFactory<>("graph"));
-        projectName.setCellFactory(new Callback<TableColumn<Project, Hyperlink>, TableCell<Project, Hyperlink>>() {
+        graph.setCellValueFactory(new PropertyValueFactory<>("graph"));
+        graph.setCellFactory(new Callback<TableColumn<Blower, Hyperlink>, TableCell<Blower, Hyperlink>>() {
             @Override
-            public TableCell<Project, Hyperlink> call(TableColumn<Project, Hyperlink> param) {
-                return new TableCell<Project, Hyperlink>() {
+            public TableCell<Blower, Hyperlink> call(TableColumn<Blower, Hyperlink> param) {
+                return new TableCell<Blower, Hyperlink>() {
                     @Override
                     protected void updateItem(Hyperlink item, boolean empty) {
                         super.updateItem(item, empty);
@@ -227,10 +219,37 @@ public class GUIController implements Initializable {
                 };
             }
         });
-        projectName.setComparator((o1, o2) -> Float.valueOf(o1.getText()).compareTo(Float.valueOf(o2.getText())));
-        projectName.setSortType(TableColumn.SortType.ASCENDING);
-        projectName.setComparator((o2, o1) -> Float.valueOf(o2.getText()).compareTo(Float.valueOf(o1.getText())));
-        projectName.setSortType(TableColumn.SortType.DESCENDING);
+
+        blowerCurrentTmp.setCellValueFactory(new PropertyValueFactory<>("currentTemp"));
+        blowerTargetTmp.setCellValueFactory(new PropertyValueFactory<>("targetTemp"));
+        blowerProject.setCellValueFactory(new PropertyValueFactory<>("project"));
+        blowerStop.setCellValueFactory(new PropertyValueFactory<>("stopButton"));
+        blowerCaution.setCellValueFactory(new PropertyValueFactory<>("hiddenButton"));
+    }
+
+    private void setProjectsTable() {
+        projectName.setCellValueFactory(new PropertyValueFactory<>("name"));
+//        projectName.setCellValueFactory(new PropertyValueFactory<>("graph"));
+//        projectName.setCellFactory(new Callback<TableColumn<Project, Hyperlink>, TableCell<Project, Hyperlink>>() {
+//            @Override
+//            public TableCell<Project, Hyperlink> call(TableColumn<Project, Hyperlink> param) {
+//                return new TableCell<Project, Hyperlink>() {
+//                    @Override
+//                    protected void updateItem(Hyperlink item, boolean empty) {
+//                        super.updateItem(item, empty);
+//                        if (item == null || empty) {
+//                            setGraphic(null);
+//                        } else {
+//                            setGraphic(item);
+//                        }
+//                    }
+//                };
+//            }
+//        });
+//        projectName.setComparator((o1, o2) -> Float.valueOf(o1.getText()).compareTo(Float.valueOf(o2.getText())));
+//        projectName.setSortType(TableColumn.SortType.ASCENDING);
+//        projectName.setComparator((o2, o1) -> Float.valueOf(o2.getText()).compareTo(Float.valueOf(o1.getText())));
+//        projectName.setSortType(TableColumn.SortType.DESCENDING);
         projectPhase.setCellValueFactory(new PropertyValueFactory<>("currentPhase"));
         projectStop.setCellValueFactory(new PropertyValueFactory<>("stopButton"));
         projectCaution.setCellValueFactory(new PropertyValueFactory<>("hiddenButton"));
@@ -335,35 +354,38 @@ public class GUIController implements Initializable {
                 Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), projectName);
                 blowers.add(blower);
             }
-            System.out.println("blowery v ObservableList");
+            System.out.println("blowery v ObservableList= " + blowersList.size());
             blowersList.forEach(i -> System.out.println(i.toString()));
-            System.out.println("blowery zo servera");
+            System.out.println("blowery zo servera= " + blowers.size());
             for (Blower blower : blowers) {
                 System.out.println(blower.toString());
-                if (blowersList.contains(blower)) {
-                    for (Blower b : blowersList) {
-                        if (b.equals(blower) && !b.equalsEverything(blower)) {
-                            b.setLink(blower.getLink());
-                            b.setIdProperty(blower.idProperty());
-                            b.setCurrentTempProperty(blower.currentTempProperty());
-                            b.setTargetTempProperty(blower.targetTempProperty());
-                            b.setProjectNameProperty(blower.projectNameProperty());
-                        }
+                boolean gut = false;
+                for (Blower b : blowersList) {
+                    if (b.equals(blower)) {
+                        b.setLink(blower.getLink());
+                        b.setIdProperty(blower.idProperty());
+                        b.setCurrentTempProperty(blower.currentTempProperty());
+                        b.setTargetTempProperty(blower.targetTempProperty());
+                        b.setProjectNameProperty(blower.projectNameProperty());
+                        b.setGraph(blower.getGraph());
+                        gut = true;
                     }
-                } else {
+                }
+                if (!gut) {
                     blowersList.add(blower);
                 }
             }
-            System.out.println("UPDATEnute blowery v ObservableList");
+
+            System.out.println("UPDATEnute blowery v ObservableList= " + blowersList.size());
             blowersList.forEach(i -> System.out.println(i.toString()));
             for (Blower b : blowersList) {
-                boolean contains = false;
+                boolean gut = false;
                 for (Blower blower : blowers) {
                     if (b.equals(blower) && b.equalsEverything(blower)) {
-                        contains = true;
+                        gut = true;
                     }
                 }
-                if (contains) {
+                if (!gut) {
                     blowersList.remove(b);
                 }
             }
