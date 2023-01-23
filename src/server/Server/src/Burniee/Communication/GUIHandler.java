@@ -7,21 +7,15 @@ import Burniee.Project.ProjectException;
 import Burniee.Server;
 
 import java.io.ByteArrayOutputStream;
-<<<<<<< Updated upstream
 import java.io.File;
-=======
->>>>>>> Stashed changes
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-<<<<<<< Updated upstream
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Paths;
-=======
->>>>>>> Stashed changes
 
 public class GUIHandler extends Thread {
     private final SocketHandler socket;
@@ -46,25 +40,18 @@ public class GUIHandler extends Thread {
 //    }
 
     private void sendController(Controller c) throws IOException {
-<<<<<<< Updated upstream
 //        System.out.println("[GUI] sending info about controller with id = " + c.getID() + " and current temperature = " + c.getCurrentTemperature());
-=======
->>>>>>> Stashed changes
         socket.writeMessage(new Message(c.getIP().getAddress()));
         socket.writeMessage(new Message(c.getID().getBytes()));
         socket.writeMessage(new Message(ByteBuffer.allocate(4).putFloat(c.getCurrentTemperature()).array()));
         socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(c.getTargetTemperature()).array()));
         socket.writeMessage(new Message(ByteBuffer.allocate(2).putShort(c.getAirFlow()).array()));
         socket.writeMessage(new Message(ByteBuffer.allocate(8).putLong(c.getTime()).array()));
-<<<<<<< Updated upstream
         if (c.getProjectName() == null) {
             socket.writeMessage(new Message(new byte[]{(byte)0}));
         } else {
             socket.writeMessage(new Message(c.getProjectName().getBytes()));
         }
-=======
-        socket.writeMessage(new Message(c.getProjectName().getBytes()));
->>>>>>> Stashed changes
     }
 
     public void sendException(String className, String message, byte[] exception) throws IOException {
@@ -74,7 +61,6 @@ public class GUIHandler extends Thread {
         socket.writeMessage(new Message(exception));
     }
 
-<<<<<<< Updated upstream
     public void updateTemperature() throws IOException {
         socket.writeMessage(new Message(MessageBuilder.GUI.Request.TemperatureChanged.build()));
     }
@@ -91,14 +77,11 @@ public class GUIHandler extends Thread {
         socket.writeMessage(new Message(bytes));
     }
 
-=======
->>>>>>> Stashed changes
     @Override
     public void run() {
         byte[] msg;
         while (socket.isActive()) {
             try {
-<<<<<<< Updated upstream
 //                System.out.println("[GUI] new message arrived");
                 msg = socket.readMessage();
                 if (MessageBuilder.GUI.Request.NumberOfControllers.equals(msg)) {
@@ -107,18 +90,10 @@ public class GUIHandler extends Thread {
                     socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getControllers().size()).array()));
                 } else if (MessageBuilder.GUI.Request.NumberOfProjects.equals(msg)) {
 //                    System.out.println("[GUI] request for number of projects, result = "+ Server.getInstance().getActiveProjects().size());
-=======
-                msg = socket.readMessage();
-                if (MessageBuilder.GUI.Request.NumberOfControllers.equals(msg)) {
-                    socket.writeMessage(new Message(MessageBuilder.GUI.Request.NumberOfControllers.build()));
-                    socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getControllers().size()).array()));
-                } else if (MessageBuilder.GUI.Request.NumberOfProjects.equals(msg)) {
->>>>>>> Stashed changes
                     socket.writeMessage(new Message(MessageBuilder.GUI.Request.NumberOfProjects.build()));
                     socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getActiveProjects().size()).array()));
                 } else if (MessageBuilder.GUI.Request.ChangeControllerID.equals(msg)) { //TODO -> check if new id is unique
                     String oldID = socket.readStringMessage(), newID = socket.readStringMessage();
-<<<<<<< Updated upstream
                     System.out.println("[GUI] request for new id = " + newID + " for controller with id = " + oldID);
                     boolean gut = false;
                     for (ControllerHandler i : Server.getInstance().getControllers()) {
@@ -135,17 +110,6 @@ public class GUIHandler extends Thread {
                     UDPCommunicationHandler.sendUDPPacket(UDPCommunicationHandler.LOOKING_FOR_CONTROLLERS_MESSAGE, UDPCommunicationHandler.getBroadcastAddresses());
                 } else if (MessageBuilder.GUI.Request.BigRedButton.equals(msg)) {
                     System.out.println("[GUI] request to stop all controllers, and end all projects");
-=======
-                    for (ControllerHandler i : Server.getInstance().getControllers()) {
-                        if (i.getControllerID().equals(oldID)) {
-                            i.changeId(newID);
-                            break;
-                        }
-                    }
-                } else if (MessageBuilder.GUI.Request.SearchForNewControllers.equals(msg)) {
-                    UDPCommunicationHandler.sendUDPPacket(UDPCommunicationHandler.LOOKING_FOR_CONTROLLERS_MESSAGE, UDPCommunicationHandler.getBroadcastAddresses());
-                } else if (MessageBuilder.GUI.Request.BigRedButton.equals(msg)) {
->>>>>>> Stashed changes
                     for (ControllerHandler ch : Server.getInstance().getControllers()) {
                         ch.bigRedButton();
                     }
@@ -154,7 +118,6 @@ public class GUIHandler extends Thread {
                     }
                 } else if (MessageBuilder.GUI.Request.StopThisController.equals(msg)) {
                     String ID = socket.readStringMessage();
-<<<<<<< Updated upstream
                     System.out.println("[GUI] request to stop controller with id = " + ID);
                     boolean gut = false;
                     for (ControllerHandler ch : Server.getInstance().getControllers()) {
@@ -168,16 +131,6 @@ public class GUIHandler extends Thread {
                     }
                 } else if (MessageBuilder.GUI.Request.GetInfoAboutControllers.equals(msg)) {
 //                    System.out.println("[GUI] request for info about all " + Server.getInstance().getControllers().size() + " controllers");
-=======
-                    for (ControllerHandler ch : Server.getInstance().getControllers()) {
-                        if (ch.getControllerID().equals(ID)) {
-                            ch.bigRedButton();
-                            return;
-                        }
-                    }
-                    throw new ControllerException("No controller with ID = " + ID);
-                } else if (MessageBuilder.GUI.Request.GetInfoAboutControllers.equals(msg)) {
->>>>>>> Stashed changes
                     socket.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutControllers.build()));
                     socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getControllers().size()).array()));
                     for (ControllerHandler ch : Server.getInstance().getControllers()) {
@@ -186,10 +139,7 @@ public class GUIHandler extends Thread {
 //                        socket.writeMessage(new Message(getObjectBytes(c)));
                     }
                 } else if (MessageBuilder.GUI.Request.GetInfoAboutProjects.equals(msg)) {
-<<<<<<< Updated upstream
 //                    System.out.println("[GUI] request for info about all " + Server.getInstance().getActiveProjects().size() + " projects");
-=======
->>>>>>> Stashed changes
                     socket.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutProjects.build()));
                     socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getActiveProjects().size()).array()));
                     for (Project p : Server.getInstance().getActiveProjects()) {
@@ -197,7 +147,6 @@ public class GUIHandler extends Thread {
                         socket.writeMessage(new Message(ByteBuffer.allocate(8).putLong(p.getTimeSinceStart()).array()));
                         socket.writeMessage(new Message(p.getPhaseName().getBytes()));
                     }
-<<<<<<< Updated upstream
                 } else if (MessageBuilder.GUI.Request.UnlockThisController.equals(msg)) {
                     String ID = socket.readStringMessage();
                     System.out.println("[GUI] request to unlock controller with id = " + ID);
@@ -219,11 +168,6 @@ public class GUIHandler extends Thread {
                 }
             } catch (SocketException e) {
                 stopSocket();
-=======
-                }
-            } catch (SocketException e) {
-                socket.stopSocket(); //log it
->>>>>>> Stashed changes
             } catch (Exception e) {
                 Server.getInstance().sendExceptionToAllActiveGUIs(e);
             }
