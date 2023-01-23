@@ -23,13 +23,13 @@ public class ControllerHandler extends Thread {
     private Project project;
 
     public ControllerHandler(SocketHandler sh, InetAddress ip) {
-        Server.getInstance().addController(this);
         socket = sh;
         controller = new Controller(ip);
+        Server.getInstance().addController(this);
     }
 
     public boolean isConnected() {return socket.isActive();}
-
+    public Project getProject() {return project;}
     public boolean isActive() {
         return isActive;
     }
