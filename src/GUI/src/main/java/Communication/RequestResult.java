@@ -14,12 +14,16 @@ public class RequestResult {
     private String stringData;
     private Controller[] controllers;
     private Project[] projects;
+    private byte[] byteData;
 
     public int getIntData() {return intData;}
     public void setIntData(int intData) {this.intData = intData;}
 
     public String getStringData() {return stringData;}
     public void setStringData(String stringData) {this.stringData = stringData;}
+
+    public byte[] getByteData() {return byteData;}
+    public void setByteData(byte[] byteData) {this.byteData = byteData;}
 
     public Controller[] getControllers() {return controllers;}
     public void setControllers(Controller[] controllers) {this.controllers = controllers;}
