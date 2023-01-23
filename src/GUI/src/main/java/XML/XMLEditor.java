@@ -29,9 +29,6 @@ public class XMLEditor {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc = db.parse(file);
-        if (!xmlPath.contains("_tmp_added.xml")) {
-            xmlPath = xmlPath.replace(".xml", "_tmp_added.xml");
-        }
 
         NodeList blocks = doc.getElementsByTagName("B");
         Node block = blocks.item(0);

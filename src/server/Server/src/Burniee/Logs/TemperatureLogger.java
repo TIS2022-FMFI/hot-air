@@ -21,19 +21,36 @@ public class TemperatureLogger {
             Files.createDirectory(Paths.get("temperature_logs"));
 
         } catch (FileAlreadyExistsException ignored){
-            File dir = new File("temperature_logs");
-            Date date = new Date();
-            if (dir.isDirectory()){
-                for (File f: Objects.requireNonNull(dir.listFiles())){
-                    if (date.getTime() - f.lastModified() > 30L * 24 * 60 * 60 * 1000){
-                        f.delete();
-                    }
-                }
-            }
         }
 
         bufferedWriter = new BufferedWriter(new FileWriter("temperature_logs\\" + projectName
                 + "_temperatures_" + sdf.format(timestamp) + ".csv", true));
+    }
+
+    public int numFilesToDelete(){
+        int counter = 0;
+        File dir = new File("temperature_logs");
+        Date date = new Date();
+        if (dir.isDirectory()){
+            for (File f: Objects.requireNonNull(dir.listFiles())){
+                if (date.getTime() - f.lastModified() > 30L * 24 * 60 * 60 * 1000){
+                    counter++;
+                }
+            }
+        }
+        return counter;
+    }
+
+    public void deleteFiles(){
+        File dir = new File("temperature_logs");
+        Date date = new Date();
+        if (dir.isDirectory()){
+            for (File f: Objects.requireNonNull(dir.listFiles())){
+                if (date.getTime() - f.lastModified() > 30L * 24 * 60 * 60 * 1000){
+                    f.delete();
+                }
+            }
+        }
     }
 
     public void logTemeperature(String phase, List<String> blowerIds, List<String> temps)
