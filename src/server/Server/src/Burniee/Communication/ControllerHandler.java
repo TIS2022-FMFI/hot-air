@@ -124,6 +124,9 @@ public class ControllerHandler extends Thread {
     @Override
     public void run() {
         byte[] msg;
+        try {
+            socket.getSocket().setSoTimeout(10000);
+        } catch (IOException e) {e.printStackTrace();}
         while (socket.isActive()) {
             try {
                 msg = socket.readMessage(true);
