@@ -23,6 +23,7 @@ public class Project extends Thread {
     private static final byte AIR_FLOW = 100;
     private String phaseName = "";
     private boolean phaseEnded = false;
+    private boolean projectAtEnd = false;
     private final List<String> handlerIDs;
     private final ScheduledExecutorService logger;
     private final TemperatureLogger temperatureLogger;
@@ -91,6 +92,7 @@ public class Project extends Thread {
     public TemperatureLogger getLogger() {return temperatureLogger;}
 
     public void end() {
+        projectAtEnd = true;
         System.out.println("[Project] Project with ID = " + ID + ", name = " + name + " ended");
         Server.getInstance().removeProject(this);
         for (String entry : handlerIDs) {
@@ -101,6 +103,7 @@ public class Project extends Thread {
             }
         }
         logger.shutdown();
+        this.notify();
     }
 
     public String getID() {return ID;}
@@ -114,7 +117,7 @@ public class Project extends Thread {
     }
 
     private synchronized void awaitEndOfPhase() {
-        while (!phaseEnded) {
+        while (!phaseEnded && !projectAtEnd) {
             try {
                 this.wait();
             } catch (InterruptedException e) {
@@ -141,6 +144,15 @@ public class Project extends Thread {
         long day        = (tempSec / (24*60*60)) % 24;
 
         return String.format("%dd %dh %dm %ds (day, hour, min, sec)", day,hour,min,sec);
+    }
+
+    private void coolAllControllers() throws IOException {
+        for (String controller : handlerIDs) {
+            ControllerHandler ch = findControllerByID(controller);
+            if (ch != null) {
+                ch.changeControllerParameters(0, (short) 100, 0);
+            }
+        }
     }
 
     @Override
@@ -179,15 +191,14 @@ public class Project extends Thread {
                 phaseEnded = false;
                 if (i == jobs.size()-1) {
                     sleep(time*1000);
-                    for (String controller : handlerIDs) {
-                        ControllerHandler ch = findControllerByID(controller);
-                        if (ch != null) {
-                            ch.changeControllerParameters(0, (short) 100, 0);
-                        }
-                    }
+                    coolAllControllers();
                     return;
                 }
                 awaitEndOfPhase();
+                if (projectAtEnd) {
+                    coolAllControllers();
+                    return;
+                }
                 System.out.println("[Project] End of phase received, continuing to another phase");
             }
         } catch (Exception e) {
