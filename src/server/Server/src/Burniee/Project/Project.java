@@ -1,6 +1,8 @@
 package Burniee.Project;
 
 import Burniee.Communication.ControllerHandler;
+import Burniee.Communication.UDPCommunicationHandler;
+import Burniee.Logs.TemperatureLogger;
 import Burniee.xml.XMLException;
 import org.xml.sax.SAXException;
 import Burniee.Controller.ControllerException;
@@ -10,6 +12,9 @@ import Burniee.xml.XMLAnalyzer;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Project extends Thread {
     private final String ID;
@@ -19,6 +24,8 @@ public class Project extends Thread {
     private String phaseName = "";
     private boolean phaseEnded = false;
     private final List<String> handlerIDs;
+    private final ScheduledExecutorService logger;
+    private final TemperatureLogger temperatureLogger;
 //    private final Map<String, ControllerHandler> handlers;
     private final Queue<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>>> jobs;
     //           ^Queue<Pair<PhaseName, List<Pair<ControllerID, Pair<Temperature, Time>>>>>
@@ -27,6 +34,7 @@ public class Project extends Thread {
         ID = id;
         HashMap<String, List<String>> script = XMLAnalyzer.XMLtoCommands(pathToXML);
         name = XMLAnalyzer.getProjectName(pathToXML);
+        temperatureLogger = new TemperatureLogger(name);
         System.out.println("[Project] starting project " + name);
 //        handlers = new HashMap<>();
         handlerIDs = new LinkedList<>();
@@ -63,6 +71,23 @@ public class Project extends Thread {
         }
         System.out.println("[Project] job queue prepared");
 
+        logger = Executors.newScheduledThreadPool(1);
+        logger.scheduleAtFixedRate(() -> {
+            List<String> temps = new LinkedList<>();
+            for (int i = 0; i < handlerIDs.size(); i++) {
+                ControllerHandler ch = findControllerByID(handlerIDs.get(i));
+                if (ch != null) {
+                    temps.set(i, String.valueOf(ch.getController().getCurrentTemperature()));
+                }
+            }
+            try {
+                temperatureLogger.logTemeperature(phaseName, handlerIDs, temps);
+            } catch (IOException e) {
+                Server.getInstance().sendExceptionToAllActiveGUIs(e);
+                e.printStackTrace();
+            }
+        }, 0, 1, TimeUnit.SECONDS); //phasename;c1;t1;c2;t2
+
 //        for (Map.Entry<String, List<String>> i : script.entrySet()) {
 //            ControllerHandler handler = findControllerByID(i.getKey());
 //            Queue<AbstractMap.SimpleEntry<Integer, Long>> queue = new LinkedList<>();
@@ -89,6 +114,8 @@ public class Project extends Thread {
 //        }
 //    }
 
+    public TemperatureLogger getLogger() {return temperatureLogger;}
+
     public void end() {
         System.out.println("[Project] Project with ID = " + ID + ", name = " + name + " ended");
         Server.getInstance().removeProject(this);
@@ -99,6 +126,7 @@ public class Project extends Thread {
                 ch.getController().setProjectName(null);
             }
         }
+        logger.shutdown();
 //        for (Map.Entry<String, ControllerHandler> entry : handlers.entrySet()) {
 //            entry.getValue().freeFromService();
 //            entry.getValue().getController().setProjectName(null);

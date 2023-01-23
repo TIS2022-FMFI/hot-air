@@ -3,7 +3,10 @@ package Communication;
 import Communication.serverExceptions.ControllerException;
 import Communication.serverExceptions.ProjectException;
 import Communication.serverExceptions.XMLException;
+<<<<<<< Updated upstream
 import GUI.GUI;
+=======
+>>>>>>> Stashed changes
 import GUI.Project;
 import javafx.application.Platform;
 
@@ -95,13 +98,19 @@ public class Client extends Thread {
      * read message from server and convert it to string
      * @return message from server in string form
      */
-    private String readStringMessage() throws IOException {
+<<<<<<< Updated upstream
+    public String readStringMessage() throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         byte[] res = readMessage();
         if (res.length == 1 && res[0] == 0) {
             return null;
         }
         out.write(res);
+=======
+    private String readStringMessage() throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.write(readMessage());
+>>>>>>> Stashed changes
         return out.toString();
     }
 
@@ -156,6 +165,7 @@ public class Client extends Thread {
                 c = Exception.class;
             }
         }
+<<<<<<< Updated upstream
         return c.getConstructor(String.class).newInstance(message);
 //        Exception e = c.getConstructor(String.class).newInstance(message);
 //        try (ByteArrayInputStream bin = new ByteArrayInputStream(stackTrace); ObjectInput in = new ObjectInputStream(bin)) {
@@ -163,6 +173,14 @@ public class Client extends Thread {
 //            e.printStackTrace();
 //        }
 //        return e;
+=======
+        Exception e = c.getConstructor(String.class).newInstance(message);
+        try (ByteArrayInputStream bin = new ByteArrayInputStream(stackTrace); ObjectInput in = new ObjectInputStream(bin)) {
+            e.setStackTrace((StackTraceElement[]) in.readObject());
+            e.printStackTrace();
+            return e;
+        }
+>>>>>>> Stashed changes
     }
 
     private RequestResult.Controller getController() throws ClassNotFoundException, IOException {
@@ -200,7 +218,11 @@ public class Client extends Thread {
                 msg = readMessage();
                 if (MessageBuilder.GUI.Exception.equals(msg)) {
                     Exception e = getException(readStringMessage(), readStringMessage(), readMessage());
+<<<<<<< Updated upstream
                     Platform.runLater(() -> {GUI.gui.alert(e);});
+=======
+                    Platform.runLater(() -> {GUI.GUI.gui.alert(e);});
+>>>>>>> Stashed changes
                 } else if (MessageBuilder.GUI.Request.NumberOfProjects.equals(msg)) {
                     synchronized (RequestResult.getInstance()) {
                         RequestResult.getInstance().setIntData(ByteBuffer.wrap(readMessage()).getInt());
@@ -229,20 +251,37 @@ public class Client extends Thread {
                             String projectID = readStringMessage();
                             long time = ByteBuffer.wrap(readMessage()).getLong();
                             String phase = readStringMessage();
+<<<<<<< Updated upstream
                             Project p = new Project(projectID, phase);
+=======
+                            Project p = new Project(projectID, time, phase);
+>>>>>>> Stashed changes
                             res[i] = p;
                         }
                         RequestResult.getInstance().setProjects(res);
                         RequestResult.getInstance().notify();
                     }
+<<<<<<< Updated upstream
                 } else if (MessageBuilder.GUI.Request.TemperatureChanged.equals(msg)) {
                     GUI.gui.refresh();
+                } else if (MessageBuilder.GUI.Request.RequestTemperatureLog.equals(msg)) {
+                    synchronized (RequestResult.getInstance()) {
+                        RequestResult rr = RequestResult.getInstance();
+                        rr.setStringData(readStringMessage());
+                        rr.setByteData(readMessage());
+                        rr.notifyAll();
+                    }
+=======
+>>>>>>> Stashed changes
                 }
             } catch (SocketException e) {
                 try {
                     System.err.println("Disconnected, stopping connection");
                     stopConnection();
+<<<<<<< Updated upstream
                     Platform.runLater(() -> {GUI.gui.alert(new ConnectException("Disconnected from server!"));});
+=======
+>>>>>>> Stashed changes
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }

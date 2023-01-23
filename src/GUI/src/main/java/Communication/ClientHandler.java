@@ -2,6 +2,8 @@ package Communication;
 
 import GUI.Project;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketException;
@@ -202,6 +204,31 @@ public class ClientHandler {
             client.writeMessage(new Message(MessageBuilder.GUI.Request.UnlockThisController.build()));
             client.writeMessage(new Message(id.getBytes(StandardCharsets.US_ASCII)));
         }
+    }
+
+    public String getTempLogFile(String projectName) throws IOException, InterruptedException {
+        if (!client.isConnected()) {
+            throw new ConnectException("Disconnected from server");
+        }
+
+        String res;
+        synchronized (RequestResult.getInstance()) {
+            client.writeMessage(new Message(MessageBuilder.GUI.Request.RequestTemperatureLog.build()));
+            client.writeMessage(new Message(projectName.getBytes()));
+
+            RequestResult rr = RequestResult.getInstance();
+            rr.wait();
+
+            String filename = rr.getStringData();
+            File file = new File(filename);
+            file.createNewFile();
+            try (FileOutputStream fos = new FileOutputStream(filename)) {
+                fos.write(rr.getByteData());
+            }
+            res = file.getAbsolutePath();
+        }
+
+        return res;
     }
 
     private class ExitProcess extends Thread {

@@ -110,18 +110,17 @@ public class Server {
      */
     public synchronized void addController(ControllerHandler ch) {
         synchronized (controllers) {
-            ControllerHandler toRemove = null;
+            List<ControllerHandler> toRemove = new LinkedList<>();
             for (ControllerHandler i : controllers) {
-                if (i.getControllerID().equals(ch.getControllerID()) &&
-                    i.getController().getIP().equals(ch.getController().getIP())) {
-                    toRemove = i;
+                if (i.getControllerID().equals(ch.getControllerID())) {
+                    toRemove.add(i);
                 }
             }
-            if (toRemove != null) {
-                if (toRemove.isActive()) {
-                    ch.startUsing(toRemove.getProject());
+            for (ControllerHandler i : toRemove) {
+                if (i.isActive()) {
+                    ch.startUsing(i.getProject());
                 }
-                toRemove.stopConnection();
+                i.stopConnection();
             }
             controllers.add(ch);
         }
@@ -137,7 +136,13 @@ public class Server {
         }
     }
 
-    public synchronized List<ControllerHandler> getControllers() {return controllers;}
+    public List<ControllerHandler> getControllers() {
+        List<ControllerHandler> chs;
+        synchronized (controllers) {
+            chs = controllers;
+        }
+        return chs;
+    }
 
     /**
      * Add a newly started project to list of Projects
@@ -153,14 +158,23 @@ public class Server {
      * Remove a project that is at its end
      * @param p Project
      */
-    public synchronized void removeProject(Project p) {
+    public void removeProject(Project p) {
 //        System.out.println("Removing project");
         synchronized (activeProjects) {
             activeProjects.remove(p);
         }
     }
 
-    public synchronized List<Project> getActiveProjects() {return activeProjects;}
+    public Project findProjectByName(String name) {
+        for (Project p : activeProjects) {
+            if (p.getName().equals(name)) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    public List<Project> getActiveProjects() {return activeProjects;}
 
     /**
      * An exception has arrisen in server or other parts, and we will attempt to send it to any active GUI
