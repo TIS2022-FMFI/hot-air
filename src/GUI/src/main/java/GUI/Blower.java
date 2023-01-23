@@ -37,18 +37,15 @@ import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
  * Class for blowers.
  */
 public class Blower {
-    private SimpleStringProperty id;  // do 15 znakov, ascii,
+    private SimpleStringProperty id;
+    private Hyperlink link;
     private String IPAddress;
     private SimpleFloatProperty currentTemp;
-    private Hyperlink graph;
     private SimpleFloatProperty targetTemp;
     private SimpleStringProperty projectName;
-    private Hyperlink link;
 
     private final Button stopButton;
     private final Button hiddenButton;
-
-    private int count = 0;
 
     /**
      * Instantiates a new Blower.
@@ -63,7 +60,6 @@ public class Blower {
         this.IPAddress = IPAddress.trim();
         this.id = new SimpleStringProperty(id.trim());
         this.currentTemp = new SimpleFloatProperty(currentTemp);
-        setGraph();
         this.targetTemp = new SimpleFloatProperty(targetTemp);;
         this.projectName = new SimpleStringProperty(projectName.trim());
         this.link = new Hyperlink(idProperty().getValue());
@@ -194,48 +190,6 @@ public class Blower {
     }
 
     /**
-     * Gets current link to graph.
-     *
-     * @return the link to graph
-     */
-    public Hyperlink getGraph() {
-        return graph;
-    }
-
-    /**
-     * Sets link to open the graph.
-     *
-     */
-    public void setGraph() {
-        this.graph = new Hyperlink("" + currentTempProperty().getValue());
-        this.graph.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-
-                LineChart<Number, Number> lineChart = new LineChart<>(new NumberAxis(), new NumberAxis());
-                XYChart.Series<Number, Number> series = new XYChart.Series<>();
-                series.setName("Blower " + idProperty().getValue());
-                lineChart.getData().add(series);
-
-                ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-                executor.scheduleAtFixedRate(() -> {
-                    series.getData().add(new XYChart.Data<>(count, Math.random()));
-                    count++;
-                }, 0, 2, TimeUnit.SECONDS);
-
-                Scene scene = new Scene(lineChart, 400, 300);
-                Stage newWindow = new Stage();
-                newWindow.setTitle("GRAPH " + idProperty().getValue());
-                newWindow.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
-                newWindow.setScene(scene);
-                newWindow.setX(gui.getStage().getX() + 200);
-                newWindow.setY(gui.getStage().getY() + 100);
-                newWindow.show();
-            }
-        });
-    }
-
-    /**
      * Gets target temp.
      *
      * @return the target temp
@@ -307,12 +261,25 @@ public class Blower {
         return hiddenButton;
     }
 
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Blower blower = (Blower) o;
         return Objects.equals(IPAddress, blower.IPAddress);
+    }
+
+    public boolean equalsEverything(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Blower blower = (Blower) o;
+        return Objects.equals(idProperty().getValue(), blower.idProperty().getValue())
+                && Objects.equals(IPAddress, blower.IPAddress)
+                && Objects.equals(currentTempProperty().getValue(), blower.currentTempProperty().getValue())
+                && Objects.equals(targetTempProperty().getValue(), blower.targetTempProperty().getValue())
+                && Objects.equals(projectNameProperty().getValue(), blower.projectNameProperty().getValue());
     }
 
     @Override
@@ -327,6 +294,9 @@ public class Blower {
                 ", IPAddress='" + IPAddress + '\'' +
                 ", currentTemp=" + currentTemp +
                 ", targetTemp=" + targetTemp +
+                ", projectName=" + projectName +
                 '}';
     }
+
+
 }

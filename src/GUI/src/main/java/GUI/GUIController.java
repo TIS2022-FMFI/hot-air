@@ -64,7 +64,7 @@ public class GUIController implements Initializable {
     @FXML CheckBox  showCurrentTmp;
     @FXML CheckBox  showTargetTmp;
     @FXML CheckBox  showProject;
-    @FXML CheckBox showBlowerStop;
+    @FXML CheckBox  showBlowerStop;
 
     @FXML CheckBox  showName;
     @FXML CheckBox  showCurrentPhase;
@@ -73,14 +73,15 @@ public class GUIController implements Initializable {
     @FXML TableView<Blower> blowersView;
     @FXML TableColumn<Blower,Hyperlink> blowerID;
     @FXML TableColumn<Blower,String> blowerIP;
-    @FXML TableColumn<Blower, Hyperlink> blowerCurrentTmp;
+    @FXML TableColumn<Blower, Float> blowerCurrentTmp;
     @FXML TableColumn<Blower,Float> blowerTargetTmp;
     @FXML TableColumn<Blower,String> blowerProject;
     @FXML TableColumn<Blower, Button> blowerStop;
     @FXML TableColumn<Blower, Button> blowerCaution;
 
     @FXML TableView<Project> projectsView;
-    @FXML TableColumn<Project,String> projectName;
+//    @FXML TableColumn<Project,String> projectName;
+    @FXML TableColumn<Project, Hyperlink> projectName;
     @FXML TableColumn<Project,String> projectPhase;
     @FXML TableColumn<Project,Button> projectStop;
     @FXML TableColumn<Project,Button> projectCaution;
@@ -184,8 +185,7 @@ public class GUIController implements Initializable {
         blowerID.setSortType(TableColumn.SortType.ASCENDING);
         blowerID.setComparator((o2, o1) -> o2.getText().compareTo(o1.getText()));
         blowerID.setSortType(TableColumn.SortType.DESCENDING);
-        blowerIP.setCellValueFactory(
-                new PropertyValueFactory<>("IPAddress"));
+        blowerIP.setCellValueFactory(new PropertyValueFactory<>("IPAddress"));
         blowerIP.setComparator(new Comparator<String>() {
             @Override
             public int compare(String o1 , String o2) {
@@ -200,12 +200,21 @@ public class GUIController implements Initializable {
                 return 0;
             }
         });
-        blowerCurrentTmp.setCellValueFactory(
-                new PropertyValueFactory<>("graph"));
-        blowerCurrentTmp.setCellFactory(new Callback<TableColumn<Blower, Hyperlink>, TableCell<Blower, Hyperlink>>() {
+
+        blowerCurrentTmp.setCellValueFactory(new PropertyValueFactory<>("currentTemp"));
+        blowerTargetTmp.setCellValueFactory(new PropertyValueFactory<>("targetTemp"));
+        blowerProject.setCellValueFactory(new PropertyValueFactory<>("project"));
+        blowerStop.setCellValueFactory(new PropertyValueFactory<>("stopButton"));
+        blowerCaution.setCellValueFactory(new PropertyValueFactory<>("hiddenButton"));
+    }
+
+    private void setProjectsTable() {
+//        projectName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        projectName.setCellValueFactory(new PropertyValueFactory<>("graph"));
+        projectName.setCellFactory(new Callback<TableColumn<Project, Hyperlink>, TableCell<Project, Hyperlink>>() {
             @Override
-            public TableCell<Blower, Hyperlink> call(TableColumn<Blower, Hyperlink> param) {
-                return new TableCell<Blower, Hyperlink>() {
+            public TableCell<Project, Hyperlink> call(TableColumn<Project, Hyperlink> param) {
+                return new TableCell<Project, Hyperlink>() {
                     @Override
                     protected void updateItem(Hyperlink item, boolean empty) {
                         super.updateItem(item, empty);
@@ -218,19 +227,10 @@ public class GUIController implements Initializable {
                 };
             }
         });
-        blowerCurrentTmp.setComparator((o1, o2) -> Float.valueOf(o1.getText()).compareTo(Float.valueOf(o2.getText())));
-        blowerCurrentTmp.setSortType(TableColumn.SortType.ASCENDING);
-        blowerCurrentTmp.setComparator((o2, o1) -> Float.valueOf(o2.getText()).compareTo(Float.valueOf(o1.getText())));
-        blowerCurrentTmp.setSortType(TableColumn.SortType.DESCENDING);
-
-        blowerTargetTmp.setCellValueFactory(new PropertyValueFactory<>("targetTemp"));
-        blowerProject.setCellValueFactory(new PropertyValueFactory<>("project"));
-        blowerStop.setCellValueFactory(new PropertyValueFactory<>("stopButton"));
-        blowerCaution.setCellValueFactory(new PropertyValueFactory<>("hiddenButton"));
-    }
-
-    private void setProjectsTable() {
-        projectName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        projectName.setComparator((o1, o2) -> Float.valueOf(o1.getText()).compareTo(Float.valueOf(o2.getText())));
+        projectName.setSortType(TableColumn.SortType.ASCENDING);
+        projectName.setComparator((o2, o1) -> Float.valueOf(o2.getText()).compareTo(Float.valueOf(o1.getText())));
+        projectName.setSortType(TableColumn.SortType.DESCENDING);
         projectPhase.setCellValueFactory(new PropertyValueFactory<>("currentPhase"));
         projectStop.setCellValueFactory(new PropertyValueFactory<>("stopButton"));
         projectCaution.setCellValueFactory(new PropertyValueFactory<>("hiddenButton"));
@@ -341,16 +341,33 @@ public class GUIController implements Initializable {
             for (Blower blower : blowers) {
                 System.out.println(blower.toString());
                 if (blowersList.contains(blower)) {
-                    Blower b = blowersList.filtered(o -> o.equals(blower)).get(0);
-                    b.setIdProperty(blower.idProperty());
-                    b.setCurrentTempProperty(blower.currentTempProperty());
-                    b.setTargetTempProperty(blower.targetTempProperty());
-                    b.setProjectNameProperty(blower.projectNameProperty());
-                    b.setGraph();
+                    for (Blower b : blowersList) {
+                        if (b.equals(blower) && !b.equalsEverything(blower)) {
+                            b.setLink(blower.getLink());
+                            b.setIdProperty(blower.idProperty());
+                            b.setCurrentTempProperty(blower.currentTempProperty());
+                            b.setTargetTempProperty(blower.targetTempProperty());
+                            b.setProjectNameProperty(blower.projectNameProperty());
+                        }
+                    }
                 } else {
                     blowersList.add(blower);
                 }
             }
+            System.out.println("UPDATEnute blowery v ObservableList");
+            blowersList.forEach(i -> System.out.println(i.toString()));
+            for (Blower b : blowersList) {
+                boolean contains = false;
+                for (Blower blower : blowers) {
+                    if (b.equals(blower) && b.equalsEverything(blower)) {
+                        contains = true;
+                    }
+                }
+                if (contains) {
+                    blowersList.remove(b);
+                }
+            }
+            
             System.out.println("blowers were updated successfully from server");
         } catch (Exception e) {
             // todo log
