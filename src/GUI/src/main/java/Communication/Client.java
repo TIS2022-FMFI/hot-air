@@ -156,12 +156,13 @@ public class Client extends Thread {
                 c = Exception.class;
             }
         }
-        Exception e = c.getConstructor(String.class).newInstance(message);
-        try (ByteArrayInputStream bin = new ByteArrayInputStream(stackTrace); ObjectInput in = new ObjectInputStream(bin)) {
-            e.setStackTrace((StackTraceElement[]) in.readObject());
-            e.printStackTrace();
-            return e;
-        }
+        return c.getConstructor(String.class).newInstance(message);
+//        Exception e = c.getConstructor(String.class).newInstance(message);
+//        try (ByteArrayInputStream bin = new ByteArrayInputStream(stackTrace); ObjectInput in = new ObjectInputStream(bin)) {
+//            e.setStackTrace((StackTraceElement[]) in.readObject());
+//            e.printStackTrace();
+//        }
+//        return e;
     }
 
     private RequestResult.Controller getController() throws ClassNotFoundException, IOException {
@@ -241,6 +242,7 @@ public class Client extends Thread {
                 try {
                     System.err.println("Disconnected, stopping connection");
                     stopConnection();
+                    Platform.runLater(() -> {GUI.gui.alert(new ConnectException("Disconnected from server!"));});
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
