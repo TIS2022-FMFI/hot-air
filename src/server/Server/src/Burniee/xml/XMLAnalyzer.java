@@ -68,7 +68,7 @@ public class XMLAnalyzer {
         HashMap<String, String> result = new HashMap<>();
         String[] name = block.getAttributes().getNamedItem("NAME").getNodeValue().split("#");
         for (int i = 1; i < name.length; i++){
-            String[] s = name[i].split("\\$");
+            String[] s = name[i].split("@");
             try{
                 Double.parseDouble(s[1]);
                 result.put(s[0], s[1]);
@@ -183,7 +183,7 @@ public class XMLAnalyzer {
             Node block = blocks.item(i);
             String[] name = block.getAttributes().getNamedItem("NAME").getNodeValue().split("#");
             for (int j = 1; j < name.length; j++){
-                String[] s = name[j].split("\\$");
+                String[] s = name[j].split("@");
                 blowers.add(s[0]);
             }
         }
