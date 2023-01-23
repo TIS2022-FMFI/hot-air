@@ -15,6 +15,8 @@ private:
   AsyncClient* tcp;
   Status* status;
   Preferences* memory;
+  unsigned long millis_send_temperature = 0;
+
   enum communication_flags{IM_CONTROLLER = 0x80, EMERGENCY_STOP = 0x80, NEW_ID = 0x02, SET_TEMPERATURE = 0x01, EMERGENCY_STOP_RELEASE = 0x40};
 
   void tcpInit();
@@ -26,6 +28,8 @@ private:
   void handleDisconnect();
   void handleError();
 
+  // DEBUG
+
   uint8_t sendTemperatureFlag();
 
 public:
@@ -35,6 +39,7 @@ public:
   bool stopUdp();
 
   void sendTemperature();
+  void sendTemperatureTimeout(unsigned long millis, int refresh);
 
   void refresh();
 

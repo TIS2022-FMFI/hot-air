@@ -1,3 +1,5 @@
+#include <sys/_stdint.h>
+#include "IPAddress.h"
 //********************************************************
 // Class to handle EEPROM memory and save preferences
 //
@@ -16,6 +18,17 @@
 //********************************************************
 #include "preferences.h"
 
+void Preferences::trim(char *str) {
+  int i, begin, end;
+  for (begin = 0; begin < strlen(str) && str[begin] == ' '; begin++);
+
+  for (end = strlen(str) - 1; end >= 0 && str[end] == ' '; end--);
+
+  for (i = begin; i <= end; i++) {
+      str[i - begin] = str[i];
+  }
+  str[end - begin + 1] = '\0';
+}
 
 Preferences::Preferences() {
 }
@@ -39,7 +52,14 @@ if (flags == 0xFF) {
 }
 
 #ifdef _DEBUG
-  setPORT(4002);
+  // IPAddress ip = IPAddress(10,1,1,105);
+  // IPAddress GW = IPAddress(10,1,1,1);
+  // setMASK(24);
+  // char idcko[] = "id05           ";
+  // setID(idcko);
+  // setCONTROLLERIP(ip, GW);
+  // setPORT(4002);
+
   IPAddress ip_addres = IPAddress();  
   Serial.println("Preferences BEGIN in debug mode.");
   Serial.print("FLAGS: ");
@@ -204,6 +224,8 @@ if (isIDset() == false) {
   for (uint8_t i = 3; i < 15; i++) {
     id[i] = ' ';
   }
+  trim(id);
+
   return id;
 }
 //char* id[15];
@@ -228,7 +250,11 @@ bool Preferences::setMASK(IPAddress mask) {
 uint8_t prefix = convertNetMask(mask);    
 EEPROM.writeByte(addresses::CONTROLLER_MASK, prefix);
 setFlag(flag::controllerip);
-
+return EEPROM.commit();
+}
+bool Preferences::setMASKprefix(uint8_t mask) {  
+EEPROM.writeByte(addresses::CONTROLLER_MASK, mask);
+setFlag(flag::controllerip);
 return EEPROM.commit();
 }
 

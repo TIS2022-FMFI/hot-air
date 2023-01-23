@@ -1,5 +1,7 @@
+#include <sys/_stdint.h>
+#include "WString.h"
+#include "IPAddress.h"
 #include "lwip/arch.h"
-
 
 //**************************************************************************
 //                           WEB SERVER LISTENING
@@ -23,6 +25,41 @@ public:
   WebHandler() {
   }
 
+  void string2ip(IPAddress &ipaddr, String ipString){
+    int parts[4];
+    for (int j = 0; j < 4; j++) {
+        int dot_index = ipString.indexOf('.');
+        if (dot_index == -1) {
+            parts[j] = ipString.toInt();
+            break;
+        }
+        parts[j] = ipString.substring(0, dot_index).toInt();
+        ipString = ipString.substring(dot_index + 1);
+    }
+    ipaddr = IPAddress(parts[0], parts[1], parts[2], parts[3]);
+  }   
+
+  bool handleData(AsyncWebServerRequest *request){
+    if(request->hasParam("controllerIP", true) && request->hasParam("controllerGW", true)){
+      String IP;
+      String GW;
+      IP = request->getParam("controllerIP", true)->value();
+      GW = request->getParam("controllerGW", true)->value();
+      IPAddress controllerIP = IPAddress();
+      IPAddress controllerGW = IPAddress();
+      string2ip(controllerIP, IP);  
+      string2ip(controllerGW, GW);  
+      memory->setCONTROLLERIP(controllerIP, controllerGW);
+      Serial.println("got IP:");
+      Serial.println(controllerIP);
+      Serial.println(controllerGW);
+    };
+    if (request->hasParam("controllerMASK", true)){
+        //IPAddress controllerMASK = IPAddress(request->getParam("controllerMASK", true)->value());
+        //memory->setMASK(controllerMASK);
+    }
+    return false;    
+  };
 
   bool begin(AsyncWebServer &server, Preferences *m, Status *s) {
     memory = m;
@@ -241,6 +278,11 @@ public:
     });
     //END Status
 
+    server.on("/data", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      handleData(request);
+      request->send(200, "text/plain", "DATAOK");
+    });
+
     server.onNotFound([this](AsyncWebServerRequest * request){
       request->send(SPIFFS, "/404.html", "text/html");
     });
@@ -248,10 +290,5 @@ public:
     return true;
   }
 
-
-   
-
-
- 
 
 };

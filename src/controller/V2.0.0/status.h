@@ -11,28 +11,35 @@ class Status{
     bool dac_connected = false;
     bool thermometer_connected = false;
 
-    bool searching_server = false; // listening for UDP
-    bool server_find = false;
-    bool connecting_server = false;
-    bool connected_server = false;
-    bool connection_error = false;
-    bool lost_connection = false;
+    volatile bool searching_server = false; // listening for UDP
+    volatile bool server_find = false;
+    volatile bool connecting_server = false;
+    volatile bool connected_server = false;
+    volatile bool connection_error = false;
+    volatile bool lost_connection = false;
 
-    bool heating = false;
-    bool cooling_down = false;
-    bool overheat = false;
+    volatile bool disconnected_time_out = false;
+    volatile unsigned long disconnected_time_out_milis = 0;
+    volatile bool heating = false;
+    volatile bool cooling_down = false;
+    volatile bool overheat = false;
 
-    float actual_temperature = NAN;
-    float last_temperature = NAN;
+    volatile float actual_temperature = NAN;
+    volatile float last_temperature = NAN;
 
-    bool emergency_stop = false;
-    uint16_t set_temperature = 0;
-    uint8_t set_airflow = 0;
-    uint8_t set_power = 0;
-    uint8_t actual_power = 0;
+    volatile bool emergency_stop = false;
+    volatile uint16_t set_temperature = 0;
+    volatile uint8_t set_airflow = 0;
+    volatile uint8_t set_power = 0;
+    volatile uint8_t actual_power = 0;
+
 
     // UDP server password
-    uint8_t server_password[5] = {0x41, 0x48, 0x4f, 0x4a, 0x2b};
+    uint8_t server_password[5] = {0x41, 0x48, 0x4f, 0x4a, 0x2b}; //
+
+
+    char data[16];    
+
 
     Status();
 

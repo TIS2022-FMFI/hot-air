@@ -54,6 +54,20 @@
     getValueFromAPI("serverip", getElement("serverip"));
 
 
+    const controllerform = getElement("controllersetup");
+    controllerform.addEventListener("submit", event => {
+        event.preventDefault();
+        console.log("sending data for controller setup");
+        fetchData(controllerform, "/data");
+    });
+
+    const serverform = getElement("serversetup");
+    serverform.addEventListener("submit", event => {
+        event.preventDefault();
+        console.log("sending data for server setup");
+        fetchData(serverform, "/data");
+    });
+
 }(this, this.document));
 
 function checkIP(elementip, elementwrong, regex, errormsg = "Wrong IP format\r\n"){

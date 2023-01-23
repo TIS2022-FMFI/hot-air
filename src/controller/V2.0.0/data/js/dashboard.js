@@ -11,7 +11,6 @@
         updateEvery5sec();
     }, 5000);
 
-
 }(this, this.document));
 
 function updateEvery5sec() {

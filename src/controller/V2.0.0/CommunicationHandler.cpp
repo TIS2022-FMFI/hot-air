@@ -34,7 +34,8 @@ uint8_t ServerCommunication::sendTemperatureFlag(){
 };
 
 bool ServerCommunication::startUdp(){
-  if (udp->listen(memory->getPORT())){
+  IPAddress updIP = IPAddress(0,0,0,0);
+  if (udp->listen(updIP, memory->getPORT())){
       status->searching_server = true;
 
       udp->onPacket([this](AsyncUDPPacket packet) {
@@ -58,11 +59,13 @@ bool ServerCommunication::startUdp(){
       });
     return true;
   }
+  Serial.println("UDP fail");
   return false;
 };
 
 bool ServerCommunication::stopUdp(){
-  if (udp->listen(0)){
+  IPAddress updIP = IPAddress(0,0,0,0);
+  if (udp->listen(updIP, 0)){
     status->searching_server = false;
     return true;
   }
@@ -70,8 +73,7 @@ bool ServerCommunication::stopUdp(){
 };
 
 void ServerCommunication::sendTemperature(){
-  char data[16];
-  memset(data, 0x00, 11); // add padding
+  memset(status->data, 0x00, 11); // add padding
 
   union {
     float float_variable;
@@ -79,11 +81,23 @@ void ServerCommunication::sendTemperature(){
   } u;
   
   u.float_variable = status->actual_temperature;
-  memcpy(&data[11], u.temp_array, 4);
-  data[15] = sendTemperatureFlag();
+  memcpy(&status->data[11], u.temp_array, 4);
+  status->data[15] = sendTemperatureFlag();
 
-  tcp->write(data, sizeof(data), ASYNC_WRITE_FLAG_COPY);  
+  tcp->write(status->data, 16, 0x00); //ASYNC_WRITE_FLAG_COPY 
 };
+
+void ServerCommunication::sendTemperatureTimeout(unsigned long millis, int refresh){
+  if (millis_send_temperature > millis){
+    millis_send_temperature = 0;    
+  }
+
+  if (millis - millis_send_temperature > refresh){
+    sendTemperature();
+    millis_send_temperature = millis;
+  } 
+
+}
 
 void ServerCommunication::handleTemperature(uint8_t *buffer){
   uint16_t temp = ((((uint16_t)buffer[4]) << 8) | ((uint16_t)buffer[5]));
@@ -96,7 +110,7 @@ void ServerCommunication::handleTemperature(uint8_t *buffer){
   //       time |= byteVal;
   //     }
 
-  if (temp > 0 && temp < 600){
+  if (temp > 0 && temp < 1000){
     status->set_temperature = temp;
   }
 
@@ -121,18 +135,20 @@ void ServerCommunication::handleConnection(){
   status->connected_server = true;
   status->connecting_server = false;
   status->connection_error = false;
+  status->disconnected_time_out = false;
 
   // send to server identifier that I'm controller not a GUI
-  char data[] = {(uint8_t)IM_CONTROLLER};
-  tcp->add(data, sizeof(data), ASYNC_WRITE_FLAG_COPY);
-  tcp->send();
+  static char data = (uint8_t)IM_CONTROLLER;
+  tcp->write(&data, 1, 0x00);//ASYNC_WRITE_FLAG_COPY
 
   // send server my ID.
-  char controller_id[15];
+  
+  static char controller_id[16];
+  memory->trim(controller_id);
   memory->getID(controller_id);
-  tcp->add(controller_id, sizeof(controller_id), ASYNC_WRITE_FLAG_COPY);
-  tcp->send();
-
+  controller_id[15] = communication_flags::NEW_ID;
+  tcp->write(controller_id, 16, 0x00);
+    
   #ifdef _DEBUG
       Serial.println("\nTCP connected to server!");
   #endif
@@ -167,8 +183,11 @@ void ServerCommunication::tcpInit(){
     uint8_t buffer[len + 1];
     uint8_t *b = (uint8_t *)buf;
 
+    Serial.print("dlzka Buffer-a ");
+    Serial.println(len);
+
     for (int i = 0; i < len; i++){
-      buffer[i] = *(uint8_t*)(b + i);
+      buffer[i] = *((uint8_t*)(b + i));
     }
 
     #ifdef _DEBUG
@@ -196,6 +215,12 @@ void ServerCommunication::tcpInit(){
       }
       Serial.println("");
     #endif
+
+    if (len < 16){
+      Serial.print("Dostal som data, dlzka: ");
+      Serial.println(len);
+      return;
+    }
 
     if (buffer[15] == communication_flags::EMERGENCY_STOP){
       Serial.println("EMERGENCY STOP");
@@ -227,18 +252,20 @@ void ServerCommunication::tcpInit(){
 void ServerCommunication::refresh(){
   if (status->connected_server == false){
     if (status->searching_server == false && status->connecting_server == false && status->connection_error == false){
-      Serial.println("Connecting to server");
-      stopUdp();
+      Serial.print("Connecting to server: ");
+      stopUdp() ? Serial.println("UDP STOP OK") : Serial.println("UDP STOP ERROR"); 
 
       IPAddress server_IP = IPAddress();
       memory->getSERVERIP(server_IP);
+      Serial.println(server_IP);
+      
       tcp->connect(server_IP, memory->getPORT());
 
       status->connecting_server = true;
       status->searching_server = false;
     } else if (status->searching_server == false && status->connecting_server == false && status->connection_error == true){
       Serial.println("Start searching for a server");
-      startUdp();
+      startUdp() ? Serial.println("UDP START OK") : Serial.println("UDP START ERROR"); 
       status->searching_server = true;
     }
   }
