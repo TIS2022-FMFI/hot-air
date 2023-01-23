@@ -28,7 +28,7 @@ public class TemperatureLogger {
         bufferedWriter = new BufferedWriter(new FileWriter(fileName, true));
     }
 
-    public int numFilesToDelete(){
+    public static int numFilesToDelete(){
         int counter = 0;
         File dir = new File("temperature_logs");
         Date date = new Date();
@@ -42,7 +42,7 @@ public class TemperatureLogger {
         return counter;
     }
 
-    public void deleteFiles(){
+    public static void deleteFiles(){
         File dir = new File("temperature_logs");
         Date date = new Date();
         if (dir.isDirectory()){
