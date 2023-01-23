@@ -228,7 +228,7 @@ public class Client extends Thread {
                             String projectID = readStringMessage();
                             long time = ByteBuffer.wrap(readMessage()).getLong();
                             String phase = readStringMessage();
-                            Project p = new Project(projectID, time, phase);
+                            Project p = new Project(projectID, phase);
                             res[i] = p;
                         }
                         RequestResult.getInstance().setProjects(res);

@@ -67,7 +67,6 @@ public class GUIController implements Initializable {
     @FXML CheckBox showBlowerStop;
 
     @FXML CheckBox  showName;
-    @FXML CheckBox  showTime;
     @FXML CheckBox  showCurrentPhase;
     @FXML CheckBox  showProjectStop;
 
@@ -75,7 +74,6 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Blower,Hyperlink> blowerID;
     @FXML TableColumn<Blower,String> blowerIP;
     @FXML TableColumn<Blower, Hyperlink> blowerCurrentTmp;
-//    @FXML TableColumn<Blower, Float> blowerCurrentTmp;
     @FXML TableColumn<Blower,Float> blowerTargetTmp;
     @FXML TableColumn<Blower,String> blowerProject;
     @FXML TableColumn<Blower, Button> blowerStop;
@@ -83,9 +81,9 @@ public class GUIController implements Initializable {
 
     @FXML TableView<Project> projectsView;
     @FXML TableColumn<Project,String> projectName;
-    @FXML TableColumn<Project,Float> projectTime;
     @FXML TableColumn<Project,String> projectPhase;
-    @FXML TableColumn<Project,Project> projectStop;
+    @FXML TableColumn<Project,Button> projectStop;
+    @FXML TableColumn<Project,Button> projectCaution;
 
     ObservableList<Blower> blowersList = FXCollections.observableArrayList();
     ObservableList<Project> projectsList = FXCollections.observableArrayList();
@@ -202,8 +200,6 @@ public class GUIController implements Initializable {
                 return 0;
             }
         });
-//        blowerCurrentTmp.setCellValueFactory(new PropertyValueFactory<Blower, Float>("currentTemp"));
-
         blowerCurrentTmp.setCellValueFactory(
                 new PropertyValueFactory<>("graph"));
         blowerCurrentTmp.setCellFactory(new Callback<TableColumn<Blower, Hyperlink>, TableCell<Blower, Hyperlink>>() {
@@ -235,50 +231,9 @@ public class GUIController implements Initializable {
 
     private void setProjectsTable() {
         projectName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        projectTime.setCellValueFactory(new PropertyValueFactory<>("time"));
         projectPhase.setCellValueFactory(new PropertyValueFactory<>("currentPhase"));
-        projectStop.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue()));
-        projectStop.setCellFactory(column -> new TableCell<Project, Project>() {
-            private final Button button = new Button("STOP");
-            {
-                button.setId("stopBtn");
-                button.setOnAction(a -> {
-                    Project p = getItem();
-
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                    alert.setTitle("STOPPING PROJECT");
-                    alert.setHeaderText("Do you really want to stop project " + p.getName() + "?");
-                    setAlertIcons(alert);
-
-                    Optional<ButtonType> result = alert.showAndWait();
-                    if (result.get() == ButtonType.OK){
-                        try {
-                            System.out.println("project " + p.getName() + " stopped");
-                            // todo funkcia na stopnutie projektu
-                        } catch (Exception e) {
-                            System.err.println("project " + p.getName() + " could not be stopped");
-                            gui.alert(e);
-                        }
-                    } else {
-                        System.out.println("project " + p.getName() + " will not be stopped");
-                    }
-                });
-                button.setFont(Font.font("Arial", FontWeight.BOLD, 11.0));
-                button.setMinWidth(75);
-                button.setPrefWidth(75);
-                button.setMaxWidth(USE_COMPUTED_SIZE);
-            }
-
-            @Override
-            protected void updateItem(Project item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(button);
-                }
-            }
-        });
+        projectStop.setCellValueFactory(new PropertyValueFactory<>("stopButton"));
+        projectCaution.setCellValueFactory(new PropertyValueFactory<>("hiddenButton"));
     }
 
     public void updateTable() {
@@ -342,9 +297,8 @@ public class GUIController implements Initializable {
 //        Random random = new Random();
 //
 //        for (int i = 0; i<numberOfProjects; i++) {
-//            int time= random.nextInt(200);
 //            int phase= random.nextInt(5) + 1;
-//            projects.add(new Project(("Project "+i), time, "phase" + phase));
+//            projects.add(new Project(("Project "+i), "phase" + phase));
 //        }
 //
 //        return projects;
@@ -413,7 +367,6 @@ public class GUIController implements Initializable {
                 if (projectsList.contains(project)) {
                     Project p = projectsList.filtered(o -> o.equals(project)).get(0);
                     p.setCurrentPhaseProperty(project.currentPhaseProperty());
-                    p.setTimeProperty(project.timeProperty());
                 } else {
                     projectsList.add(project);
                 }
@@ -558,6 +511,9 @@ public class GUIController implements Initializable {
     public void stopAllBlowers(ActionEvent actionEvent) {
         try {
             gui.client.stopAllControllers();  // todo debug
+            for (Blower b: blowersList) {
+                b.getHiddenButton().setVisible(true);
+            }
             System.out.println("blowers were stopped successfully");
         } catch (Exception e) {
             System.err.println("blowers could not be stopped");
@@ -619,10 +575,6 @@ public class GUIController implements Initializable {
 
     public void showName(ActionEvent actionEvent) {
         projectName.setVisible(showName.isSelected());
-    }
-
-    public void showTime(ActionEvent actionEvent) {
-        projectTime.setVisible(showTime.isSelected());
     }
 
     public void showCurrentPhase(ActionEvent actionEvent) {

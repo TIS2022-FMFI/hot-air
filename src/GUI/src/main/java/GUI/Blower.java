@@ -60,16 +60,16 @@ public class Blower {
      * @param projectName     the corresponding project
      */
     public Blower(String IPAddress, String id, float currentTemp, float targetTemp, String projectName) {
-        this.IPAddress = IPAddress;
-        this.id = new SimpleStringProperty(id);
+        this.IPAddress = IPAddress.trim();
+        this.id = new SimpleStringProperty(id.trim());
         this.currentTemp = new SimpleFloatProperty(currentTemp);
         setGraph();
         this.targetTemp = new SimpleFloatProperty(targetTemp);;
-        this.projectName = new SimpleStringProperty(projectName);
+        this.projectName = new SimpleStringProperty(projectName.trim());
         this.link = new Hyperlink(idProperty().getValue());
         this.link.setOnAction(event -> {
             try {
-                String url = "http://" + IPAddress;
+                String url = "http://" + this.IPAddress;
                 System.out.println(url);
                 Desktop.getDesktop().browse(new URI(url));
             } catch (IOException | URISyntaxException e) {
