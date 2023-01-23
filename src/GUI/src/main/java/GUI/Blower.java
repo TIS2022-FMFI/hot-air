@@ -1,5 +1,7 @@
 package GUI;
 
+import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -35,12 +37,12 @@ import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
  * Class for blowers.
  */
 public class Blower {
-    private String id;  // do 15 znakov, ascii,
+    private SimpleStringProperty id;  // do 15 znakov, ascii,
     private String IPAddress;
-    private float currentTemp;
+    private SimpleFloatProperty currentTemp;
     private Hyperlink graph;
-    private float targetTemp;
-    private String project;
+    private SimpleFloatProperty targetTemp;
+    private SimpleStringProperty projectName;
     private Hyperlink link;
 
     private final Button stopButton;
@@ -55,44 +57,19 @@ public class Blower {
      * @param id          the id
      * @param currentTemp the current temperature
      * @param targetTemp  the target temperature
-     * @param project     the corresponding project
+     * @param projectName     the corresponding project
      */
-    public Blower(String IPAddress, String id, float currentTemp, float targetTemp, String project) {
+    public Blower(String IPAddress, String id, float currentTemp, float targetTemp, String projectName) {
         this.IPAddress = IPAddress;
-        this.id = id;
-        this.currentTemp = currentTemp;
-        this.graph = new Hyperlink("" + this.currentTemp);
-        this.graph.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-
-                LineChart<Number, Number> lineChart = new LineChart<>(new NumberAxis(), new NumberAxis());
-                XYChart.Series<Number, Number> series = new XYChart.Series<>();
-                series.setName("Blower " + getId());
-                lineChart.getData().add(series);
-
-                ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-                executor.scheduleAtFixedRate(() -> {
-                    series.getData().add(new XYChart.Data<>(count, Math.random()));
-                    count++;
-                }, 0, 2, TimeUnit.SECONDS);
-
-                Scene scene = new Scene(lineChart, 400, 300);
-                Stage newWindow = new Stage();
-                newWindow.setTitle("GRAPH " + id);
-                newWindow.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
-                newWindow.setScene(scene);
-                newWindow.setX(gui.getStage().getX() + 200);
-                newWindow.setY(gui.getStage().getY() + 100);
-                newWindow.show();
-            }
-        });
-        this.targetTemp = targetTemp;
-        this.project = project;
-        this.link = new Hyperlink(this.id);
+        this.id = new SimpleStringProperty(id);
+        this.currentTemp = new SimpleFloatProperty(currentTemp);
+        setGraph();
+        this.targetTemp = new SimpleFloatProperty(targetTemp);;
+        this.projectName = new SimpleStringProperty(projectName);
+        this.link = new Hyperlink(idProperty().getValue());
         this.link.setOnAction(event -> {
             try {
-                String url = "http://" + IPAddress + "/control";
+                String url = "http://" + IPAddress;
                 System.out.println(url);
                 Desktop.getDesktop().browse(new URI(url));
             } catch (IOException | URISyntaxException e) {
@@ -116,21 +93,21 @@ public class Blower {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setResizable(true);
             alert.setTitle("RESUMING BLOWER");
-            alert.setHeaderText("Do you really want to resume blower " + getId() + "?");
+            alert.setHeaderText("Do you really want to resume blower " + idProperty().getValue() + "?");
             setAlertIcons(alert);
 
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == ButtonType.OK){
                 try {
-                    GUI.gui.client.unlockController(getId());    // todo debug
+                    GUI.gui.client.unlockController(idProperty().getValue());    // todo debug
                     hiddenButton.setVisible(false);
-                    System.out.println("blower " + getId() + " was resumed");
+                    System.out.println("blower " + idProperty().getValue() + " was resumed");
                 } catch (Exception e) {
-                    System.err.println("blower " + getId() + " could not be resumed");
+                    System.err.println("blower " + idProperty().getValue() + " could not be resumed");
                     gui.alert(e);
                 }
             } else {
-                System.out.println("blower " + getId() + " will not be resumed");
+                System.out.println("blower " + idProperty().getValue() + " will not be resumed");
             }
         });
         this.stopButton = new Button("STOP");
@@ -143,21 +120,21 @@ public class Blower {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setResizable(true);
             alert.setTitle("STOPPING BLOWER");
-            alert.setHeaderText("Do you really want to stop blower " + getId() + "?");
+            alert.setHeaderText("Do you really want to stop blower " + idProperty().getValue() + "?");
             setAlertIcons(alert);
 
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == ButtonType.OK){
                 try {
-                    gui.client.stopAController(getId());  // todo debug
+                    gui.client.stopAController(idProperty().getValue());  // todo debug
                     hiddenButton.setVisible(true);
-                    System.out.println("blower " + getId() + " stopped");
+                    System.out.println("blower " + idProperty().getValue() + " stopped");
                 } catch (Exception e) {
-                    System.err.println("blower " + getId() + " could not be stopped");
+                    System.err.println("blower " + idProperty().getValue() + " could not be stopped");
                     gui.alert(e);
                 }
             } else {
-                System.out.println("blower " + getId() + " will not be stopped");
+                System.out.println("blower " + idProperty().getValue() + " will not be stopped");
             }
         });
     }
@@ -167,7 +144,7 @@ public class Blower {
      *
      * @return the id
      */
-    public String getId() {
+    public SimpleStringProperty idProperty() {
         return id;
     }
 
@@ -176,7 +153,7 @@ public class Blower {
      *
      * @param id the id
      */
-    public void setId(String id) {
+    public void setIdProperty(SimpleStringProperty id) {
         this.id = id;
     }
 
@@ -203,7 +180,7 @@ public class Blower {
      *
      * @return the current temp
      */
-    public float getCurrentTemp() {
+    public SimpleFloatProperty currentTempProperty() {
         return currentTemp;
     }
 
@@ -212,7 +189,7 @@ public class Blower {
      *
      * @param currentTemp the current temp
      */
-    public void setCurrentTemp(float currentTemp) {
+    public void setCurrentTempProperty(SimpleFloatProperty currentTemp) {
         this.currentTemp = currentTemp;
     }
 
@@ -228,10 +205,34 @@ public class Blower {
     /**
      * Sets link to open the graph.
      *
-     * @param graph the link to graph
      */
-    public void setGraph(Hyperlink graph) {
-        this.graph = graph;
+    public void setGraph() {
+        this.graph = new Hyperlink("" + currentTempProperty().getValue());
+        this.graph.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                LineChart<Number, Number> lineChart = new LineChart<>(new NumberAxis(), new NumberAxis());
+                XYChart.Series<Number, Number> series = new XYChart.Series<>();
+                series.setName("Blower " + idProperty().getValue());
+                lineChart.getData().add(series);
+
+                ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+                executor.scheduleAtFixedRate(() -> {
+                    series.getData().add(new XYChart.Data<>(count, Math.random()));
+                    count++;
+                }, 0, 2, TimeUnit.SECONDS);
+
+                Scene scene = new Scene(lineChart, 400, 300);
+                Stage newWindow = new Stage();
+                newWindow.setTitle("GRAPH " + idProperty().getValue());
+                newWindow.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
+                newWindow.setScene(scene);
+                newWindow.setX(gui.getStage().getX() + 200);
+                newWindow.setY(gui.getStage().getY() + 100);
+                newWindow.show();
+            }
+        });
     }
 
     /**
@@ -239,7 +240,7 @@ public class Blower {
      *
      * @return the target temp
      */
-    public float getTargetTemp() {
+    public SimpleFloatProperty targetTempProperty() {
         return targetTemp;
     }
 
@@ -248,7 +249,7 @@ public class Blower {
      *
      * @param targetTemp the target temp
      */
-    public void setTargetTemp(float targetTemp) {
+    public void setTargetTempProperty(SimpleFloatProperty targetTemp) {
         this.targetTemp = targetTemp;
     }
 
@@ -257,17 +258,17 @@ public class Blower {
      *
      * @return the project
      */
-    public String getProject() {
-        return project;
+    public SimpleStringProperty projectNameProperty() {
+        return projectName;
     }
 
     /**
      * Sets project.
      *
-     * @param project the project
+     * @param projectName the project
      */
-    public void setProject(String project) {
-        this.project = project;
+    public void setProjectNameProperty(SimpleStringProperty projectName) {
+        this.projectName = projectName;
     }
 
     /**
@@ -306,18 +307,26 @@ public class Blower {
         return hiddenButton;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Blower blower = (Blower) o;
-        return Objects.equals(id, blower.id) && Objects.equals(IPAddress, blower.IPAddress);
+        return Objects.equals(IPAddress, blower.IPAddress);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, IPAddress);
+        return Objects.hash(IPAddress);
     }
 
+    @Override
+    public String toString() {
+        return "Blower{" +
+                "id=" + id +
+                ", IPAddress='" + IPAddress + '\'' +
+                ", currentTemp=" + currentTemp +
+                ", targetTemp=" + targetTemp +
+                '}';
+    }
 }
