@@ -68,6 +68,9 @@ public class ControllerHandler extends Thread {
     }
 
     public void stopConnection() {
+        if (project != null) {
+            project.startDoomsDayCycle(getControllerID());
+        }
         Server.getInstance().removeController(this);
         socket.stopSocket();
     }
