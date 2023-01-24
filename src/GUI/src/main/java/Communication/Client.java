@@ -153,16 +153,18 @@ public class Client extends Thread {
             } else if (className.contains("XMLException")) {
                 c = XMLException.class;
             } else {
+                System.out.println("[Exception] exception class used");
                 c = Exception.class;
             }
         }
-        return c.getConstructor(String.class).newInstance(message);
-//        Exception e = c.getConstructor(String.class).newInstance(message);
-//        try (ByteArrayInputStream bin = new ByteArrayInputStream(stackTrace); ObjectInput in = new ObjectInputStream(bin)) {
-//            e.setStackTrace((StackTraceElement[]) in.readObject());
-//            e.printStackTrace();
-//        }
-//        return e;
+//        System.out.println("[Exception] " + className + ", " + message);
+//        return c.getConstructor(String.class).newInstance(message);
+        Exception e = c.getConstructor(String.class).newInstance(message);
+        try (ByteArrayInputStream bin = new ByteArrayInputStream(stackTrace); ObjectInput in = new ObjectInputStream(bin)) {
+            e.setStackTrace((StackTraceElement[]) in.readObject());
+            e.printStackTrace();
+        }
+        return e;
     }
 
     private RequestResult.Controller getController() throws ClassNotFoundException, IOException {
@@ -176,13 +178,6 @@ public class Client extends Thread {
         c.setProjectName(readStringMessage());
         return c;
     }
-
-
-//    private static RequestResult.Controller getController(byte[] o) throws ClassNotFoundException, IOException {
-//        try (ByteArrayInputStream bin = new ByteArrayInputStream(o); ObjectInput in = new ObjectInputStream(bin)) {
-//            return (RequestResult.Controller) in.readObject();
-//        }
-//    }
 
     /**
      * Await exceptions and resolve them

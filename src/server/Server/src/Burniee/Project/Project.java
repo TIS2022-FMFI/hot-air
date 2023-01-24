@@ -25,6 +25,8 @@ public class Project extends Thread {
     private String phaseName = "";
     private boolean phaseEnded = false;
     private boolean projectAtEnd = false;
+    private boolean controllerReconnected = false;
+    private String disconnectedController = null;
     private final List<String> handlerIDs;
     private final ScheduledExecutorService logger;
     private final TemperatureLogger temperatureLogger;
@@ -41,7 +43,7 @@ public class Project extends Thread {
             Server.getInstance().sendRequestForDeletingOldLogFiles();
         }
         System.out.println("[Project] starting project " + name);
-        handlerIDs = new LinkedList<>();
+        handlerIDs = new ArrayList<>(XMLAnalyzer.getAllBlowers(pathToXML));
         jobs = new LinkedList<>();
         List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>> phaseJobs;
         System.out.println("[Project] searching for controllers");
@@ -78,6 +80,8 @@ public class Project extends Thread {
                 ControllerHandler ch = findControllerByID(handlerIDs.get(i));
                 if (ch != null) {
                     temps[i] = String.valueOf(ch.getController().getCurrentTemperature());
+                } else {
+                    temps[i] = "0";
                 }
             }
             try {
@@ -91,6 +95,21 @@ public class Project extends Thread {
     }
 
     public TemperatureLogger getLogger() {return temperatureLogger;}
+
+    public void startDoomsDayCycle(String controllerID) {
+        try {
+            disconnectedController = controllerID;
+            System.out.println("[Project] controller with id = " + controllerID + " disconnected, starting 100s countdown until project shutdown");
+            sleep(100000);
+            end();
+        } catch (InterruptedException ignored) {
+            System.out.println("[Project] Lost controller reconnected");
+            disconnectedController = null;
+        }
+//        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+//        scheduler.schedule(() -> {
+//        }, 100, TimeUnit.SECONDS);
+    }
 
     public synchronized void end() {
         projectAtEnd = true;
@@ -168,6 +187,9 @@ public class Project extends Thread {
             for (String entry : handlerIDs) {
                 ControllerHandler ch = findControllerByID(entry);
                 if (ch != null) {
+                    if (entry.equals(disconnectedController)) {
+                        interrupt();
+                    }
                     if (ch.getProject() == null) {
                         ch.override(this);
                     }
