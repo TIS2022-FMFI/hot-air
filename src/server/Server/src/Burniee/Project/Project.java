@@ -99,6 +99,7 @@ public class Project extends Thread {
             ControllerHandler ch = findControllerByID(entry);
             if (ch != null) {
                 ch.getController().setProjectName(null);
+                ch.setProject(null);
                 ch.freeFromService();
             }
         }
