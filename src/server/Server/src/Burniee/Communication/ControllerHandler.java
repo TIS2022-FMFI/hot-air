@@ -211,6 +211,7 @@ public class ControllerHandler extends Thread {
                 }
             } catch (SocketException | SocketTimeoutException e) {
                 stopConnection();
+                GeneralLogger.writeExeption(e);
                 System.out.println("[Controller] Lost connection to controller");
 //                Server.getInstance().sendExceptionToAllActiveGUIs(e);
             } catch (Exception e) {
