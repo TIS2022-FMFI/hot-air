@@ -148,7 +148,7 @@ public class GUIHandler extends Thread {
                     socket.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutProjects.build()));
                     socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getActiveProjects().size()).array()));
                     for (Project p : Server.getInstance().getActiveProjects()) {
-                        socket.writeMessage(new Message(p.getID().getBytes()));
+                        socket.writeMessage(new Message(p.getName().getBytes()));
                         socket.writeMessage(new Message(ByteBuffer.allocate(8).putLong(p.getTimeSinceStart()).array()));
                         socket.writeMessage(new Message(p.getPhaseName().getBytes()));
                     }
