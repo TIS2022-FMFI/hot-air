@@ -57,10 +57,12 @@ public class GUIHandler extends Thread {
     }
 
     public void sendException(String className, String message, byte[] exception) throws IOException {
-        socket.writeMessage(new Message(MessageBuilder.GUI.Exception.build()));
-        socket.writeMessage(new Message(className.getBytes(StandardCharsets.UTF_8)));
-        socket.writeMessage(new Message(message.getBytes(StandardCharsets.UTF_8)));
-        socket.writeMessage(new Message(exception));
+        synchronized (socket) {
+            socket.writeMessage(new Message(MessageBuilder.GUI.Exception.build()));
+            socket.writeMessage(new Message(className.getBytes(StandardCharsets.UTF_8)));
+            socket.writeMessage(new Message(message.getBytes(StandardCharsets.UTF_8)));
+            socket.writeMessage(new Message(exception));
+        }
     }
 
     public void updateTemperature() throws IOException {
@@ -145,21 +147,25 @@ public class GUIHandler extends Thread {
                     }
                 } else if (MessageBuilder.GUI.Request.GetInfoAboutControllers.equals(msg)) {
 //                    System.out.println("[GUI] request for info about all " + Server.getInstance().getControllers().size() + " controllers");
-                    socket.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutControllers.build()));
-                    socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getControllers().size()).array()));
-                    for (ControllerHandler ch : Server.getInstance().getControllers()) {
-                        Controller c = ch.getController();
-                        sendController(c);
+                    synchronized (socket) {
+                        socket.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutControllers.build()));
+                        socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getControllers().size()).array()));
+                        for (ControllerHandler ch : Server.getInstance().getControllers()) {
+                            Controller c = ch.getController();
+                            sendController(c);
 //                        socket.writeMessage(new Message(getObjectBytes(c)));
+                        }
                     }
                 } else if (MessageBuilder.GUI.Request.GetInfoAboutProjects.equals(msg)) {
 //                    System.out.println("[GUI] request for info about all " + Server.getInstance().getActiveProjects().size() + " projects");
-                    socket.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutProjects.build()));
-                    socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getActiveProjects().size()).array()));
-                    for (Project p : Server.getInstance().getActiveProjects()) {
-                        socket.writeMessage(new Message(p.getProjectName().getBytes()));
-                        socket.writeMessage(new Message(ByteBuffer.allocate(8).putLong(p.getTimeSinceStart()).array()));
-                        socket.writeMessage(new Message(p.getPhaseName().getBytes()));
+                    synchronized (socket) {
+                        socket.writeMessage(new Message(MessageBuilder.GUI.Request.GetInfoAboutProjects.build()));
+                        socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getActiveProjects().size()).array()));
+                        for (Project p : Server.getInstance().getActiveProjects()) {
+                            socket.writeMessage(new Message(p.getProjectName().getBytes()));
+                            socket.writeMessage(new Message(ByteBuffer.allocate(8).putLong(p.getTimeSinceStart()).array()));
+                            socket.writeMessage(new Message(p.getPhaseName().getBytes()));
+                        }
                     }
                 } else if (MessageBuilder.GUI.Request.UnlockThisController.equals(msg)) {
                     String ID = socket.readStringMessage();
@@ -175,10 +181,12 @@ public class GUIHandler extends Thread {
                         throw new ControllerException("No controller with ID = " + ID);
                     }
                 } else if (MessageBuilder.GUI.Request.RequestTemperatureLog.equals(msg)) {
-                    String projectName = socket.readStringMessage();
-                    System.out.println("[GUI] request to get temperature log file for project with name = " + projectName);
-                    Project p = Server.getInstance().findProjectByName(projectName);
-                    sendFile(p.getLogger().getFileName());
+                    synchronized (socket) {
+                        String projectName = socket.readStringMessage();
+                        System.out.println("[GUI] request to get temperature log file for project with name = " + projectName);
+                        Project p = Server.getInstance().findProjectByName(projectName);
+                        sendFile(p.getLogger().getFileName());
+                    }
                 } else if (MessageBuilder.GUI.Request.RequestCheckForOldLogFiles.equals(msg)) {
                     TemperatureLogger.deleteFiles();
                 }
