@@ -206,6 +206,8 @@ public class Server {
      */
     public void sendExceptionToAllActiveGUIs(Throwable th) {
         th.printStackTrace();
+        System.err.println(th.getMessage());
+        System.err.println("Exception");
         System.out.println("[TCP] Sending exception to " + getAllGUIS().size() + " GUIs");
         try {
             String c = th.getClass().getCanonicalName();

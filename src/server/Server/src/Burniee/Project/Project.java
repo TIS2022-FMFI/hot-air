@@ -88,10 +88,9 @@ public class Project extends Thread {
         }, 0, 1, TimeUnit.SECONDS);
     }
 
-
     public TemperatureLogger getLogger() {return temperatureLogger;}
 
-    public void end() {
+    public synchronized void end() {
         projectAtEnd = true;
         System.out.println("[Project] Project with ID = " + ID + ", name = " + name + " ended");
         Server.getInstance().removeProject(this);
