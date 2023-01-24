@@ -117,10 +117,9 @@
               <columns>
                <TableColumn fx:id="blowerID" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" resizable="false" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="ID " />
                <TableColumn fx:id="blowerIP" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" resizable="false" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="IP Address" />
-               <TableColumn fx:id="blowerCurrentTmp" maxWidth="-1.0" minWidth="110.0" prefWidth="-1.0" resizable="false" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT;" text="Current TMP" />
-               <TableColumn fx:id="blowerTargetTmp" maxWidth="-1.0" minWidth="110.0" prefWidth="-1.0" resizable="false" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="Target TMP" />
+               <TableColumn fx:id="blowerCurrentTmp" maxWidth="-1.0" minWidth="120.0" prefWidth="-1.0" resizable="false" style="-fx-padding: 0 0 0 3; -fx-alignment: CENTER-LEFT;" text="Current TMP" />
+               <TableColumn fx:id="blowerTargetTmp" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" resizable="false" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="Target TMP" />
                <TableColumn fx:id="blowerProject" maxWidth="1.7976931348623157E308" minWidth="300.0" prefWidth="-1.0" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="Project" />
-                  <TableColumn fx:id="graph" maxWidth="1.7976931348623157E308" minWidth="20.0" prefWidth="-1.0" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="a" />
                <TableColumn fx:id="blowerStop" maxWidth="-1.0" minWidth="95.0" prefWidth="-1.0" resizable="false" sortable="false" style="-fx-alignment: CENTER; -fx-cell-size: 30;" text="STOP" />
                   <TableColumn fx:id="blowerCaution" maxWidth="-1.0" minWidth="40.0" prefWidth="-1.0" resizable="false" style="-fx-alignment: CENTER; -fx-padding: 0 0 0 5;" />
               </columns>
@@ -159,10 +158,8 @@
          <center>
             <TableView fx:id="projectsView" prefHeight="404.0" prefWidth="890.0" BorderPane.alignment="CENTER">
                <columns>
-                  <TableColumn fx:id="projectName" minWidth="100.0" prefWidth="25.0" style="-fx-padding: 0 0 0 5; -fx-cell-size: 30; -fx-alignment: CENTER-LEFT;" text="Name  📈" />
+                  <TableColumn fx:id="projectName" minWidth="100.0" prefWidth="25.0" style="-fx-padding: 0 0 0 5; -fx-cell-size: 30; -fx-alignment: CENTER-LEFT;" text="Name   📈" />
                   <TableColumn fx:id="projectPhase" minWidth="100.0" prefWidth="270.0" style="-fx-padding: 0 0 0 5; -fx-cell-size: 30; -fx-alignment: CENTER-LEFT;" text="Current phase" />
-                  <TableColumn fx:id="projectStop" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" resizable="false" sortable="false" style="-fx-alignment: CENTER; -fx-cell-size: 30;" text="STOP" />
-                  <TableColumn fx:id="projectCaution" maxWidth="-1.0" minWidth="40.0" prefWidth="-1.0" resizable="false" style="-fx-alignment: CENTER; -fx-padding: 0 0 0 5;" />
                </columns>
                <columnResizePolicy>
                   <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -230,11 +227,6 @@
                            </font>
                         </CheckBox>
                         <CheckBox fx:id="showCurrentPhase" mnemonicParsing="false" onAction="#showCurrentPhase" selected="true" text="Current phase">
-                           <font>
-                              <Font name="Arial" size="12.0" />
-                           </font>
-                        </CheckBox>
-                        <CheckBox fx:id="showProjectStop" mnemonicParsing="false" onAction="#showProjectStop" selected="true" text="STOP">
                            <font>
                               <Font name="Arial" size="12.0" />
                            </font>
