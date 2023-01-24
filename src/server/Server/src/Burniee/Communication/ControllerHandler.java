@@ -29,7 +29,7 @@ public class ControllerHandler extends Thread {
         socket = sh;
         controller = new Controller(ip);
         Server.getInstance().addController(this);
-        Server.getInstance().isAnyoneMissingMe(this);
+//        Server.getInstance().isAnyoneMissingMe(this);
     }
 
     public boolean isConnected() {return socket.isActive();}
@@ -48,6 +48,7 @@ public class ControllerHandler extends Thread {
         if (activeStateChangeDelay) {return;}
         isActive = true;
         project = p;
+        controller.setProjectName(p.getProjectName());
         activeStateChangeDelay = true;
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.schedule(() -> {
@@ -70,7 +71,7 @@ public class ControllerHandler extends Thread {
 
     public void stopConnection() {
         if (project != null) {
-            project.startDoomsDayCycle(getControllerID());
+            project.end();
         }
         Server.getInstance().removeController(this);
         socket.stopSocket();
@@ -191,17 +192,17 @@ public class ControllerHandler extends Thread {
                             controller.setActiveError(Controller.Error.TEMP_CAN_NOT_BE_READ);
                         }
                     }
-                    if ((flags&0b00010000) > 0) {
-                        if (!isActive) {
-                            System.out.println("[Controller] controller with id = " + getControllerID() + " is being used without a project");
-                            startUsing(null);
-                        }
-                    } else {
-                        if (isActive) {
-                            System.out.println("[Controller] controller with id = " + getControllerID() + " is no longer being used");
-                            freeFromService();
-                        }
-                    }
+//                    if ((flags&0b00010000) > 0) {
+//                        if (!isActive) {
+//                            System.out.println("[Controller] controller with id = " + getControllerID() + " is being used without a project");
+//                            startUsing(null);
+//                        }
+//                    } else {
+//                        if (isActive) {
+//                            System.out.println("[Controller] controller with id = " + getControllerID() + " is no longer being used");
+//                            freeFromService();
+//                        }
+//                    }
                     byte[] temp = new byte[] {msg[11], msg[12], msg[13], msg[14]};
                     controller.setCurrentTemperature(ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getFloat());
 //                    System.out.println("[Controller] temperature arrived = " + controller.getCurrentTemperature());
