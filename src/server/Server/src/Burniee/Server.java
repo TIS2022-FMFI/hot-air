@@ -192,15 +192,15 @@ public class Server {
         return res;
     }
 
-    public void isAnyoneMissingMe(ControllerHandler ch) {
-        synchronized (activeProjects) {
-            for (Project p : activeProjects) {
-                if (p.beYouMyLostChild(ch)) {
-                    return;
-                }
-            }
-        }
-    }
+//    public void isAnyoneMissingMe(ControllerHandler ch) {
+//        synchronized (activeProjects) {
+//            for (Project p : activeProjects) {
+//                if (p.beYouMyLostChild(ch)) {
+//                    return;
+//                }
+//            }
+//        }
+//    }
 
     public void sendRequestForDeletingOldLogFiles() {
         synchronized (activeGUIs) {

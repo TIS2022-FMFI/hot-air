@@ -91,15 +91,23 @@ public class GUIHandler extends Thread {
 //                System.out.println("[GUI] new message arrived");
                 msg = socket.readMessage();
                 if (MessageBuilder.GUI.Request.NumberOfControllers.equals(msg)) {
+                    synchronized (socket) {
 //                    System.out.println("[GUI] request for number of controllers, result = "+ Server.getInstance().getControllers().size());
-                    socket.writeMessage(new Message(MessageBuilder.GUI.Request.NumberOfControllers.build()));
-                    socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getControllers().size()).array()));
+                        socket.writeMessage(new Message(MessageBuilder.GUI.Request.NumberOfControllers.build()));
+                        socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getControllers().size()).array()));
+                    }
                 } else if (MessageBuilder.GUI.Request.NumberOfProjects.equals(msg)) {
 //                    System.out.println("[GUI] request for number of projects, result = "+ Server.getInstance().getActiveProjects().size());
-                    socket.writeMessage(new Message(MessageBuilder.GUI.Request.NumberOfProjects.build()));
-                    socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getActiveProjects().size()).array()));
+                    synchronized (socket) {
+                        socket.writeMessage(new Message(MessageBuilder.GUI.Request.NumberOfProjects.build()));
+                        socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getActiveProjects().size()).array()));
+                    }
                 } else if (MessageBuilder.GUI.Request.ChangeControllerID.equals(msg)) { //TODO -> check if new id is unique
-                    String oldID = socket.readStringMessage(), newID = socket.readStringMessage();
+                    String oldID, newID;
+                    synchronized (socket) {
+                        oldID = socket.readStringMessage();
+                        newID = socket.readStringMessage();
+                    }
                     System.out.println("[GUI] request for new id = " + newID + " for controller with id = " + oldID);
                     boolean gut = false;
                     for (ControllerHandler i : Server.getInstance().getControllers()) {

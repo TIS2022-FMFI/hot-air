@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class Project extends Thread {
     private final String ID;
@@ -25,9 +26,10 @@ public class Project extends Thread {
     private String phaseName = "";
     private boolean phaseEnded = false;
     private boolean projectAtEnd = false;
-    private boolean controllerReconnected = false;
-    private String disconnectedController = null;
-    private final List<String> handlerIDs;
+//    private boolean controllerReconnected = false;
+//    private String disconnectedController = null;
+//    private final List<String> handlerIDs;
+    private final List<ControllerHandler> handlers;
     private final ScheduledExecutorService logger;
     private final TemperatureLogger temperatureLogger;
 //    private final Map<String, ControllerHandler> handlers;
@@ -43,19 +45,32 @@ public class Project extends Thread {
             Server.getInstance().sendRequestForDeletingOldLogFiles();
         }
         System.out.println("[Project] starting project " + name);
-        handlerIDs = new ArrayList<>(XMLAnalyzer.getAllBlowers(pathToXML));
-        jobs = new LinkedList<>();
-        List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>> phaseJobs;
-        System.out.println("[Project] searching for controllers");
-        for (AbstractMap.SimpleEntry<String, String> controller : script.get(0).getValue()) {
-            ControllerHandler ch = findControllerByID(controller.getKey());
-            if (ch == null || ch.isActive()) {
-                throw new ControllerException("Controller with ID = " + controller.getKey() + " is currently being used by another project");
+        handlers = new ArrayList<>();
+        for (String i : XMLAnalyzer.getAllBlowers(pathToXML)) {
+            ControllerHandler ch = findControllerByID(i);
+            if (ch == null) {
+                throw new ControllerException("No controller with such ID");
+            }
+            if (ch.isActive()) {
+                throw new ControllerException("Controller with ID = " + ch.getControllerID() + " is currently being used by another project");
             }
             ch.startUsing(this);
             System.out.println("[Project] controller with id = " + ch.getControllerID() + " found");
-            handlerIDs.add(controller.getKey());
+            handlers.add(ch);
         }
+//        handlerIDs = new ArrayList<>(XMLAnalyzer.getAllBlowers(pathToXML));
+        jobs = new LinkedList<>();
+        List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>> phaseJobs;
+//        System.out.println("[Project] searching for controllers");
+//        for (AbstractMap.SimpleEntry<String, String> controller : script.get(0).getValue()) {
+//            ControllerHandler ch = findControllerByID(controller.getKey());
+//            if (ch == null || ch.isActive()) {
+//                throw new ControllerException("Controller with ID = " + controller.getKey() + " is currently being used by another project");
+//            }
+//            ch.startUsing(this);
+//            System.out.println("[Project] controller with id = " + ch.getControllerID() + " found");
+//            handlerIDs.add(controller.getKey());
+//        }
 
         for (AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>> phase : script) {
             phaseJobs = new LinkedList<>();
@@ -75,17 +90,13 @@ public class Project extends Thread {
 
         logger = Executors.newScheduledThreadPool(1);
         logger.scheduleAtFixedRate(() -> {
-            String[] temps = new String[handlerIDs.size()];
-            for (int i = 0; i < handlerIDs.size(); i++) {
-                ControllerHandler ch = findControllerByID(handlerIDs.get(i));
-                if (ch != null) {
-                    temps[i] = String.valueOf(ch.getController().getCurrentTemperature());
-                } else {
-                    temps[i] = "0";
-                }
+            String[] temps = new String[handlers.size()];
+            for (int i = 0; i < handlers.size(); i++) {
+                ControllerHandler ch = handlers.get(i);
+                temps[i] = String.valueOf(ch.getController().getCurrentTemperature());
             }
             try {
-                temperatureLogger.logTemeperature(phaseName, handlerIDs, Arrays.asList(temps));
+                temperatureLogger.logTemeperature(phaseName, handlers.stream().map(ControllerHandler::getControllerID).collect(Collectors.toList()), Arrays.asList(temps));
             } catch (IOException e) {
                 GeneralLogger.writeExeption(e);
                 Server.getInstance().sendExceptionToAllActiveGUIs(e);
@@ -96,27 +107,26 @@ public class Project extends Thread {
 
     public TemperatureLogger getLogger() {return temperatureLogger;}
 
-    public void startDoomsDayCycle(String controllerID) {
-        try {
-            disconnectedController = controllerID;
-            System.out.println("[Project] controller with id = " + controllerID + " disconnected, starting 100s countdown until project shutdown");
-            sleep(100000);
-            end();
-        } catch (InterruptedException ignored) {
-            System.out.println("[Project] Lost controller reconnected");
-            disconnectedController = null;
-        }
+//    public void startDoomsDayCycle(String controllerID) {
+//        try {
+//            disconnectedController = controllerID;
+//            System.out.println("[Project] controller with id = " + controllerID + " disconnected, starting 100s countdown until project shutdown");
+//            sleep(100000);
+//            end();
+//        } catch (InterruptedException ignored) {
+//            System.out.println("[Project] Lost controller reconnected");
+//            disconnectedController = null;
+//        }
 //        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 //        scheduler.schedule(() -> {
 //        }, 100, TimeUnit.SECONDS);
-    }
+//    }
 
     public synchronized void end() {
         projectAtEnd = true;
         System.out.println("[Project] Project with ID = " + ID + ", name = " + name + " ended");
         Server.getInstance().removeProject(this);
-        for (String entry : handlerIDs) {
-            ControllerHandler ch = findControllerByID(entry);
+        for (ControllerHandler ch : handlers) {
             if (ch != null) {
                 ch.getController().setProjectName(null);
                 ch.setProject(null);
@@ -170,25 +180,24 @@ public class Project extends Thread {
     }
 
     private void coolAllControllers() throws IOException {
-        for (String controller : handlerIDs) {
-            ControllerHandler ch = findControllerByID(controller);
+        for (ControllerHandler ch : handlers) {
             if (ch != null) {
                 ch.changeControllerParameters(0, (short) 100, 0);
             }
         }
     }
 
-    public boolean beYouMyLostChild(ControllerHandler controller) {
-        if (controller.getControllerID().equals(disconnectedController)) {
-            interrupt();
-            if (controller.getProject() == null) {
-                controller.override(this);
-            }
-            controller.getController().setProjectName(name);
-            return true;
-        }
-        return false;
-    }
+//    public boolean beYouMyLostChild(ControllerHandler controller) {
+//        if (controller.getControllerID().equals(disconnectedController)) {
+//            interrupt();
+//            if (controller.getProject() == null) {
+//                controller.override(this);
+//            }
+//            controller.getController().setProjectName(name);
+//            return true;
+//        }
+//        return false;
+//    }
 
     @Override
     public void run() {
@@ -196,12 +205,12 @@ public class Project extends Thread {
             startedAt = System.nanoTime();
 //            System.out.println("[Project] project started at " + getReadableTime(startedAt));
             Server.getInstance().addProject(this);
-            for (String entry : handlerIDs) {
-                ControllerHandler ch = findControllerByID(entry);
-                if (ch != null) {
-                    beYouMyLostChild(ch);
-                }
-            }
+//            for (String entry : handlerIDs) {
+//                ControllerHandler ch = findControllerByID(entry);
+//                if (ch != null) {
+//                    beYouMyLostChild(ch);
+//                }
+//            }
 //            for (Map.Entry<String, ControllerHandler> entry : handlers.entrySet()) {
 //                entry.getValue().getController().setProjectName(name);
 //            }
