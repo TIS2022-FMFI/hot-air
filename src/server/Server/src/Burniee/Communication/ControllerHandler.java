@@ -21,6 +21,7 @@ public class ControllerHandler extends Thread {
     private final SocketHandler socket;
     private final Controller controller;
     private boolean isActive = false;
+    private boolean activeStateChangeDelay = false;
     private Project project;
 
     public ControllerHandler(SocketHandler sh, InetAddress ip) {
@@ -37,15 +38,27 @@ public class ControllerHandler extends Thread {
     }
 
     public synchronized void startUsing(Project p) {
+        if (activeStateChangeDelay) {return;}
         isActive = true;
         project = p;
+        activeStateChangeDelay = true;
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.schedule(() -> {
+            activeStateChangeDelay = false;
+        }, 10, TimeUnit.SECONDS);
     }
 
     public synchronized void freeFromService() {
+        if (activeStateChangeDelay) {return;}
         isActive = false;
         if (project != null) {
             project.end();
         }
+        activeStateChangeDelay = true;
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.schedule(() -> {
+            activeStateChangeDelay = false;
+        }, 10, TimeUnit.SECONDS);
     }
 
     public void stopConnection() {
