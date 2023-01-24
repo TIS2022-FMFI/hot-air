@@ -194,8 +194,12 @@ public class Client extends Thread {
             try {
                 msg = readMessage();
                 if (MessageBuilder.GUI.Exception.equals(msg)) {
-                    Exception e = getException(readStringMessage(), readStringMessage(), readMessage());
-                    Platform.runLater(() -> {GUI.gui.alert(e);});
+                    synchronized (RequestResult.getInstance()) {
+                        Exception e = getException(readStringMessage(), readStringMessage(), readMessage());
+                        Platform.runLater(() -> {
+                            GUI.gui.alert(e);
+                        });
+                    }
                 } else if (MessageBuilder.GUI.Request.NumberOfProjects.equals(msg)) {
                     synchronized (RequestResult.getInstance()) {
                         RequestResult.getInstance().setIntData(ByteBuffer.wrap(readMessage()).getInt());
