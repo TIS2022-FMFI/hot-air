@@ -2,6 +2,7 @@ package Burniee.Project;
 
 import Burniee.Communication.ControllerHandler;
 import Burniee.Communication.UDPCommunicationHandler;
+import Burniee.Logs.GeneralLogger;
 import Burniee.Logs.TemperatureLogger;
 import Burniee.xml.XMLException;
 import org.xml.sax.SAXException;
@@ -72,6 +73,7 @@ public class Project extends Thread {
 
         logger = Executors.newScheduledThreadPool(1);
         logger.scheduleAtFixedRate(() -> {
+            System.out.println("Starting logging");
             List<String> temps = new LinkedList<>();
             for (int i = 0; i < handlerIDs.size(); i++) {
                 ControllerHandler ch = findControllerByID(handlerIDs.get(i));
@@ -82,6 +84,7 @@ public class Project extends Thread {
             try {
                 temperatureLogger.logTemeperature(phaseName, handlerIDs, temps);
             } catch (IOException e) {
+                GeneralLogger.writeExeption(e);
                 Server.getInstance().sendExceptionToAllActiveGUIs(e);
                 e.printStackTrace();
             }
@@ -110,6 +113,7 @@ public class Project extends Thread {
     public long getTimeSinceStart() {return System.nanoTime()-startedAt;}
     public synchronized String getPhaseName() {return phaseName;}
     private synchronized void setPhaseName(String name) {phaseName = name;}
+    public String getProjectName() {return name;}
 
     public synchronized void confirmEndOfPhase() {
         phaseEnded = true;
@@ -121,6 +125,7 @@ public class Project extends Thread {
             try {
                 this.wait();
             } catch (InterruptedException e) {
+                GeneralLogger.writeExeption(e);
                 e.printStackTrace();
             }
         }
@@ -164,6 +169,9 @@ public class Project extends Thread {
             for (String entry : handlerIDs) {
                 ControllerHandler ch = findControllerByID(entry);
                 if (ch != null) {
+                    if (ch.getProject() == null) {
+                        ch.override(this);
+                    }
                     ch.getController().setProjectName(name);
                 }
             }
@@ -203,6 +211,7 @@ public class Project extends Thread {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            GeneralLogger.writeExeption(e);
             Server.getInstance().sendExceptionToAllActiveGUIs(e);
         } finally {
             end();

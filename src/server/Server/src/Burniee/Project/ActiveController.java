@@ -1,6 +1,7 @@
 package Burniee.Project;
 
 import Burniee.Communication.ControllerHandler;
+import Burniee.Logs.GeneralLogger;
 import Burniee.Server;
 
 import java.io.IOException;
@@ -58,6 +59,7 @@ public class ActiveController extends Thread {
                 try {
                     sleep(jobTime*1000);
                 } catch (InterruptedException e) {
+                    GeneralLogger.writeExeption(e);
                     end();
                     return; // TODO test if this can only happen with big red button and make a note in logs that this happened
 //                    e.printStackTrace();
@@ -84,6 +86,7 @@ public class ActiveController extends Thread {
                 }
             }
         } catch (Exception e) {
+            GeneralLogger.writeExeption(e);
             Server.getInstance().sendExceptionToAllActiveGUIs(e);
         } finally {
             end();

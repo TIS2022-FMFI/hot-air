@@ -2,6 +2,7 @@ package Burniee.Communication;
 
 import Burniee.Controller.Controller;
 import Burniee.Controller.ControllerException;
+import Burniee.Logs.GeneralLogger;
 import Burniee.Project.Project;
 import Burniee.Server;
 
@@ -35,6 +36,11 @@ public class ControllerHandler extends Thread {
     public void setProject(Project p) {project = p;}
     public boolean isActive() {
         return isActive;
+    }
+
+    public synchronized void override(Project p) {
+        isActive = true;
+        project = p;
     }
 
     public synchronized void startUsing(Project p) {
@@ -141,7 +147,7 @@ public class ControllerHandler extends Thread {
         byte[] msg;
         try {
             socket.getSocket().setSoTimeout(10000);
-        } catch (IOException e) {e.printStackTrace();}
+        } catch (IOException e) {e.printStackTrace();GeneralLogger.writeExeption(e);}
         while (socket.isActive()) {
             try {
                 msg = socket.readMessage(true);
@@ -204,6 +210,7 @@ public class ControllerHandler extends Thread {
 //                Server.getInstance().sendExceptionToAllActiveGUIs(e);
             } catch (Exception e) {
                 Server.getInstance().sendExceptionToAllActiveGUIs(e);
+                GeneralLogger.writeExeption(e);
             }
         }
     }

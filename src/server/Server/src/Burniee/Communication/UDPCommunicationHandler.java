@@ -1,5 +1,6 @@
 package Burniee.Communication;
 
+import Burniee.Logs.GeneralLogger;
 import Burniee.Server;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ public class UDPCommunicationHandler extends Thread {
                 break;
             } catch (IOException e) {
                 if (i == 4) {
+                    GeneralLogger.writeExeption(e);
                     System.err.println("[UDP] socket failed to start, UDP discovery may not work"); //TODO try again later
                     return;
                 } else {
@@ -62,6 +64,7 @@ public class UDPCommunicationHandler extends Thread {
                 }
             }
         } catch (SocketException e) {
+            GeneralLogger.writeExeption(e);
             e.printStackTrace();
         }
         return broadcastList;
@@ -78,6 +81,7 @@ public class UDPCommunicationHandler extends Thread {
                 socket.send(new DatagramPacket(data, data.length, b, 4002));
             }
         } catch (IOException e) {
+            GeneralLogger.writeExeption(e);
             e.printStackTrace();
         }
     }
@@ -115,6 +119,7 @@ public class UDPCommunicationHandler extends Thread {
                 }
 
             } catch (IOException e) {
+                GeneralLogger.writeExeption(e);
                 e.printStackTrace();
             }
         }
