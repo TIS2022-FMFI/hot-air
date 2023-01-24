@@ -178,6 +178,18 @@ public class Project extends Thread {
         }
     }
 
+    public boolean beYouMyLostChild(ControllerHandler controller) {
+        if (controller.getControllerID().equals(disconnectedController)) {
+            interrupt();
+            if (controller.getProject() == null) {
+                controller.override(this);
+            }
+            controller.getController().setProjectName(name);
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public void run() {
         try {
@@ -187,13 +199,7 @@ public class Project extends Thread {
             for (String entry : handlerIDs) {
                 ControllerHandler ch = findControllerByID(entry);
                 if (ch != null) {
-                    if (entry.equals(disconnectedController)) {
-                        interrupt();
-                    }
-                    if (ch.getProject() == null) {
-                        ch.override(this);
-                    }
-                    ch.getController().setProjectName(name);
+                    beYouMyLostChild(ch);
                 }
             }
 //            for (Map.Entry<String, ControllerHandler> entry : handlers.entrySet()) {

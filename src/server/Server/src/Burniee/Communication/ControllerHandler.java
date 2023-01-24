@@ -29,6 +29,7 @@ public class ControllerHandler extends Thread {
         socket = sh;
         controller = new Controller(ip);
         Server.getInstance().addController(this);
+        Server.getInstance().isAnyoneMissingMe(this);
     }
 
     public boolean isConnected() {return socket.isActive();}
