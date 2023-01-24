@@ -2,6 +2,7 @@ package GUI;
 
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -50,6 +51,10 @@ public class Blower {
     private final Button stopButton;
     private final Button hiddenButton;
 
+    final NumberAxis xAxis = new NumberAxis();
+    final NumberAxis yAxis = new NumberAxis();
+
+
     private int count = 0;
 
     /**
@@ -71,46 +76,90 @@ public class Blower {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    System.out.println(projectNameProperty().getValue());
-                    String pathToTempLog = GUI.client.getTempLogFile(projectNameProperty().getValue()); // cesta ku suboru
+//                    String pathToTempLog = GUI.client.getTempLogFile(projectNameProperty().getValue()); // cesta ku suboru
+                    String pathToTempLog = "C:\\Users\\Karin\\Downloads\\pokus_temperatures_2023.01.23.23.08.44.csv"; // cesta ku suboru
                     System.out.println(pathToTempLog);
 
-                    List<List<String>> records = new ArrayList<List<String>>();
+                    HashMap<String, List<String>> temperatures = new HashMap<>();
                     try (BufferedReader br = new BufferedReader(new FileReader(pathToTempLog))) {
                         String line;
                         while ((line = br.readLine()) != null) {
                             System.out.println(line);
-                            String[] values = line.split(",");
-                            records.add(Arrays.asList(values));
+                            List<String> values = Arrays.asList(line.split(","));
+                            for (int i = 2; i<values.size()-1; i++) {
+                                if (temperatures.containsKey(values.get(i))) {
+                                    temperatures.get(values.get(i)).add(values.get(i+1).trim());
+                                }
+
+                                temperatures.putIfAbsent(values.get(i), new ArrayList<>(Arrays.asList(values.get(i+1))));
+                                i++;
+                            }
                         }
-                        records.forEach(System.out::println);
+                    }
+                    System.out.println("temperatures");
+                    for (String s : temperatures.keySet()) {
+                        System.out.println(s + " = " + temperatures.get(s));
                     }
 
-                } catch (IOException | InterruptedException | NullPointerException e) {
+                    LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
+
+                    for (String key : temperatures.keySet()) {
+                        XYChart.Series<Number, Number> series = new XYChart.Series<>();
+                        series.setName("Blower " + key);
+                        lineChart.getData().add(series);
+                        final int[] i = new int[1];
+                        for (i[0] = 0; i[0] <temperatures.get(key).size(); i[0]++) {
+                            try {
+                                series.getData().add(new XYChart.Data<>(i[0], Float.parseFloat(temperatures.get(key).get(i[0]))));
+                            } catch (NumberFormatException e) {
+                                System.out.println(temperatures.get(key).get(i[0]));
+                                System.out.println(e.getMessage());
+                            }
+                        }
+
+                        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+                        executor.scheduleAtFixedRate(() -> {
+                            ObservableList<Blower> blowers = GUIController.getBlowersList();
+                            Blower blower = blowers.filtered(b-> b.idProperty().getValue().equals(key)).get(0);
+                            series.getData().add(new XYChart.Data<>(i[0], blower.currentTempProperty().getValue()));
+                            i[0]++;
+                        }, 0, 1, TimeUnit.SECONDS);
+                    }
+
+
+                    Scene scene = new Scene(lineChart, 400, 300);
+                    Stage newWindow = new Stage();
+                    newWindow.setTitle("GRAPH " + idProperty().getValue());
+                    newWindow.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
+                    newWindow.setScene(scene);
+                    newWindow.setX(gui.getStage().getX() + 200);
+                    newWindow.setY(gui.getStage().getY() + 100);
+                    newWindow.show();
+
+                } catch (IOException | NullPointerException e) { // InterruptedException
                     gui.alert(e);
                     e.printStackTrace();
                 }
 
-
-                LineChart<Number, Number> lineChart = new LineChart<>(new NumberAxis(), new NumberAxis());
-                XYChart.Series<Number, Number> series = new XYChart.Series<>();
-                series.setName("Blower " + idProperty().getValue());
-                lineChart.getData().add(series);
-
-                ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-                executor.scheduleAtFixedRate(() -> {
-                    series.getData().add(new XYChart.Data<>(count, Math.random()));
-                    count++;
-                }, 0, 2, TimeUnit.SECONDS);
-
-                Scene scene = new Scene(lineChart, 400, 300);
-                Stage newWindow = new Stage();
-                newWindow.setTitle("GRAPH " + idProperty().getValue());
-                newWindow.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
-                newWindow.setScene(scene);
-                newWindow.setX(gui.getStage().getX() + 200);
-                newWindow.setY(gui.getStage().getY() + 100);
-                newWindow.show();
+//                LineChart<Number, Number> lineChart = new LineChart<>(new NumberAxis(), new NumberAxis());
+//                XYChart.Series<Number, Number> series = new XYChart.Series<>();
+//                series.setName("Blower " + idProperty().getValue());
+//                lineChart.getData().add(series);
+//
+//                ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+//                executor.scheduleAtFixedRate(() -> {
+//                    series.getData().add(new XYChart.Data<>(count, Math.random()));
+//                    count++;
+//                }, 0, 2, TimeUnit.SECONDS);
+//
+//                Scene scene = new Scene(lineChart, 400, 300);
+//                Stage newWindow = new Stage();
+//                newWindow.setTitle("GRAPH " + idProperty().getValue());
+//                newWindow.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
+//                newWindow.setScene(scene);
+//                newWindow.setX(gui.getStage().getX() + 200);
+//                newWindow.setY(gui.getStage().getY() + 100);
+//                newWindow.show();
             }
         });
         this.targetTemp = new SimpleFloatProperty(targetTemp);;

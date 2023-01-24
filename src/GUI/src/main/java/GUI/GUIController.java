@@ -88,7 +88,7 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Project,Button> projectStop;
     @FXML TableColumn<Project,Button> projectCaution;
 
-    ObservableList<Blower> blowersList = FXCollections.observableArrayList();
+    static ObservableList<Blower> blowersList = FXCollections.observableArrayList();
     ObservableList<Project> projectsList = FXCollections.observableArrayList();
 
     public GUIController() {
@@ -376,8 +376,6 @@ public class GUIController implements Initializable {
                 }
             }
 
-            System.out.println("UPDATEnute blowery v ObservableList= " + blowersList.size());
-            blowersList.forEach(i -> System.out.println(i.toString()));
             for (Blower b : blowersList) {
                 boolean gut = false;
                 for (Blower blower : blowers) {
@@ -622,5 +620,13 @@ public class GUIController implements Initializable {
 
     public void showProjectStop(ActionEvent actionEvent) {
         projectStop.setVisible(showProjectStop.isSelected());
+    }
+
+    public static ObservableList<Blower> getBlowersList() {
+        return blowersList;
+    }
+
+    public ObservableList<Project> getProjectsList() {
+        return projectsList;
     }
 }

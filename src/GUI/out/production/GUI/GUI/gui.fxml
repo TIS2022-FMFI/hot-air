@@ -117,9 +117,10 @@
               <columns>
                <TableColumn fx:id="blowerID" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" resizable="false" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="ID " />
                <TableColumn fx:id="blowerIP" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" resizable="false" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="IP Address" />
-               <TableColumn fx:id="blowerCurrentTmp" maxWidth="-1.0" minWidth="110.0" prefWidth="-1.0" resizable="false" style="-fx-padding: 0 0 0 3; -fx-alignment: CENTER-LEFT;" text="Current TMP" />
+               <TableColumn fx:id="blowerCurrentTmp" maxWidth="-1.0" minWidth="110.0" prefWidth="-1.0" resizable="false" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT;" text="Current TMP" />
                <TableColumn fx:id="blowerTargetTmp" maxWidth="-1.0" minWidth="110.0" prefWidth="-1.0" resizable="false" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="Target TMP" />
                <TableColumn fx:id="blowerProject" maxWidth="1.7976931348623157E308" minWidth="300.0" prefWidth="-1.0" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="Project" />
+                  <TableColumn fx:id="graph" maxWidth="1.7976931348623157E308" minWidth="20.0" prefWidth="-1.0" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="a" />
                <TableColumn fx:id="blowerStop" maxWidth="-1.0" minWidth="95.0" prefWidth="-1.0" resizable="false" sortable="false" style="-fx-alignment: CENTER; -fx-cell-size: 30;" text="STOP" />
                   <TableColumn fx:id="blowerCaution" maxWidth="-1.0" minWidth="40.0" prefWidth="-1.0" resizable="false" style="-fx-alignment: CENTER; -fx-padding: 0 0 0 5;" />
               </columns>

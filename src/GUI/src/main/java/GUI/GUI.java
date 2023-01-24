@@ -8,6 +8,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
@@ -16,6 +17,9 @@ import javafx.stage.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
+
+import static GUI.GUIController.setAlertIcons;
 
 
 /**
@@ -95,6 +99,8 @@ public class GUI extends Application {
         icon.setFitWidth(48);
         alert.getDialogPane().setGraphic(icon);
         alert.show();
+        System.err.println(e.getMessage());
+        e.printStackTrace();
     }
 
     public void createGUIConfigFile() {
@@ -118,4 +124,26 @@ public class GUI extends Application {
         }
     }
 
+    public boolean deleteLogFiles() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setResizable(true);
+        alert.setTitle("DELETE TEMPERATURE LOG FILES");
+        alert.setHeaderText("Do you want to delete old temperature log files?");
+
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(Objects.requireNonNull(GUIController.class.getResource("boge_icon.jpg")).toString()));
+        ImageView icon = new ImageView(String.valueOf(GUI.class.getResource("question.png")));
+        icon.setFitHeight(48);
+        icon.setFitWidth(48);
+        alert.getDialogPane().setGraphic(icon);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+            System.out.println("files will be deleted");
+            return true;
+        } else {
+            System.out.println("files will not be deleted");
+            return false;
+        }
+    }
 }
