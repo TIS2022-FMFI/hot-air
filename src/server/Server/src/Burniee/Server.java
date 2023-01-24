@@ -177,7 +177,7 @@ public class Server {
 
     public Project findProjectByName(String name) {
         for (Project p : activeProjects) {
-            if (p.getName().equals(name)) {
+            if (p.getProjectName().equals(name)) {
                 return p;
             }
         }
