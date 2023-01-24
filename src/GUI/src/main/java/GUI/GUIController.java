@@ -68,7 +68,7 @@ public class GUIController implements Initializable {
 
     @FXML CheckBox  showName;
     @FXML CheckBox  showCurrentPhase;
-    @FXML CheckBox  showProjectStop;
+//    @FXML CheckBox  showProjectStop;
 
     @FXML TableView<Blower> blowersView;
     @FXML TableColumn<Blower,Hyperlink> blowerID;
@@ -85,8 +85,8 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Project,String> projectName;
 //    @FXML TableColumn<Project, Hyperlink> projectName;
     @FXML TableColumn<Project,String> projectPhase;
-    @FXML TableColumn<Project,Button> projectStop;
-    @FXML TableColumn<Project,Button> projectCaution;
+//    @FXML TableColumn<Project,Button> projectStop;
+//    @FXML TableColumn<Project,Button> projectCaution;
 
     static ObservableList<Blower> blowersList = FXCollections.observableArrayList();
     ObservableList<Project> projectsList = FXCollections.observableArrayList();
@@ -116,7 +116,6 @@ public class GUIController implements Initializable {
         blowersList.addAll(addBlowers());
         projectsList.addAll(addProjects());
 
-//        todo debug
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(this::updateTable, 0, 1, TimeUnit.SECONDS);
 
@@ -251,8 +250,8 @@ public class GUIController implements Initializable {
 //        projectName.setComparator((o2, o1) -> Float.valueOf(o2.getText()).compareTo(Float.valueOf(o1.getText())));
 //        projectName.setSortType(TableColumn.SortType.DESCENDING);
         projectPhase.setCellValueFactory(new PropertyValueFactory<>("currentPhase"));
-        projectStop.setCellValueFactory(new PropertyValueFactory<>("stopButton"));
-        projectCaution.setCellValueFactory(new PropertyValueFactory<>("hiddenButton"));
+//        projectStop.setCellValueFactory(new PropertyValueFactory<>("stopButton"));
+//        projectCaution.setCellValueFactory(new PropertyValueFactory<>("hiddenButton"));
     }
 
     public void updateTable() {
@@ -262,7 +261,6 @@ public class GUIController implements Initializable {
         blowersView.refresh();
         projectsView.refresh();
 
-        System.out.println("tables updated");
     }
 
     public static void setAlertIcons(Alert alert) {
@@ -275,7 +273,6 @@ public class GUIController implements Initializable {
     }
 
     private List<Blower> addBlowers() {
-        System.out.println("adding blowers");
 
         List<Blower> blowers = new ArrayList<Blower>();
 //        todo debug
@@ -325,7 +322,6 @@ public class GUIController implements Initializable {
 
 //    todo debug
     private Project[] addProjects() {
-        System.out.println("adding projects");
         try {
             Project[] projects = gui.client.getAllProjects();
             System.out.println("projects were loaded successfully from server");
@@ -340,8 +336,6 @@ public class GUIController implements Initializable {
     }
 
     private List<Blower> updateBlowers() {
-        System.out.println("updating blowers");
-
         List<Blower> blowers = new ArrayList<Blower>();
 
         try {
@@ -397,15 +391,34 @@ public class GUIController implements Initializable {
     }
 
     private Project[] updateProjects() {
-        System.out.println("updating projects");
         try {
+            System.out.println("projects v ObservableList= " + projectsList.size());
+            Arrays.asList(projectsList).forEach(i -> System.out.println(i.toString()));
             Project[] projects = gui.client.getAllProjects();
+            System.out.println("projecty zo servera= " + projects.length);
             for (Project project : projects) {
-                if (projectsList.contains(project)) {
-                    Project p = projectsList.filtered(o -> o.equals(project)).get(0);
-                    p.setCurrentPhaseProperty(project.currentPhaseProperty());
-                } else {
+                System.out.println(project.toString());
+                boolean gut = false;
+                for (Project p : projectsList) {
+                    if (p.equals(project)) {
+                        p.setCurrentPhaseProperty(project.currentPhaseProperty());
+                        gut = true;
+                    }
+                }
+                if (!gut) {
                     projectsList.add(project);
+                }
+            }
+
+            for (Project p : projectsList) {
+                boolean gut = false;
+                for (Project project : projects) {
+                    if (p.equals(project)) {
+                        gut = true;
+                    }
+                }
+                if (!gut) {
+                    projectsList.remove(p);
                 }
             }
             System.out.println("projects were updated successfully from server");
@@ -618,9 +631,9 @@ public class GUIController implements Initializable {
         projectPhase.setVisible(showCurrentPhase.isSelected());
     }
 
-    public void showProjectStop(ActionEvent actionEvent) {
-        projectStop.setVisible(showProjectStop.isSelected());
-    }
+//    public void showProjectStop(ActionEvent actionEvent) {
+//        projectStop.setVisible(showProjectStop.isSelected());
+//    }
 
     public static ObservableList<Blower> getBlowersList() {
         return blowersList;

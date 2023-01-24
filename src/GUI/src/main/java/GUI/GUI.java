@@ -98,7 +98,9 @@ public class GUI extends Application {
         icon.setFitHeight(48);
         icon.setFitWidth(48);
         alert.getDialogPane().setGraphic(icon);
-        alert.show();
+        if (e.getMessage().matches("[a-zA-Z0-9_-]*")) {
+            alert.show();
+        }
         System.err.println(e.getMessage());
         e.printStackTrace();
     }

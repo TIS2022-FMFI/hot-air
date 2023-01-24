@@ -36,8 +36,8 @@ public class Project {
     private Hyperlink graph;
     private SimpleStringProperty currentPhase;
 
-    private final Button stopButton;
-    private final Button hiddenButton;
+//    private final Button stopButton;
+//    private final Button hiddenButton;
 
     private int count = 0;
 
@@ -52,66 +52,66 @@ public class Project {
 //        setGraph();
         this.currentPhase = new SimpleStringProperty(currentPhase);
 
-        ImageView imageView = new ImageView(Objects.requireNonNull(getClass().getResource("caution.png")).toExternalForm());
-        imageView.setFitWidth(25);
-        imageView.setFitHeight(20);
-        this.hiddenButton = new Button("");
-        hiddenButton.setId("cautionBtn");
-        hiddenButton.setVisible(false);
-        hiddenButton.setGraphic(imageView);
-        hiddenButton.setStyle("-fx-background-color: transparent;");
-        hiddenButton.setPrefWidth(25);
-        hiddenButton.setPrefHeight(Region.USE_COMPUTED_SIZE);
-        hiddenButton.setMinWidth(25);
-        hiddenButton.setMaxHeight(Region.USE_COMPUTED_SIZE);
-        hiddenButton.setOnAction(event -> {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setResizable(true);
-            alert.setTitle("RESUMING PROJECT");
-            alert.setHeaderText("Do you really want to resume project " + this.name + "?");
-            setAlertIcons(alert);
-
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.get() == ButtonType.OK){
-                try {
-                    // todo funkcia na resume projektu    // todo debug
-                    hiddenButton.setVisible(false);
-                    System.out.println("project " + this.name + " was resumed");
-                } catch (Exception e) {
-                    System.err.println("project " + this.name + " could not be resumed");
-                    gui.alert(e);
-                }
-            } else {
-                System.out.println("project " + this.name + " will not be resumed");
-            }
-        });
-        this.stopButton = new Button("STOP");
-        stopButton.setId("stopBtn");
-        stopButton.setFont(Font.font("Arial", FontWeight.BOLD, 11.0));
-        stopButton.setMinWidth(75);
-        stopButton.setPrefWidth(75);
-        stopButton.setMaxWidth(USE_COMPUTED_SIZE);
-        stopButton.setOnAction(event -> {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setResizable(true);
-            alert.setTitle("STOPPING PROJECT");
-            alert.setHeaderText("Do you really want to stop project " + this.name + "?");
-            setAlertIcons(alert);
-
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.get() == ButtonType.OK){
-                try {
-                    // todo funkcia na stopnutie projektu  // todo debug
-                    hiddenButton.setVisible(true);
-                    System.out.println("project " + this.name + " stopped");
-                } catch (Exception e) {
-                    System.err.println("project " + this.name + " could not be stopped");
-                    gui.alert(e);
-                }
-            } else {
-                System.out.println("project " + this.name + " will not be stopped");
-            }
-        });
+//        ImageView imageView = new ImageView(Objects.requireNonNull(getClass().getResource("caution.png")).toExternalForm());
+//        imageView.setFitWidth(25);
+//        imageView.setFitHeight(20);
+//        this.hiddenButton = new Button("");
+//        hiddenButton.setId("cautionBtn");
+//        hiddenButton.setVisible(false);
+//        hiddenButton.setGraphic(imageView);
+//        hiddenButton.setStyle("-fx-background-color: transparent;");
+//        hiddenButton.setPrefWidth(25);
+//        hiddenButton.setPrefHeight(Region.USE_COMPUTED_SIZE);
+//        hiddenButton.setMinWidth(25);
+//        hiddenButton.setMaxHeight(Region.USE_COMPUTED_SIZE);
+//        hiddenButton.setOnAction(event -> {
+//            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+//            alert.setResizable(true);
+//            alert.setTitle("RESUMING PROJECT");
+//            alert.setHeaderText("Do you really want to resume project " + this.name + "?");
+//            setAlertIcons(alert);
+//
+//            Optional<ButtonType> result = alert.showAndWait();
+//            if (result.get() == ButtonType.OK){
+//                try {
+//                    // todo funkcia na resume projektu    // todo debug
+//                    hiddenButton.setVisible(false);
+//                    System.out.println("project " + this.name + " was resumed");
+//                } catch (Exception e) {
+//                    System.err.println("project " + this.name + " could not be resumed");
+//                    gui.alert(e);
+//                }
+//            } else {
+//                System.out.println("project " + this.name + " will not be resumed");
+//            }
+//        });
+//        this.stopButton = new Button("STOP");
+//        stopButton.setId("stopBtn");
+//        stopButton.setFont(Font.font("Arial", FontWeight.BOLD, 11.0));
+//        stopButton.setMinWidth(75);
+//        stopButton.setPrefWidth(75);
+//        stopButton.setMaxWidth(USE_COMPUTED_SIZE);
+//        stopButton.setOnAction(event -> {
+//            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+//            alert.setResizable(true);
+//            alert.setTitle("STOPPING PROJECT");
+//            alert.setHeaderText("Do you really want to stop project " + this.name + "?");
+//            setAlertIcons(alert);
+//
+//            Optional<ButtonType> result = alert.showAndWait();
+//            if (result.get() == ButtonType.OK){
+//                try {
+//                    // todo funkcia na stopnutie projektu  // todo debug
+//                    hiddenButton.setVisible(true);
+//                    System.out.println("project " + this.name + " stopped");
+//                } catch (Exception e) {
+//                    System.err.println("project " + this.name + " could not be stopped");
+//                    gui.alert(e);
+//                }
+//            } else {
+//                System.out.println("project " + this.name + " will not be stopped");
+//            }
+//        });
     }
 
     /**
@@ -204,5 +204,13 @@ public class Project {
     @Override
     public int hashCode() {
         return Objects.hash(name);
+    }
+
+    @Override
+    public String toString() {
+        return "Project{" +
+                "name='" + name + '\'' +
+                ", currentPhase=" + currentPhase +
+                '}';
     }
 }
