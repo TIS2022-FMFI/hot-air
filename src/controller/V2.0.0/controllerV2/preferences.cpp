@@ -19,95 +19,111 @@
 #include "preferences.h"
 
 void Preferences::trim(char *str) {
-  int i, begin, end;
-  for (begin = 0; begin < strlen(str) && str[begin] == ' '; begin++);
-
-  for (end = strlen(str) - 1; end >= 0 && str[end] == ' '; end--);
-
-  for (i = begin; i <= end; i++) {
-      str[i - begin] = str[i];
+  uint8_t index = 15;
+  while (index >= 0 && (str[index] == ' ' || str[index] == '\0'))  {
+    str[index] = '\0';
+    index--;
   }
-  str[end - begin + 1] = '\0';
 }
 
 Preferences::Preferences() {
 }
 
 bool Preferences::begin(uint16_t size) {
-eeprom_size = size;
-flags = 0;
+  eeprom_size = size;
+  flags = 0;
 
-if (EEPROM.begin(size) == false) {
-  Serial.println("EEPROM load error.\n Rebooting...");
-  //ESP.restart();
-  return false; 
-} else {
-  Serial.println("EEPROM load OK");
-}
+  if (EEPROM.begin(size) == false) {
+    Serial.println("EEPROM load error.\n Rebooting...");
+    //ESP.restart();
+    return false; 
+  } else {
+    Serial.println("EEPROM load OK");
+  }
 
-readFlags();
-if (flags == 0xFF) {
-  Serial.println("deleting EEPROM");
-  erasureAll();
-}
+  readFlags();
+  if (flags == 0xFF) {
+    Serial.println("deleting EEPROM");
+    erasureAll();
+  }
 
-#ifdef _DEBUG
-  // IPAddress ip = IPAddress(10,1,1,105);
-  // IPAddress GW = IPAddress(10,1,1,1);
-  // setMASK(24);
-  // char idcko[] = "id05           ";
-  // setID(idcko);
-  // setCONTROLLERIP(ip, GW);
-  // setPORT(4002);
+  // ---------------------------------
+  // test  |01     |02     | 03      |
+  // ---------------------------------
+  // air   |5 000  |5 000  | 10 000  |
+  // P     |4      |4      | 40-60   | 
+  // D     |10     |5      | 5       |
+  // I     |10     |10     | 40-60   |
+  // temp  |180    |30-400 | 80-180  |
+  // Alpha |1 000  |1 000  | 1 000   |
+  // Delay |250    |250    | 250     |
+  // ---------------------------------
 
-  IPAddress ip_addres = IPAddress();  
-  Serial.println("Preferences BEGIN in debug mode.");
-  Serial.print("FLAGS: ");
-  Serial.printf("%X\n", flags);
+  #ifdef _DEBUG
+    // IPAddress ip = IPAddress(10,1,1,105);
+    // IPAddress GW = IPAddress(10,1,1,1);
+    // setMASK(24);
+    // char idcko[] = "id05           ";
+    // setID(idcko);
+    // setCONTROLLERIP(ip, GW);
+    // setPORT(4002);
+    // PID SETUP
+    // setP(40/1000.0);
+    // setD(5/1000.0);
+    // setI(40/ 100000.0);
+    // setA(1000/ 1000.0);
+    // setDelay(250);
+    
 
-  Serial.print("Server IP: ");
-  this->getSERVERIP(ip_addres);
-  Serial.println(ip_addres);
+    IPAddress ip_addres = IPAddress();  
+    Serial.println("Preferences BEGIN in debug mode.");
+    Serial.print("FLAGS: ");
+    Serial.printf("%X\n", flags);
 
-  Serial.print("PORT: ");
-  Serial.println(this->getPORT());
+    Serial.print("Server IP: ");
+    this->getSERVERIP(ip_addres);
+    Serial.println(ip_addres);
 
-  Serial.print("ID: ");
-  char id[15];
-  Serial.write(this->getID(id), 15);
-  Serial.println();
+    Serial.print("PORT: ");
+    Serial.println(this->getPORT());
 
-  Serial.print("Controller IP: ");
-  this->getCONTROLLERIP(ip_addres);
-  Serial.println(ip_addres);
+    Serial.print("ID: ");
+    char id[16];
+    Serial.write(this->getID(id), 15);
+    Serial.println();
 
-  Serial.print("Controller GW: ");
-  this->getCONTROLLERGW(ip_addres);
-  Serial.println(ip_addres);
+    Serial.print("Controller IP: ");
+    this->getCONTROLLERIP(ip_addres);
+    Serial.println(ip_addres);
 
-  Serial.print("Controller MASK: ");
-  this->getMASK(ip_addres);
-  Serial.println(ip_addres);
+    Serial.print("Controller GW: ");
+    IPAddress ip_mask = IPAddress(); 
+    this->getCONTROLLERGW(ip_mask);
+    Serial.println(ip_mask);
 
-  Serial.println("PDI setup: ");
+    Serial.print("Controller MASK: ");
+    this->getMASK(ip_addres);
+    Serial.println(ip_addres);
 
-  Serial.print("P: ");
-  Serial.printf("%F\n", this->getP());
+    Serial.println("PDI setup: ");
 
-  Serial.print("D: ");
-  Serial.printf("%F\n", this->getD());
+    Serial.print("P: ");
+    Serial.printf("%F\n", this->getP());
 
-  Serial.print("I: ");
-  Serial.printf("%F\n", this->getI());
+    Serial.print("D: ");
+    Serial.printf("%F\n", this->getD());
 
-  Serial.print("Alpha: ");
-  Serial.printf("%F\n", this->getA());
+    Serial.print("I: ");
+    Serial.printf("%F\n", this->getI());
 
-  Serial.print("Delay: ");
-  Serial.println(this->getDelay());
-#endif
+    Serial.print("Alpha: ");
+    Serial.printf("%F\n", this->getA());
 
-return 1;
+    Serial.print("Delay: ");
+    Serial.println(this->getDelay());
+  #endif
+
+  return 1;
 }
 
 void Preferences::convertNetMask(uint8_t mm, IPAddress &addr){
@@ -177,7 +193,7 @@ return setIP(addresses::CONTROLLER_IP, IPaddress) && setIP(addresses::CONTROLLER
 }
 
 void Preferences::getCONTROLLERIP(IPAddress &ip){
-getIP(addresses::CONTROLLER_IP, ip);
+  getIP(addresses::CONTROLLER_IP, ip);
 }
 
 void Preferences::getCONTROLLERGW(IPAddress &ip) {
@@ -197,7 +213,7 @@ if (isPORTset() == false) {
 return EEPROM.readShort(addresses::PORT);
 }
 
-bool Preferences::setID(char id_name[]) {
+bool Preferences::setID(const char *id_name) {
 char c = 0;
 
 for (uint8_t i = 0; i < 16; i++) {
@@ -206,6 +222,10 @@ for (uint8_t i = 0; i < 16; i++) {
     c = ' ';  // A8 = ¿
   }
   EEPROM.writeChar(addresses::ID + i, c);
+  
+  if (c == 0){
+    break;
+  }
 }
 
 setFlag(flag::id);
@@ -213,37 +233,41 @@ return EEPROM.commit();
 }
 
 char* Preferences::getID(char* id) {
-if (isIDset() == false) {
-  Serial.println("ID is not set");
-  id[0] = 'i';
-  id[1] = 'd';
-  IPAddress addr = IPAddress();
-  this->getCONTROLLERIP(addr);   
-  itoa(addr[3], &id[2], 10);
+  if (isIDset() == false) {
+    Serial.println("ID is not set");
+    id[0] = 'i';
+    id[1] = 'd';
+    IPAddress addr = IPAddress();
+    this->getCONTROLLERIP(addr);   
+    itoa(addr[3], &id[2], 10);
 
-  for (uint8_t i = 3; i < 15; i++) {
-    id[i] = ' ';
+    for (uint8_t i = 3; i < 15; i++) {
+      id[i] = ' ';
+    }
+    return id;
   }
+
+  for (uint8_t i = 0; i < 15; i++) {
+    id[i] = EEPROM.readByte(addresses::ID + i);
+    if (id[i] == 0){
+      break;
+    }
+  }
+  id[15] = 0;
   trim(id);
-
   return id;
-}
-//char* id[15];
-for (uint8_t i = 0; i < 15; i++) {
-
-  id[i] = EEPROM.readByte(addresses::ID + i);
-}
-return id;
 }
 
 // PID regulator
 
 void Preferences::getMASK(IPAddress &ipaddr) {
-if (isControllerIPset() == false) {
+  if (isControllerIPset() == false) {
+    ipaddr = IPAddress(255,255,255,0);
+    return;
+  }
   ipaddr = IPAddress(255,255,255,0);
-  return;
-}
-convertNetMask(EEPROM.readByte(addresses::CONTROLLER_MASK), ipaddr);
+
+  //convertNetMask(EEPROM.readByte(addresses::CONTROLLER_MASK), ipaddr);
 }
 
 bool Preferences::setMASK(IPAddress mask) {
@@ -319,33 +343,33 @@ readFlags();
 }
 
 void Preferences::getIP(addresses memory_address, IPAddress &ipaddr) {
-uint8_t ip[4] = {0,0,0,0};
-if (memory_address == addresses::SERVER_IP && isServerIPset() == false){
-  //IPAddress returnIP(0, 0, 0, 0);
-  ipaddr = IPAddress(ip);
-  return;
-} else if ((memory_address == addresses::CONTROLLER_IP || memory_address == addresses::CONTROLLER_GW) && isControllerIPset() == false){
-  //IPAddress returnIP(0, 0, 0, 0);
-  ipaddr = IPAddress(ip);
-  return;
-}
+  uint8_t ip[4] = {0,0,0,0};
+  if (memory_address == addresses::SERVER_IP && isServerIPset() == false){
+    //IPAddress returnIP(0, 0, 0, 0);
+    ipaddr = IPAddress(ip);
+    return;
+  } else if ((memory_address == addresses::CONTROLLER_IP || memory_address == addresses::CONTROLLER_GW) && isControllerIPset() == false){
+    //IPAddress returnIP(0, 0, 0, 0);
+    ipaddr = IPAddress(ip);
+    return;
+  }
 
-//uint8_t ip[4];
-for (uint8_t i = 0; i < 4; i++) {
-  ip[i] = EEPROM.readByte(memory_address + i);
-};
+  //uint8_t ip[4];
+  for (uint8_t i = 0; i < 4; i++) {
+    ip[i] = EEPROM.readByte(memory_address + i);
+  };
 
-//IPAddress returnIP(ip[0], ip[1], ip[2], ip[3]);
-//return ip;
-ipaddr = IPAddress(ip);
+  //IPAddress returnIP(ip[0], ip[1], ip[2], ip[3]);
+  //return ip;
+  ipaddr = IPAddress(ip[0], ip[1], ip[2], ip[3]);
 }
 
 bool Preferences::setIP(addresses memory_address, IPAddress address) {
-for (uint8_t i = 0; i < 4; i++) {
-  EEPROM.writeByte(memory_address + i, (uint8_t)address[i]);
-};
-setFlag(flag::serverip);
-return EEPROM.commit();
+  for (uint8_t i = 0; i < 4; i++) {
+    EEPROM.writeByte(memory_address + i, (uint8_t)address[i]);
+  };
+  setFlag(flag::serverip);
+  return EEPROM.commit();
 }
 
 float Preferences::getPID(addresses reg){
@@ -363,7 +387,8 @@ bool Preferences::setPID(addresses reg, float val){
 if (reg < addresses::P_reg || reg > addresses::ALPHA_reg){
     return false;
   }
-
+Serial.print("sedPID ");
+Serial.println(val);
 EEPROM.writeFloat(reg, val);
 return EEPROM.commit();
 }

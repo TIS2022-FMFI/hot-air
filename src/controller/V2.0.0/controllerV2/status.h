@@ -17,15 +17,17 @@ class Status{
     volatile bool connected_server = false;
     volatile bool connection_error = false;
     volatile bool lost_connection = false;
+    volatile uint8_t request_udp_listening = 2;
 
     volatile bool disconnected_time_out = false;
     volatile unsigned long disconnected_time_out_milis = 0;
     volatile bool heating = false;
     volatile bool cooling_down = false;
     volatile bool overheat = false;
+    volatile unsigned long pid_delay_millis = 0;
 
-    volatile float actual_temperature = NAN;
-    volatile float last_temperature = NAN;
+    volatile float actual_temperature = 0;
+    volatile float last_temperature = 0;
 
     volatile bool emergency_stop = false;
     volatile uint16_t set_temperature = 0;

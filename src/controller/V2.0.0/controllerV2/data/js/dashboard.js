@@ -2,10 +2,11 @@
     updateOne();
     updateEvery1sec();
     updateEvery5sec();
-    
-    setInterval(function(){
-        updateEvery1sec();
-    }, 1000);
+    setTimeout(function() {
+        setInterval(function () {
+            updateEvery1sec();
+        }, 1000);
+    }, 1500);
 
     setInterval(function(){
         updateEvery5sec();

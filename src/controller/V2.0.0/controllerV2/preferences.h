@@ -98,7 +98,7 @@ public:
 
   uint16_t getPORT();
 
-  bool setID(char id_name[]);
+  bool setID(const char *id_name);
 
   char* getID(char* id);
 

@@ -47,6 +47,28 @@ function getValueFromAPI(endpoint, object, number=false) {
         });
 }
 
+function fetchData(form, fetchUrl) {
+    const formData = new FormData(form);
+    // Add additional data to the form
+    //formData.append("AdditionalData", "AdditionalValue");
+
+    fetch(fetchUrl, {
+        method: "POST",
+        body: formData
+    })
+        .then(response => response.text())
+        .then(text => {
+            console.log(text);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+
+
+
+}
+
+
 (function (window, document) {
     getTextFromAPI("controlleridcko", document.getElementById("id_in_h2"));
 }(this, this.document));

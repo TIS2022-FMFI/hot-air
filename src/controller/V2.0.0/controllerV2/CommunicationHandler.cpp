@@ -1,3 +1,4 @@
+#include <sys/_stdint.h>
 #include "CommunicationHandler.h"
 #include <IPAddress.h>
 
@@ -20,52 +21,63 @@ uint8_t ServerCommunication::sendTemperatureFlag(){
   //        └ IF 1 In progress
 
   uint8_t flag = 1; // one, because we are sending temperature to the server
-  if (status->thermometer_connected == false){
-    flag |= 0x04;    
-  }
-  if (status->dac_connected == false){
-    flag |= 0x08;
-  }
-    if (status->actual_power > 0){
+  #ifndef SIMULATION
+    if (status->thermometer_connected == false){
+      flag |= 0x04;    
+    }
+    if (status->dac_connected == false){
+      flag |= 0x08;
+    }
+  #endif
+  
+  if (status->set_temperature > 0){
     flag |= 0x10;
   }
+  
 
   return flag;     
 };
 
+void ServerCommunication::udpHandler(AsyncUDPPacket packet){
+  Serial.print("New UDP packet from: ");
+  Serial.println(packet.remoteIP());
+  Serial.print("Data: ");
+  Serial.write(packet.data(), packet.length());
+  Serial.println(" Password: ");
+  for (int i = 0; i < 5; i++){
+    if (status->server_password[i] != packet.data()[i]){
+      Serial.println("WRONG PASSWORD");
+      return;
+    }
+    }
+  Serial.println("OK");
+  
+  memory->setSERVERIP(packet.remoteIP());
+  status->searching_server = false;
+  status->server_find = true;
+  status->connection_error = false;
+}
+        
+
 bool ServerCommunication::startUdp(){
-  IPAddress updIP = IPAddress(0,0,0,0);
-  if (udp->listen(updIP, memory->getPORT())){
+  //IPAddress updIP = IPAddress(0,0,0,0);
+  
+  if (udp->listen(memory->getPORT())){
       status->searching_server = true;
 
-      udp->onPacket([this](AsyncUDPPacket packet) {
-        Serial.print("New UDP packet from: ");
-        Serial.println(packet.remoteIP());
-        Serial.print("Data: ");
-        Serial.write(packet.data(), packet.length());
-        Serial.println(" Password: ");
-        for (int i = 0; i < 5; i++){
-          if (status->server_password[i] != packet.data()[i]){
-            Serial.println("WRONG PASSWORD");
-            return;
-          }
-         }
-        Serial.println("OK");
-        
-        memory->setSERVERIP(packet.remoteIP());
-        status->searching_server = false;
-        status->server_find = true;
-        status->connection_error = false;
+      udp->onPacket([this](AsyncUDPPacket packet){
+        udpHandler(packet);
       });
     return true;
   }
+
   Serial.println("UDP fail");
   return false;
 };
 
 bool ServerCommunication::stopUdp(){
-  IPAddress updIP = IPAddress(0,0,0,0);
-  if (udp->listen(updIP, 0)){
+  //IPAddress updIP = IPAddress(0,0,0,0);
+  if (udp->listen(0)){
     status->searching_server = false;
     return true;
   }
@@ -118,7 +130,7 @@ void ServerCommunication::handleTemperature(uint8_t *buffer){
     status->set_airflow = air_flow;
   }
 
-  Serial.printf("New settings:\nTemperature: %u\nAirFlow: %u\n",temp,air_flow);
+  Serial.printf("New settings:\nTemperature: %u\nAirFlow: %u\n",status->set_temperature, status->set_airflow);
 }
 
 void ServerCommunication::handleEmergency_stop(uint8_t *buffer){
@@ -158,6 +170,7 @@ void ServerCommunication::handleDisconnect(){
   status->connected_server = false;
   status->connecting_server = false;
   status->server_find = false;
+  status->set_temperature = 0;
   #ifdef _DEBUG
       Serial.println("\nTCP socket disconnected!");
   #endif
@@ -168,6 +181,7 @@ void ServerCommunication::handleError(){
   status->connecting_server = false;
   status->connection_error = true;
   status->server_find = false;
+  status->set_temperature = 0;
 
   #ifdef _DEBUG
     Serial.println("\nTCP Connection ERROR");
@@ -214,6 +228,13 @@ void ServerCommunication::tcpInit(){
         Serial.printf("%5d",buffer[i]);
       }
       Serial.println("");
+
+      // write in CHAR
+      Serial.print("\nDEC:   ");
+      for (int i = 0; i < len; i++){
+        Serial.printf("%5c",(char)buffer[i]);
+      }
+      Serial.println("");
     #endif
 
     if (len < 16){
@@ -244,7 +265,7 @@ void ServerCommunication::tcpInit(){
 
   tcp->onAck([this](void * ctx_ptr, AsyncClient * client, size_t len, uint32_t ms_delay) {
     #ifdef _DEBUG
-      Serial.printf("\nAcknowledged sending next %u bytes after %u ms\r\n", len, ms_delay);
+      //Serial.printf("\nAcknowledged sending next %u bytes after %u ms\r\n", len, ms_delay);
     #endif
   },NULL);
 }
@@ -253,6 +274,7 @@ void ServerCommunication::refresh(){
   if (status->connected_server == false){
     if (status->searching_server == false && status->connecting_server == false && status->connection_error == false){
       Serial.print("Connecting to server: ");
+      //status->request_udp_listening = 0;
       stopUdp() ? Serial.println("UDP STOP OK") : Serial.println("UDP STOP ERROR"); 
 
       IPAddress server_IP = IPAddress();
@@ -265,6 +287,7 @@ void ServerCommunication::refresh(){
       status->searching_server = false;
     } else if (status->searching_server == false && status->connecting_server == false && status->connection_error == true){
       Serial.println("Start searching for a server");
+      //status->request_udp_listening = 1;
       startUdp() ? Serial.println("UDP START OK") : Serial.println("UDP START ERROR"); 
       status->searching_server = true;
     }

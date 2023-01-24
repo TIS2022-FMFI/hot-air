@@ -35,6 +35,7 @@ private:
 public:
   bool begin(AsyncUDP *_udp, AsyncClient *_tcp, Status *_status, Preferences *_memory);
 
+  void udpHandler(AsyncUDPPacket packet);
   bool startUdp();
   bool stopUdp();
 
