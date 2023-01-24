@@ -1,5 +1,6 @@
 package GUI;
 
+import Logs.GeneralLogger;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
@@ -54,9 +55,6 @@ public class Blower {
     final NumberAxis xAxis = new NumberAxis();
     final NumberAxis yAxis = new NumberAxis();
 
-
-    private int count = 0;
-
     /**
      * Instantiates a new Blower.
      *
@@ -70,108 +68,108 @@ public class Blower {
         this.IPAddress = IPAddress.trim();
         this.id = new SimpleStringProperty(id);
         this.currentTemp = new SimpleFloatProperty(currentTemp);
-//        setGraph();
-        this.graph = new Hyperlink("a");
-        this.graph.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try {
-//                    String pathToTempLog = GUI.client.getTempLogFile(projectNameProperty().getValue()); // cesta ku suboru
-                    String pathToTempLog = "C:\\Users\\Karin\\Downloads\\pokus_temperatures_2023.01.23.23.08.44.csv"; // cesta ku suboru
-                    System.out.println(pathToTempLog);
-
-                    HashMap<String, List<String>> temperatures = new HashMap<>();
-                    try (BufferedReader br = new BufferedReader(new FileReader(pathToTempLog))) {
-                        String line;
-                        while ((line = br.readLine()) != null) {
-                            System.out.println(line);
-                            List<String> values = Arrays.asList(line.split(","));
-                            for (int i = 2; i<values.size()-1; i++) {
-                                if (temperatures.containsKey(values.get(i))) {
-                                    temperatures.get(values.get(i)).add(values.get(i+1).trim());
-                                }
-
-                                temperatures.putIfAbsent(values.get(i), new ArrayList<>(Arrays.asList(values.get(i+1))));
-                                i++;
-                            }
-                        }
-                    }
-                    System.out.println("temperatures");
-                    for (String s : temperatures.keySet()) {
-                        System.out.println(s + " = " + temperatures.get(s));
-                    }
-
-                    LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
-
-                    for (String key : temperatures.keySet()) {
-                        XYChart.Series<Number, Number> series = new XYChart.Series<>();
-                        series.setName("Blower " + key);
-                        lineChart.getData().add(series);
-                        final int[] i = new int[1];
-                        for (i[0] = 0; i[0] <temperatures.get(key).size(); i[0]++) {
-                            try {
-                                series.getData().add(new XYChart.Data<>(i[0], Float.parseFloat(temperatures.get(key).get(i[0]))));
-                            } catch (NumberFormatException e) {
-                                System.out.println(temperatures.get(key).get(i[0]));
-                                System.out.println(e.getMessage());
-                            }
-                        }
-
-                        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-                        executor.scheduleAtFixedRate(() -> {
-                            ObservableList<Blower> blowers = GUIController.getBlowersList();
-                            Blower blower = blowers.filtered(b-> b.idProperty().getValue().equals(key)).get(0);
-                            series.getData().add(new XYChart.Data<>(i[0], blower.currentTempProperty().getValue()));
-                            i[0]++;
-                        }, 0, 1, TimeUnit.SECONDS);
-                    }
-
-
-                    Scene scene = new Scene(lineChart, 400, 300);
-                    Stage newWindow = new Stage();
-                    newWindow.setTitle("GRAPH " + idProperty().getValue());
-                    newWindow.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
-                    newWindow.setScene(scene);
-                    newWindow.setX(gui.getStage().getX() + 200);
-                    newWindow.setY(gui.getStage().getY() + 100);
-                    newWindow.show();
-
-                } catch (IOException | NullPointerException e) { // InterruptedException
-                    gui.alert(e);
-                    e.printStackTrace();
-                }
-
-//                LineChart<Number, Number> lineChart = new LineChart<>(new NumberAxis(), new NumberAxis());
-//                XYChart.Series<Number, Number> series = new XYChart.Series<>();
-//                series.setName("Blower " + idProperty().getValue());
-//                lineChart.getData().add(series);
+//        this.graph = new Hyperlink("a");
+//        this.graph.setOnAction(new EventHandler<ActionEvent>() {
+//            @Override
+//            public void handle(ActionEvent event) {
+//                try {
+////                    String pathToTempLog = GUI.client.getTempLogFile(projectNameProperty().getValue()); // cesta ku suboru
+//                    String pathToTempLog = "C:\\Users\\Karin\\Downloads\\pokus_temperatures_2023.01.23.23.08.44.csv"; // cesta ku suboru
+//                    System.out.println(pathToTempLog);
 //
-//                ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-//                executor.scheduleAtFixedRate(() -> {
-//                    series.getData().add(new XYChart.Data<>(count, Math.random()));
-//                    count++;
-//                }, 0, 2, TimeUnit.SECONDS);
+//                    HashMap<String, List<String>> temperatures = new HashMap<>();
+//                    try (BufferedReader br = new BufferedReader(new FileReader(pathToTempLog))) {
+//                        String line;
+//                        while ((line = br.readLine()) != null) {
+//                            System.out.println(line);
+//                            List<String> values = Arrays.asList(line.split(","));
+//                            for (int i = 2; i<values.size()-1; i++) {
+//                                if (temperatures.containsKey(values.get(i))) {
+//                                    temperatures.get(values.get(i)).add(values.get(i+1).trim());
+//                                }
 //
-//                Scene scene = new Scene(lineChart, 400, 300);
-//                Stage newWindow = new Stage();
-//                newWindow.setTitle("GRAPH " + idProperty().getValue());
-//                newWindow.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
-//                newWindow.setScene(scene);
-//                newWindow.setX(gui.getStage().getX() + 200);
-//                newWindow.setY(gui.getStage().getY() + 100);
-//                newWindow.show();
-            }
-        });
+//                                temperatures.putIfAbsent(values.get(i), new ArrayList<>(Arrays.asList(values.get(i+1))));
+//                                i++;
+//                            }
+//                        }
+//                    }
+//                    System.out.println("temperatures");
+//                    for (String s : temperatures.keySet()) {
+//                        System.out.println(s + " = " + temperatures.get(s));
+//                    }
+//
+//                    LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
+//
+//                    for (String key : temperatures.keySet()) {
+//                        XYChart.Series<Number, Number> series = new XYChart.Series<>();
+//                        series.setName("Blower " + key);
+//                        lineChart.getData().add(series);
+//                        final int[] i = new int[1];
+//                        for (i[0] = 0; i[0] <temperatures.get(key).size(); i[0]++) {
+//                            try {
+//                                series.getData().add(new XYChart.Data<>(i[0], Float.parseFloat(temperatures.get(key).get(i[0]))));
+//                            } catch (NumberFormatException e) {
+//                                GeneralLogger.writeExeption(e);
+//                                System.out.println(temperatures.get(key).get(i[0]));
+//                                System.out.println(e.getMessage());
+//                            }
+//                        }
+//
+//                        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+//                        executor.scheduleAtFixedRate(() -> {
+//                            ObservableList<Blower> blowers = GUIController.getBlowersList();
+//                            Blower blower = blowers.filtered(b-> b.idProperty().getValue().equals(key)).get(0);
+//                            series.getData().add(new XYChart.Data<>(i[0], blower.currentTempProperty().getValue()));
+//                            i[0]++;
+//                        }, 0, 1, TimeUnit.SECONDS);
+//                    }
+//
+//
+//                    Scene scene = new Scene(lineChart, 400, 300);
+//                    Stage newWindow = new Stage();
+//                    newWindow.setTitle("GRAPH " + idProperty().getValue());
+//                    newWindow.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
+//                    newWindow.setScene(scene);
+//                    newWindow.setX(gui.getStage().getX() + 200);
+//                    newWindow.setY(gui.getStage().getY() + 100);
+//                    newWindow.show();
+//
+//                } catch (IOException | NullPointerException e) { // InterruptedException
+//                    gui.alert(e);
+//                    e.printStackTrace();
+//                }
+//
+////                LineChart<Number, Number> lineChart = new LineChart<>(new NumberAxis(), new NumberAxis());
+////                XYChart.Series<Number, Number> series = new XYChart.Series<>();
+////                series.setName("Blower " + idProperty().getValue());
+////                lineChart.getData().add(series);
+////
+////                ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+////                executor.scheduleAtFixedRate(() -> {
+////                    series.getData().add(new XYChart.Data<>(count, Math.random()));
+////                    count++;
+////                }, 0, 2, TimeUnit.SECONDS);
+////
+////                Scene scene = new Scene(lineChart, 400, 300);
+////                Stage newWindow = new Stage();
+////                newWindow.setTitle("GRAPH " + idProperty().getValue());
+////                newWindow.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
+////                newWindow.setScene(scene);
+////                newWindow.setX(gui.getStage().getX() + 200);
+////                newWindow.setY(gui.getStage().getY() + 100);
+////                newWindow.show();
+//            }
+//        });
         this.targetTemp = new SimpleFloatProperty(targetTemp);;
-        this.projectName = new SimpleStringProperty(projectName.trim());
+        this.projectName = new SimpleStringProperty(projectName);
         this.link = new Hyperlink(idProperty().getValue());
         this.link.setOnAction(event -> {
             try {
                 String url = "http://" + this.IPAddress;
-                System.out.println(url);
                 Desktop.getDesktop().browse(new URI(url));
+                GeneralLogger.writeMessage(url);
             } catch (IOException | URISyntaxException e) {
-                // todo zapisat do logov
+                GeneralLogger.writeExeption(e);
                 e.printStackTrace();
             }
         });
@@ -201,6 +199,7 @@ public class Blower {
                     hiddenButton.setVisible(false);
                     System.out.println("blower " + idProperty().getValue() + " was resumed");
                 } catch (Exception e) {
+                    GeneralLogger.writeExeption(e);
                     System.err.println("blower " + idProperty().getValue() + " could not be resumed");
                     gui.alert(e);
                 }
@@ -228,6 +227,7 @@ public class Blower {
                     hiddenButton.setVisible(true);
                     System.out.println("blower " + idProperty().getValue() + " stopped");
                 } catch (Exception e) {
+                    GeneralLogger.writeExeption(e);
                     System.err.println("blower " + idProperty().getValue() + " could not be stopped");
                     gui.alert(e);
                 }
@@ -308,10 +308,6 @@ public class Blower {
         this.graph.setText(graph.getText());
     }
 
-    public void updateGraph() {
-        this.graph.setText("" + currentTempProperty().getValue());
-    }
-
     /**
      * Gets target temp.
      *
@@ -384,6 +380,16 @@ public class Blower {
         return hiddenButton;
     }
 
+    public XYChart.Series<Number, Number> getSeries() {
+        return series;
+    }
+
+    public void setSeries(XYChart.Series<Number, Number> series) {
+        this.series = series;
+    }
+
+    private XYChart.Series<Number, Number> series = new XYChart.Series<>();
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -418,6 +424,5 @@ public class Blower {
                 ", projectName=" + projectName +
                 '}';
     }
-
 
 }
