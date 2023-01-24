@@ -1,5 +1,6 @@
 package Burniee.Communication;
 
+import Burniee.Logs.GeneralLogger;
 import Burniee.Project.Project;
 import Burniee.Server;
 
@@ -45,6 +46,7 @@ public class EXEHandler extends Thread {
                 socket.stopSocket();
                 Server.getInstance().sendExceptionToAllActiveGUIs(e);
             } catch (Exception e) {
+                GeneralLogger.writeExeption(e);
                 Server.getInstance().sendExceptionToAllActiveGUIs(e);
             }
         }

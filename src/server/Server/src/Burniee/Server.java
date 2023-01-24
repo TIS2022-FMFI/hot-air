@@ -4,6 +4,7 @@ import Burniee.Communication.ControllerHandler;
 import Burniee.Communication.GUIHandler;
 import Burniee.Communication.SocketHandler;
 import Burniee.Communication.UDPCommunicationHandler;
+import Burniee.Logs.GeneralLogger;
 import Burniee.Project.Project;
 
 import java.io.*;
@@ -50,6 +51,7 @@ public class Server {
                 System.out.println("File created");
             } catch (IOException e) {
                 e.printStackTrace();
+                GeneralLogger.writeExeption(e);
             }
         }
         try {
@@ -61,6 +63,7 @@ public class Server {
         }
         UDPCommunicationHandler.getInstance().start();
         System.out.println("Server started!");
+        GeneralLogger.writeMessage("Server started!");
     }
 
     /**
@@ -76,6 +79,7 @@ public class Server {
             try {
                 new SocketHandler(serverSocket.accept());
             } catch (IOException e) {
+                GeneralLogger.writeExeption(e);
                 System.err.println("Accepting new connection unsuccessful");
                 sendExceptionToAllActiveGUIs(e);
             }
@@ -194,6 +198,7 @@ public class Server {
                 try {
                     gui.sendRequestForDeletingOldFiles();
                 } catch (IOException e) {
+                    GeneralLogger.writeExeption(e);
                     e.printStackTrace();
                 }
             }
@@ -230,6 +235,7 @@ public class Server {
             }
 
         } catch (IOException e) {
+            GeneralLogger.writeExeption(e);
             e.printStackTrace();
         }
     }
