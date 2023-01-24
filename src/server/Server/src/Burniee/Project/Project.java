@@ -73,16 +73,15 @@ public class Project extends Thread {
 
         logger = Executors.newScheduledThreadPool(1);
         logger.scheduleAtFixedRate(() -> {
-            System.out.println("Starting logging");
-            List<String> temps = new LinkedList<>();
+            String[] temps = new String[handlerIDs.size()];
             for (int i = 0; i < handlerIDs.size(); i++) {
                 ControllerHandler ch = findControllerByID(handlerIDs.get(i));
                 if (ch != null) {
-                    temps.set(i, String.valueOf(ch.getController().getCurrentTemperature()));
+                    temps[i] = String.valueOf(ch.getController().getCurrentTemperature());
                 }
             }
             try {
-                temperatureLogger.logTemeperature(phaseName, handlerIDs, temps);
+                temperatureLogger.logTemeperature(phaseName, handlerIDs, Arrays.asList(temps));
             } catch (IOException e) {
                 GeneralLogger.writeExeption(e);
                 Server.getInstance().sendExceptionToAllActiveGUIs(e);
