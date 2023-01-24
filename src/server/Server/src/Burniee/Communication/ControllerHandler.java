@@ -31,6 +31,7 @@ public class ControllerHandler extends Thread {
 
     public boolean isConnected() {return socket.isActive();}
     public Project getProject() {return project;}
+    public void setProject(Project p) {project = p;}
     public boolean isActive() {
         return isActive;
     }
