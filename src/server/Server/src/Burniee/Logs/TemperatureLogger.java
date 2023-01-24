@@ -11,7 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class TemperatureLogger {
-    private final BufferedWriter bufferedWriter;
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
     private String fileName = "";
 
@@ -25,7 +24,8 @@ public class TemperatureLogger {
         }
         fileName = "temperature_logs\\" + projectName
                 + "_temperatures_" + sdf.format(timestamp) + ".csv";
-        bufferedWriter = new BufferedWriter(new FileWriter(fileName, true));
+        File newLogFile = new File(fileName);
+        newLogFile.createNewFile();
     }
 
     public static int numFilesToDelete(){
@@ -57,12 +57,13 @@ public class TemperatureLogger {
     public void logTemeperature(String phase, List<String> blowerIds, List<String> temps)
             throws IOException {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        bufferedWriter.write(timestamp + ", " + phase);
+        FileWriter writer = new FileWriter(fileName, true);
+        writer.write(timestamp + ", " + phase);
         for (int i = 0; i < blowerIds.size(); i++){
-            bufferedWriter.write(", " + blowerIds.get(i) + ", " + temps.get(i));
+            writer.write(", " + blowerIds.get(i) + ", " + temps.get(i));
         }
-        bufferedWriter.newLine();
-        bufferedWriter.flush();
+        writer.write("\n");
+        writer.close();
     }
 
     public String getFileName(){
