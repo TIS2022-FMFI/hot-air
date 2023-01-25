@@ -121,7 +121,7 @@ public class ControllerHandler extends Thread {
         socket.writeMessage(new Message(message, true));
     }
 
-    public void changeControllerParameters(int temperature, short airFlow, long time) throws IOException {
+    public synchronized void changeControllerParameters(int temperature, short airFlow, long time) throws IOException {
         System.out.println("[Controller] Sending new parameters");
         controller.setTime(time);
         controller.setAirFlow(airFlow);
