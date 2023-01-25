@@ -239,7 +239,7 @@ public class ClientHandler {
             } catch (FileAlreadyExistsException ignored) {}
             File file = new File("temperature_logs\\" + filename);
             file.createNewFile();
-            try (FileOutputStream fos = new FileOutputStream(filename)) {
+            try (FileOutputStream fos = new FileOutputStream("temperature_logs\\" + filename)) {
                 fos.write(rr.getByteData());
                 fos.flush();
             }
