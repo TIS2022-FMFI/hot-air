@@ -236,16 +236,6 @@ public class GUIController implements Initializable {
     private List<Blower> addBlowers() {
 
         List<Blower> blowers = new ArrayList<Blower>();
-//        todo debug
-//        Random random = new Random();
-//        for (int i = 0; i<numberOfBlowers; i++) {
-//            String ip1 = String.valueOf(random.nextInt(255));
-//            String ip2 = String.valueOf(random.nextInt(255));
-//            int temp1= random.nextInt(70);
-//            int temp2= random.nextInt(70);
-//            Blower blower = new Blower("192.165." + ip1 + "." + ip2, ("id" + i), temp1, temp2, "project 1");
-//            blowers.add(blower);
-//        }
 
         try {
             RequestResult.Controller[] controllers = gui.client.getAllControllers();
@@ -254,7 +244,7 @@ public class GUIController implements Initializable {
                 if (projectName.contains("\\")) {
                     projectName = projectName.substring(projectName.lastIndexOf("\\")+1);
                 }
-                Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), projectName);
+                Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), projectName, c.getStopped());
                 blowers.add(blower);
             }
         } catch (Exception e) {
@@ -267,21 +257,6 @@ public class GUIController implements Initializable {
         return blowers ;
     }
 
-//    todo debug
-//    private List<Project> addProjects() {
-//        List<Project> projects = new ArrayList<Project>();
-//
-//        Random random = new Random();
-//
-//        for (int i = 0; i<numberOfProjects; i++) {
-//            int phase= random.nextInt(5) + 1;
-//            projects.add(new Project(("Project "+i), "phase" + phase));
-//        }
-//
-//        return projects;
-//    }
-
-//    todo debug
     private Project[] addProjects() {
         try {
             Project[] projects = gui.client.getAllProjects();

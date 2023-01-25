@@ -1,6 +1,7 @@
 package GUI;
 
 import Logs.GeneralLogger;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -36,6 +37,7 @@ public class Blower {
     private SimpleFloatProperty currentTemp;
     private SimpleFloatProperty targetTemp;
     private SimpleStringProperty projectName;
+    private SimpleBooleanProperty stopped;
 
     private final Button stopButton;
     private final Button hiddenButton;
@@ -69,6 +71,7 @@ public class Blower {
                 e.printStackTrace();
             }
         });
+        this.stopped = new SimpleBooleanProperty(false);
         ImageView imageView = new ImageView(Objects.requireNonNull(getClass().getResource("caution.png")).toExternalForm());
         imageView.setFitWidth(25);
         imageView.setFitHeight(20);
@@ -221,6 +224,18 @@ public class Blower {
      */
     public void setProjectNameProperty(SimpleStringProperty projectName) {
         this.projectName = projectName;
+    }
+
+    public boolean isStopped() {
+        return stopped.get();
+    }
+
+    public SimpleBooleanProperty stoppedProperty() {
+        return stopped;
+    }
+
+    public void setStopped(boolean stopped) {
+        this.stopped.set(stopped);
     }
 
     /**

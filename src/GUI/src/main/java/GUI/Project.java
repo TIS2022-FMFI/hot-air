@@ -93,8 +93,8 @@ public class Project {
 
                     lineChart.setPrefSize(500, 200);
                     lineChart.setCreateSymbols(false);
-                    lineChart.setFocusTraversable(true);
-                    lineChart.setAnimated(true);
+//                    lineChart.setFocusTraversable(true);
+//                    lineChart.setAnimated(true);
                     ObservableList<Blower> blowers = GUIController.getBlowersList();
                     ObservableList<Project> projects = GUIController.guiController.getProjectsList();
 
@@ -205,7 +205,7 @@ public class Project {
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == ButtonType.OK){
                 try {
-//                    gui.client.stopAController(idProperty().getValue());  // todo debug
+                    gui.client.stopAProject(name);
                     GeneralLogger.writeMessage("project " + name + " stopped");
                     System.out.println("project " + name + " stopped");
                 } catch (Exception e) {
@@ -222,12 +222,11 @@ public class Project {
     private void updateGraph() {
         ObservableList<Blower> blowers = GUIController.getBlowersList();
         for (String key : temperatures.keySet()) {
-            System.out.println("key: " + key);
+//            System.out.println("key: " + key);
             Blower blower = blowers.filtered(b -> b.idProperty().getValue().equals(key)).get(0);
-            System.out.println(blower);
+//            System.out.println(blower);
             int i = blower.getCurrentSeries().getData().size();
             try {
-
                 blower.getCurrentSeries().getData().add(new XYChart.Data<>(i + 1, blower.currentTempProperty().getValue()));
                 blower.getTargetSeries().getData().add(new XYChart.Data<>(i + 1, blower.targetTempProperty().getValue()));
                 if (i % 50 == 49) {
@@ -241,28 +240,6 @@ public class Project {
                 e.printStackTrace();
             }
 
-
-//            for (XYChart.Data<Number, Number> d : blower.getCurrentSeries().getData()) {
-//                Tooltip.install(d.getNode(), new Tooltip(
-//                        d.getXValue().toString() + "\n" +
-//                                "Number Of Events : " + d.getYValue()));
-//
-//                //Adding class on hover
-//                d.getNode().setOnMouseEntered(e -> d.getNode().getStyleClass().add("onHover"));
-//
-//                //Removing class on exit
-//                d.getNode().setOnMouseExited(e -> d.getNode().getStyleClass().remove("onHover"));
-//            }
-
-//            for (XYChart.Data<Number, Number> entry : blower.getCurrentSeries().getData()) {
-//                System.out.println("Entered!");
-//                Tooltip t = new Tooltip(entry.getYValue().toString());
-//                Tooltip.install(entry.getNode(), t);
-//            }
-//            for (XYChart.Data<Number, Number> entry : blower.getTargetSeries().getData()) {
-//                Tooltip t = new Tooltip(entry.getYValue().toString());
-//                Tooltip.install(entry.getNode(), t);
-//            }
         }
     }
 
