@@ -236,6 +236,7 @@ public class Project extends Thread {
                 System.out.println("[Project] Instructions sent to controller(s), awaiting end of phase confirmation");
                 phaseEnded = false;
                 if (i == jobs.size()-1) {
+                    System.out.println("[Project] Last phase reached");
                     sleep(time*1000);
                     coolAllControllers();
                     return;
