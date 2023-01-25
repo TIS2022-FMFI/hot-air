@@ -68,7 +68,9 @@ public class SocketHandler {
     public Socket getSocket() {return socket;}
 
     public synchronized void writeMessage(Message msg) throws IOException {
+        System.out.println("[Write] 1");
         out.write(msg.getMessage());
+        System.out.println("[Write] 2");
         out.flush();
     }
 
