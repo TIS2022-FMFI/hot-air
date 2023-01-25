@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
  * Class for handling all communication between GUI and Server
  */
 public class ClientHandler {
-    private final Client client;
+    private Client client;
     private String IP = "";
 
     /**
@@ -52,18 +52,19 @@ public class ClientHandler {
         this(4002);
     }
 
-//    /**
-//     * Try to reconnect to server
-//     */
-//    public void reconnect() throws IOException {
-//        if (!client.isConnected()) {
-//            if (IP.equals("")) {
-//                client = new Client();
-//            } else {
-//                client = new Client(IP);
-//            }
-//        }
-//    }
+    /**
+     * Try to reconnect to server
+     */
+    public void reconnect() throws IOException {
+        System.out.println("reconnecting to server");
+        if (!client.isConnected()) {
+            if (IP.equals("")) {
+                client = new Client();
+            } else {
+                client = new Client(IP);
+            }
+        }
+    }
 
 //    /**
 //     * change ID of a specific controller

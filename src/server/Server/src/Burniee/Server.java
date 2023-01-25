@@ -54,6 +54,13 @@ public class Server {
                 GeneralLogger.writeExeption(e);
             }
         }
+        if (UDPCommunicationHandler.getInstance().isThereAnotherServer()) {
+            System.err.println("Another instance of server is running, shutting down!");
+            GeneralLogger.writeMessage("Another instance of server is running, shutting down!");
+            try {
+                exit();
+            } catch (IOException ignored) {}
+        }
         try {
             serverSocket = new ServerSocket(PORT);
         } catch (IOException e) {
