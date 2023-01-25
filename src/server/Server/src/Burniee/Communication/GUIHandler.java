@@ -195,7 +195,7 @@ public class GUIHandler extends Thread {
                     System.out.println("[GUI] request to stop project with name = " + name);
                     boolean gut = false;
                     for (Project p : Server.getInstance().getActiveProjects()) {
-                        if (p.getName().equals(name)) {
+                        if (p.getProjectName().equals(name)) {
                             p.end();
                             gut = true;
                         }
