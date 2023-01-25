@@ -34,26 +34,14 @@ public class Blower {
     private Hyperlink link;
     private String IPAddress;
     private SimpleFloatProperty currentTemp;
-    private Hyperlink graph;
     private SimpleFloatProperty targetTemp;
     private SimpleStringProperty projectName;
 
     private final Button stopButton;
     private final Button hiddenButton;
 
-    final NumberAxis xAxis = new NumberAxis();
-    final NumberAxis yAxis = new NumberAxis();
-
     private XYChart.Series<Number, Number> currentSeries = new XYChart.Series<>();
     private XYChart.Series<Number, Number> targetSeries = new XYChart.Series<>();
-
-
-//    final ObservableList<XYChart.Data> currentSeriesData = FXCollections.observableArrayList();
-//    XYChart.Series currentSeries = new XYChart.Series("Blower" + idProperty().getValue(), currentSeriesData);
-//
-//    final ObservableList<XYChart.Data> targetSeriesData = FXCollections.observableArrayList();
-//    XYChart.Series targetSeries = new XYChart.Series("Target" + idProperty().getValue(), targetSeriesData);
-
 
     /**
      * Instantiates a new Blower.
@@ -143,7 +131,6 @@ public class Blower {
                 System.out.println("blower " + idProperty().getValue() + " will not be stopped");
             }
         });
-
     }
 
     /**
@@ -199,24 +186,6 @@ public class Blower {
     public void setCurrentTempProperty(SimpleFloatProperty currentTemp) {
         this.currentTemp = currentTemp;
     }
-
-//    /**
-//     * Gets current link to graph.
-//     *
-//     * @return the link to graph
-//     */
-//    public Hyperlink getGraph() {
-//        return graph;
-//    }
-//
-//    /**
-//     * Sets link to open the graph.
-//     *
-//     * @param graph the graph
-//     */
-//    public void setGraph(Hyperlink graph) {
-//        this.graph.setText(graph.getText());
-//    }
 
     /**
      * Gets target temperature of blower.

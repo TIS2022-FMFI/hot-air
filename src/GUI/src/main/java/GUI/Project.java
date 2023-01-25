@@ -2,9 +2,12 @@ package GUI;
 
 import Logs.GeneralLogger;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -13,6 +16,7 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
+import javafx.scene.input.ScrollEvent;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 
@@ -34,8 +38,6 @@ public class Project {
     private Hyperlink graph;
     private SimpleStringProperty currentPhase;
     private HashMap<String, List<Pair<String, String>>> temperatures;
-
-
 
 //    private final Button stopButton;
 //    private final Button hiddenButton;
@@ -86,6 +88,7 @@ public class Project {
                         }
                     }
 
+                    lineChart.setPrefSize(500, 200);
                     lineChart.setCreateSymbols(false);
                     lineChart.setFocusTraversable(true);
                     lineChart.setAnimated(true);
@@ -97,18 +100,21 @@ public class Project {
                         Blower blower = blowers.filtered(b -> b.idProperty().getValue().equals(key)).get(0);
                         System.out.println(blower);
 
-//                        blower.getCurrentSeries().setName("Blower " + key);
-//                        blower.getTargetSeries().setName("Target " + key);
-                        lineChart.getData().add(blower.getCurrentSeries());
-                        lineChart.getData().add(blower.getTargetSeries());
+                        blower.getCurrentSeries().setName("Blower " + key);
+                        blower.getTargetSeries().setName("Target " + key);
+                        if (!lineChart.getData().contains(blower.getCurrentSeries())) {
+                            lineChart.getData().add(blower.getCurrentSeries());
+                        }
+                        if (!lineChart.getData().contains(blower.getTargetSeries())) {
+                            lineChart.getData().add(blower.getTargetSeries());
+                        }
+
                         List<Pair<String, String>> values = temperatures.get(key);
                         for (int i = 0; i <values.size(); i++) {
                             try {
                                 blower.getCurrentSeries().getData().add(new XYChart.Data<>(i, Float.parseFloat(values.get(i).getKey())));
                                 blower.getTargetSeries().getData().add(new XYChart.Data<>(i, Float.parseFloat(values.get(i).getValue())));
 
-//                                blower.currentSeriesData.add(new XYChart.Data<>(i, Float.parseFloat(values.get(i).getKey())));
-//                                blower.targetSeriesData.add(new XYChart.Data<>(i, Float.parseFloat(values.get(i).getValue())));
                             } catch (NumberFormatException e) {
                                 GeneralLogger.writeExeption(e);
                                 System.err.println(values.get(i));
@@ -116,25 +122,55 @@ public class Project {
                                 e.printStackTrace();
                             }
                         }
-//                        blower.getCurrentSeries().getNode().setStyle("-fx-stroke-width: 3px;");
+
+                        NumberAxis xAxisLocal = ((NumberAxis) lineChart.getXAxis());
+
+                        xAxisLocal.setUpperBound(values.size()+70);
+                        xAxisLocal.setLowerBound(values.size()-30);
+
+                        blower.getCurrentSeries().getNode().setStyle("-fx-stroke-width: 3px;");
 //                        blower.getCurrentSeries().getNode().getStyleClass().add("my-node");
-
-                        blower.getCurrentSeries().getNode().getStyleClass().add("my-node");
-
                         blower.getTargetSeries().getNode().setStyle("-fx-stroke-width: 2px;");
                         blower.getTargetSeries().getNode().setStyle("-fx-opacity: 0.5 ");
 
-
                     }
 
-//                    ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-//                    executor.scheduleAtFixedRate(() -> {
-//                        System.out.println("UPDATE GRAFU");
-//                        updateGraph();
-//                    }, 0, 1, TimeUnit.SECONDS);
+                    ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+                    executor.scheduleAtFixedRate(() -> {
+                        System.out.println("UPDATE GRAFU");
+                        updateGraph();
+                    }, 0, 1, TimeUnit.SECONDS);
 //                    if (projects.filtered(a-> a.getName().equals(name)).size() == 0) executor.shutdownNow();
 
                     ScrollPane scroll = new ScrollPane(lineChart);
+                    scroll.viewportBoundsProperty().addListener(new ChangeListener<Bounds>() {
+                        @Override
+                        public void changed(ObservableValue<? extends Bounds> observableValue, Bounds oldBounds, Bounds newBounds) {
+                            lineChart.setMinSize(Math.max(lineChart.getPrefWidth(), newBounds.getWidth()), Math.max(lineChart.getPrefHeight(), newBounds.getHeight()));
+                            scroll.setPannable((lineChart.getPrefWidth() > newBounds.getWidth()) || (lineChart.getPrefHeight() > newBounds.getHeight()));
+                        }
+                    });
+
+                    lineChart.setOnScroll(new EventHandler<ScrollEvent>() {
+                        @Override
+                        public void handle(ScrollEvent ev) {
+                            double delta = 5;
+                            double deltaY = ev.getDeltaY();
+
+                            if (deltaY < 0) {
+                                delta = -5;
+                            }
+
+                            NumberAxis xAxisLocal = ((NumberAxis) lineChart.getXAxis());
+
+                            xAxisLocal.setUpperBound(xAxisLocal.getUpperBound() + delta);
+                            xAxisLocal.setLowerBound(xAxisLocal.getLowerBound() + delta);
+                            //xAxisLocal.setTickUnit(xAxisLocal.getTickUnit() * zoomFactor);
+
+                            ev.consume();
+                        }
+                    });
+
                     Scene scene = new Scene(scroll, 500, 500);
                     Stage graphWindow = new Stage();
                     graphWindow.setTitle("GRAPH " + name);
@@ -143,6 +179,9 @@ public class Project {
                     graphWindow.setX(gui.getStage().getX() + 200);
                     graphWindow.setY(gui.getStage().getY() + 100);
                     graphWindow.show();
+                    graphWindow.setOnCloseRequest(e -> {
+                        executor.shutdown();
+                    });
 
 //                    for (XYChart.Series<Number, Number> s : lineChart.getData()) {
 //                        for (XYChart.Data<Number, Number> d : s.getData()) {
@@ -178,11 +217,13 @@ public class Project {
             int i = blower.getCurrentSeries().getData().size();
             try {
 
-                blower.getCurrentSeries().getData().add(new XYChart.Data<>(i+1, blower.currentTempProperty().getValue()));
-                blower.getTargetSeries().getData().add(new XYChart.Data<>(i+1, blower.targetTempProperty().getValue()));
-
-//                blower.currentSeriesData.add(new XYChart.Data<>(i+1, blower.currentTempProperty().getValue()));
-//                blower.targetSeriesData.add(new XYChart.Data<>(i+1, blower.targetTempProperty().getValue()));
+                blower.getCurrentSeries().getData().add(new XYChart.Data<>(i + 1, blower.currentTempProperty().getValue()));
+                blower.getTargetSeries().getData().add(new XYChart.Data<>(i + 1, blower.targetTempProperty().getValue()));
+                if (i % 50 == 49) {
+                    NumberAxis xAxisLocal = ((NumberAxis) lineChart.getXAxis());
+                    xAxisLocal.setUpperBound(i + 70);
+                    xAxisLocal.setLowerBound(i - 30);
+                }
             } catch (NumberFormatException e) {
                 GeneralLogger.writeExeption(e);
                 System.err.println(e.getMessage());
