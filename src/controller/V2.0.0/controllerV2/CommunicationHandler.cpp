@@ -275,7 +275,7 @@ void ServerCommunication::refresh(){
     if (status->searching_server == false && status->connecting_server == false && status->connection_error == false){
       Serial.print("Connecting to server: ");
       //status->request_udp_listening = 0;
-      stopUdp() ? Serial.println("UDP STOP OK") : Serial.println("UDP STOP ERROR"); 
+      stopUdp();
 
       IPAddress server_IP = IPAddress();
       memory->getSERVERIP(server_IP);
@@ -288,7 +288,7 @@ void ServerCommunication::refresh(){
     } else if (status->searching_server == false && status->connecting_server == false && status->connection_error == true){
       Serial.println("Start searching for a server");
       //status->request_udp_listening = 1;
-      startUdp() ? Serial.println("UDP START OK") : Serial.println("UDP START ERROR"); 
+      startUdp();
       status->searching_server = true;
     }
   }

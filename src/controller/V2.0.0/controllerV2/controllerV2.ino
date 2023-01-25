@@ -69,8 +69,6 @@ void setup() {
   memory.begin(EEPROM_SIZE) ? status.eeprom_begin = true : status.eeprom_begin = false;
   status.eeprom_begin ? Serial.println("Preferences: OK") : Serial.println("Preferences: ERROR");
 
-  serverComm.begin(&udp, &tcp, &status, &memory);
-
   Serial.println("\n\nStarting ethernet");
   WT32_ETH01_onEvent();
   ETH.begin(ETH_PHY_ADDR, ETH_PHY_POWER);
@@ -115,8 +113,10 @@ void setup() {
   Serial.println("Starting Web server on port 80");
 
   webserver.begin(server, &memory, &status);
+  
+  serverComm.begin(&udp, &tcp, &status, &memory);
 
-  Serial.print("\n\nChecking hardware\n");
+  Serial.print("\nChecking hardware\n");
   Wire.beginTransmission(DAC_address);
   Wire.endTransmission() == 0 ? status.dac_connected = true : status.dac_connected = false;
 
@@ -165,11 +165,6 @@ void dacAir(uint8_t air_power){
 }
 
 void handleDac(){
-  #ifdef SIMULATION
-    return;
-  #else
-  
-
   if (status.dac_connected == false || status.thermometer_connected == false){
     return;
   }
@@ -177,17 +172,18 @@ void handleDac(){
   if (status.connected_server == false && status.disconnected_time_out == false){
     status.disconnected_time_out_milis = millis();
     status.disconnected_time_out = true;
+    return;
   }
 
-  if (status.disconnected_time_out_milis > 100000){ // #55 Ak vypadne sieť tak vypnúť testovanie po 100 sekund
+  if (status.disconnected_time_out == true && millis() - status.disconnected_time_out_milis > 100000 ){ // #55 Ak vypadne sieť tak vypnúť testovanie po 100 sekund
     dacPower(0);
     dacAir(100);
+    status.set_temperature = 0;
     return;
   }
 
   if (status.emergency_stop == true){
-    dacPower(0);
-    dacAir(100);
+    status.set_temperature = 0;
     return;
   }
 
@@ -209,10 +205,6 @@ void handleDac(){
   if (status.set_temperature > 0){
     dacAir(100);
   }
-
-  
-  
-  #endif
 }
 
 void handleTemperature(int update_time){
@@ -225,7 +217,7 @@ void handleTemperature(int update_time){
     #ifdef SIMULATION
     if (status.set_temperature > 0 && status.actual_temperature < status.set_temperature){
       status.actual_temperature += 0.25;
-    } else if (status.set_temperature > 0 && status.actual_temperature > status.set_temperature){
+    } else if (status.set_temperature >= 0 && status.actual_temperature > status.set_temperature){
       status.actual_temperature -= 0.25;
     }
     #else
@@ -238,7 +230,18 @@ void handleTemperature(int update_time){
   if (status.actual_temperature != status.last_temperature){
     //serverComm.sendTemperature();//todo kazdu sec
     status.last_temperature = status.actual_temperature;
-  }  
+  } 
+
+
+
+  #ifdef SIMULATION
+    if (millis() - status.pid_delay_millis > memory.getDelay()){
+      pd_step();
+      status.pid_delay_millis = millis();
+    }
+  #endif
+
+
 }
 
 
@@ -251,15 +254,10 @@ void pd_step()
       return;
     }
     
-    if (status.emergency_stop == true){
+    if (status.set_temperature == 0 || status.emergency_stop == true) {
+      dacPower(0);
       return;
     }
-
-    if (status.set_temperature == 0) {
-      return;
-    }
-
-
     static float last_err = 0;
     static float suma = 0;
 
@@ -278,18 +276,19 @@ void pd_step()
     float p_err = status.set_temperature - status.actual_temperature;
     float d_err = p_err - last_err;
     last_err = p_err;
+
     //Serial.print("err: ");
 
     //Serial.print("p err");
     //Serial.println()
-    Serial.print("t: ");
-    Serial.println(status.actual_temperature);
+    // Serial.print("t: ");
+    // Serial.println(status.actual_temperature);
 
 
-    Serial.print(p_err);
-    Serial.print(" ");
-    Serial.print(d_err);
-    Serial.print(" ");
+    // Serial.print(p_err);
+    // Serial.print(" ");
+    // Serial.print(d_err);
+    // Serial.print(" ");
 
     suma += p_err * memory.getI();
     float delta_amount = 1000 * (suma + memory.getP() * p_err + memory.getD() * d_err);
@@ -299,11 +298,11 @@ void pd_step()
 
     status.actual_power = ((1 - memory.getA()) * status.actual_power + memory.getA() * current_power) / 100.0;
     
-    Serial.print((int)current_power);
-    Serial.print(" ");
-    Serial.print((int)delta_amount);
-    Serial.print(" ");
-    Serial.println((int)status.actual_power);
+    // Serial.print((int)current_power);
+    // Serial.print(" ");
+    // Serial.print((int)delta_amount);
+    // Serial.print(" ");
+    // Serial.println((int)status.actual_power);
 
     //dac.outputSquare((int)status.actual_power, 10000, 0, 100, 0);
     
@@ -320,12 +319,6 @@ void loop() {
   serverComm.refresh();
   serverComm.sendTemperatureTimeout(millis(), THERMOMETER_SENDING_INTERVAL);
   
-  #ifdef SIMULATION
-    if (millis() - status.pid_delay_millis > memory.getDelay()){
-      pd_step();
-      status.pid_delay_millis = millis();
-    }
-  #endif
   
 
 

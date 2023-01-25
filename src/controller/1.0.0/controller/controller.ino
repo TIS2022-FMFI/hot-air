@@ -499,7 +499,9 @@ void udpListen(uint16_t port){
     {
       
       Serial.print("UDP Listening on IP: ");
-      Serial.println(ETH.localIP());
+      Serial.print(ETH.broadcastIP());
+      Serial.print(" Port: ");
+      Serial.println(memory.getPORT());
       
       udp.onPacket([](AsyncUDPPacket packet) 
       {
@@ -825,10 +827,12 @@ void setpd(AsyncWebServerRequest * request){
 void loop()
 {
   if (remote_server_conected == false){
-    Serial.printf("is IP set: %i Conn_err: %i Try to conn: %i UDPlis: %i", memory.isIPset(), remote_server_connection_error, trying_connect_TCP, listening_for_UDP);
+    //Serial.printf("is IP set: %i Conn_err: %i Try to conn: %i UDPlis: %i", memory.isIPset(), remote_server_connection_error, trying_connect_TCP, listening_for_UDP);
     if (/*memory.isIPset() == true &&*/ remote_server_connection_error == false && trying_connect_TCP == false && listening_for_UDP == false){
       // pripoj sa ku serveru bez hladania IP
+      
       udpListen(0); // stop udp listener
+      Serial.println("UDP Stop ");
       tcpClient.connect(memory.getIP(), memory.getPORT());
       trying_connect_TCP = true;
       listening_for_UDP = false;
@@ -837,6 +841,7 @@ void loop()
       // hladaj server
       udpListen(memory.getPORT()); // start udp listener
       listening_for_UDP = true;
+      Serial.println("UDP start");
     }
     
   }

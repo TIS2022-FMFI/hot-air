@@ -9,8 +9,8 @@
 
 // Select the IP address according to your local network, works only if _DHCP is commented
 #ifndef _DHCP
-  IPAddress myIP(192, 168, 0, 232);
-  IPAddress myGW(192, 168, 0, 1);
+  IPAddress myIP(10, 1, 1, 105);
+  IPAddress myGW(10, 1, 1, 1);
   IPAddress mySN(255, 255, 255, 0);
 #endif
 
