@@ -17,11 +17,15 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Client extends Thread {
     private Socket clientSocket;
     private BufferedOutputStream out;
     private BufferedInputStream in;
+    public static ClientHandler myHandler = null;
     public static int PORT = 4002;
     private final static byte[] SERVER_PASSWORD = new byte[]{'a', 'b', 'c', 'd'};
 //    private final static byte END_OF_MESSAGE = 4;
@@ -135,6 +139,15 @@ public class Client extends Thread {
         in.close();
         out.close();
         clientSocket.close();
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.schedule(() -> {
+            try {
+                myHandler.reconnect();
+            } catch (IOException e) {
+                GUI.gui.alert(e);
+                e.printStackTrace();
+            }
+        }, 10, TimeUnit.SECONDS);
     }
 
     public boolean isConnected() {
@@ -162,7 +175,7 @@ public class Client extends Thread {
         Exception e = c.getConstructor(String.class).newInstance(message);
         try (ByteArrayInputStream bin = new ByteArrayInputStream(stackTrace); ObjectInput in = new ObjectInputStream(bin)) {
             e.setStackTrace((StackTraceElement[]) in.readObject());
-            e.printStackTrace();
+//            e.printStackTrace();
         }
         return e;
     }

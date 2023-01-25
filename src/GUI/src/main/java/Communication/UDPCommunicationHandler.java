@@ -1,10 +1,16 @@
 package Communication;
 
+import GUI.GUI;
+
 import java.io.IOException;
 import java.net.*;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -75,6 +81,7 @@ public class UDPCommunicationHandler {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            GUI.gui.alert(new ConnectException("Unable to start UDP listener"));
         }
         return "";
     }

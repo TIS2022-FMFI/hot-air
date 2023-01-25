@@ -151,7 +151,7 @@ public class ControllerHandler extends Thread {
     public void run() {
         byte[] msg;
         try {
-            socket.getSocket().setSoTimeout(10000);
+            socket.getSocket().setSoTimeout(5000);
         } catch (IOException e) {e.printStackTrace();GeneralLogger.writeExeption(e);}
         while (socket.isActive()) {
             try {
