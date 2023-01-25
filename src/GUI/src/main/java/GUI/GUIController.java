@@ -80,6 +80,7 @@ public class GUIController implements Initializable {
     @FXML TableView<Project> projectsView;
     @FXML TableColumn<Project, Hyperlink> projectName;
     @FXML TableColumn<Project,String> projectPhase;
+    @FXML TableColumn<Project, Button> projectStop;
 
     static final ObservableList<Blower> blowersList = FXCollections.observableArrayList();
     ObservableList<Project> projectsList = FXCollections.observableArrayList();
@@ -212,6 +213,7 @@ public class GUIController implements Initializable {
         projectName.setComparator((o2, o1) -> Float.valueOf(o2.getText()).compareTo(Float.valueOf(o1.getText())));
         projectName.setSortType(TableColumn.SortType.DESCENDING);
         projectPhase.setCellValueFactory(new PropertyValueFactory<>("currentPhase"));
+        projectStop.setCellValueFactory(new PropertyValueFactory<>("stopButton"));
     }
 
     public void updateTable() {

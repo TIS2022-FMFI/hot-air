@@ -12,11 +12,13 @@ import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Region;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 
@@ -29,6 +31,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static GUI.GUI.gui;
+import static GUI.GUIController.setAlertIcons;
+import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 
 /**
  * Class for projects.
@@ -39,8 +43,7 @@ public class Project {
     private SimpleStringProperty currentPhase;
     private HashMap<String, List<Pair<String, String>>> temperatures;
 
-//    private final Button stopButton;
-//    private final Button hiddenButton;
+    private final Button stopButton;
 
     final NumberAxis xAxis = new NumberAxis();
     final NumberAxis yAxis = new NumberAxis();
@@ -124,12 +127,10 @@ public class Project {
                         }
 
                         NumberAxis xAxisLocal = ((NumberAxis) lineChart.getXAxis());
-
                         xAxisLocal.setUpperBound(values.size()+70);
                         xAxisLocal.setLowerBound(values.size()-30);
 
                         blower.getCurrentSeries().getNode().setStyle("-fx-stroke-width: 3px;");
-//                        blower.getCurrentSeries().getNode().getStyleClass().add("my-node");
                         blower.getTargetSeries().getNode().setStyle("-fx-stroke-width: 2px;");
                         blower.getTargetSeries().getNode().setStyle("-fx-opacity: 0.5 ");
 
@@ -140,7 +141,6 @@ public class Project {
                         System.out.println("UPDATE GRAFU");
                         updateGraph();
                     }, 0, 1, TimeUnit.SECONDS);
-//                    if (projects.filtered(a-> a.getName().equals(name)).size() == 0) executor.shutdownNow();
 
                     ScrollPane scroll = new ScrollPane(lineChart);
                     scroll.viewportBoundsProperty().addListener(new ChangeListener<Bounds>() {
@@ -162,10 +162,8 @@ public class Project {
                             }
 
                             NumberAxis xAxisLocal = ((NumberAxis) lineChart.getXAxis());
-
                             xAxisLocal.setUpperBound(xAxisLocal.getUpperBound() + delta);
                             xAxisLocal.setLowerBound(xAxisLocal.getLowerBound() + delta);
-                            //xAxisLocal.setTickUnit(xAxisLocal.getTickUnit() * zoomFactor);
 
                             ev.consume();
                         }
@@ -183,27 +181,40 @@ public class Project {
                         executor.shutdown();
                     });
 
-//                    for (XYChart.Series<Number, Number> s : lineChart.getData()) {
-//                        for (XYChart.Data<Number, Number> d : s.getData()) {
-//                            Tooltip t = new Tooltip(d.getYValue().toString());
-//                            Tooltip.install(d.getNode(), t);
-//
-////                            Tooltip.install(d.getNode(), new Tooltip(
-////                                    d.getXValue()+ "\n" + d.getYValue()));
-//
-////                            //Adding class on hover
-////                            d.getNode().setOnMouseEntered(e -> d.getNode().getStyleClass().add("onHover"));
-////
-////                            //Removing class on exit
-////                            d.getNode().setOnMouseExited(e -> d.getNode().getStyleClass().remove("onHover"));
-//                        }
-//                    }
-
                 } catch (IOException | InterruptedException | NullPointerException e) {
                     gui.alert(e);
                     e.printStackTrace();
                 }
 
+            }
+        });
+
+        this.stopButton = new Button("STOP");
+        stopButton.setId("stopBtn");
+        stopButton.setFont(Font.font("Arial", FontWeight.BOLD, 11.0));
+        stopButton.setMinWidth(75);
+        stopButton.setPrefWidth(75);
+        stopButton.setMaxWidth(USE_COMPUTED_SIZE);
+        stopButton.setOnAction(event -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setResizable(true);
+            alert.setTitle("STOPPING PROJECT");
+            alert.setHeaderText("Do you really want to stop project " + name + "?");
+            setAlertIcons(alert);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK){
+                try {
+//                    gui.client.stopAController(idProperty().getValue());  // todo debug
+                    GeneralLogger.writeMessage("project " + name + " stopped");
+                    System.out.println("project " + name + " stopped");
+                } catch (Exception e) {
+                    GeneralLogger.writeExeption(e);
+                    System.err.println("project " + name + " could not be stopped");
+                    gui.alert(e);
+                }
+            } else {
+                System.out.println("project " + name + " will not be stopped");
             }
         });
     }
