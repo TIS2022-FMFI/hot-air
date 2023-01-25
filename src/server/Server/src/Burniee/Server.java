@@ -58,6 +58,7 @@ public class Server {
             serverSocket = new ServerSocket(PORT);
         } catch (IOException e) {
             e.printStackTrace();
+            GeneralLogger.writeExeption(e);
             System.err.println("Server start failed!");
             return;
         }
@@ -70,6 +71,7 @@ public class Server {
      * Start accepting clients
      */
     public void begin() {
+        GeneralLogger.deleteOldLogs();
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(() -> {
                 System.out.println("[UDP] Sending regular UDP discovery packet to broadcast");

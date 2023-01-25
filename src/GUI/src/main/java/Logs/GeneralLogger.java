@@ -1,8 +1,10 @@
 package Logs;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.util.Arrays;
 
@@ -52,6 +54,22 @@ public class GeneralLogger {
         catch(Exception e)
         {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void deleteOldLogs(){
+        try {
+            File log = new File("log.txt");
+            long bytes = Files.size(log.toPath());
+            if (bytes/1024 > 1000) {
+                File oldLog = new File(log.getParent(), "logOld.txt");
+                if (oldLog.exists()){
+                    oldLog.delete();
+                }
+                log.renameTo(oldLog);
+            }
+        } catch (IOException e){
+            System.out.println("Errror");
         }
     }
 }
