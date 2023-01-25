@@ -114,6 +114,7 @@ public class Client extends Thread {
         try {
             clientSocket = new Socket(ip, PORT);
             clientSocket.setSoTimeout(10000);
+            clientSocket.setTcpNoDelay(true);
             out = new BufferedOutputStream(clientSocket.getOutputStream());
             in = new BufferedInputStream(clientSocket.getInputStream());
             password = readMessage();

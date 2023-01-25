@@ -1,6 +1,6 @@
 **/.idea
 **/out
-**/temperature_logs
 *.xml
 *.txt
 log.txt
+/temperature_logs/
