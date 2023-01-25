@@ -1,6 +1,7 @@
 package GUI;
 
 import Logs.GeneralLogger;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -54,7 +55,7 @@ public class Blower {
      * @param targetTemp  the target temperature
      * @param projectName     the corresponding project
      */
-    public Blower(String IPAddress, String id, float currentTemp, float targetTemp, String projectName) {
+    public Blower(String IPAddress, String id, float currentTemp, float targetTemp, String projectName, Boolean stopped) {
         this.IPAddress = IPAddress.trim();
         this.id = new SimpleStringProperty(id);
         this.currentTemp = new SimpleFloatProperty(currentTemp);
@@ -71,7 +72,7 @@ public class Blower {
                 e.printStackTrace();
             }
         });
-        this.stopped = new SimpleBooleanProperty(false);
+        this.stopped = new SimpleBooleanProperty(stopped);
         ImageView imageView = new ImageView(Objects.requireNonNull(getClass().getResource("caution.png")).toExternalForm());
         imageView.setFitWidth(25);
         imageView.setFitHeight(20);

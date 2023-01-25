@@ -278,7 +278,7 @@ public class GUIController implements Initializable {
             RequestResult.Controller[] controllers = gui.client.getAllControllers();
             for (RequestResult.Controller c : controllers) {
                 String projectName = (c.getProjectName() == null) ? "" : c.getProjectName();
-                Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), projectName);
+                Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), projectName, c.getStopped());
                 blowers.add(blower);
             }
 
@@ -295,6 +295,7 @@ public class GUIController implements Initializable {
                         b.setCurrentTempProperty(blower.currentTempProperty());
                         b.setTargetTempProperty(blower.targetTempProperty());
                         b.setProjectNameProperty(blower.projectNameProperty());
+                        b.setStopped(blower.isStopped());
                         gut = true;
                     }
                 }
