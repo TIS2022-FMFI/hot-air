@@ -44,7 +44,6 @@ public class EXEHandler extends Thread {
                 }
             } catch (SocketException e) {
                 socket.stopSocket();
-                Server.getInstance().sendExceptionToAllActiveGUIs(e);
             } catch (Exception e) {
                 GeneralLogger.writeExeption(e);
                 Server.getInstance().sendExceptionToAllActiveGUIs(e);
