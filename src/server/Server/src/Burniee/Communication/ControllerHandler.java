@@ -65,6 +65,7 @@ public class ControllerHandler extends Thread {
         if (project != null) {
             project.end();
         }
+        controller.setTargetTemperature(0);
         activeStateChangeDelay = true;
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.schedule(() -> {
