@@ -192,6 +192,7 @@ public class Client extends Thread {
         c.setAirFlow(ByteBuffer.wrap(readMessage()).getShort());
         c.setTime(ByteBuffer.wrap(readMessage()).getLong());
         c.setProjectName(readStringMessage());
+        c.setStopped(readMessage()[0] > 0);
         return c;
     }
 

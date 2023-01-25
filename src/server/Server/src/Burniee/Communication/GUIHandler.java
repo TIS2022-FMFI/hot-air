@@ -54,6 +54,7 @@ public class GUIHandler extends Thread {
         } else {
             socket.writeMessage(new Message(c.getProjectName().getBytes()));
         }
+        socket.writeMessage(new Message(new byte[] {(byte) (c.getStopped() ? 1 : 0)}));
     }
 
     public void sendException(String className, String message, byte[] exception) throws IOException {
