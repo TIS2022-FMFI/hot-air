@@ -2,6 +2,7 @@ package GUI;
 
 import Communication.ClientHandler;
 import Logs.GeneralLogger;
+import Logs.TemperatureLogsDeleter;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -145,6 +146,7 @@ public class GUI extends Application {
         if (result.get() == ButtonType.OK){
             System.out.println("temperature log files will be deleted");
             GeneralLogger.writeMessage("temperature log files will be deleted");
+            TemperatureLogsDeleter.deleteFiles();
             return true;
         } else {
             System.out.println("temperature log files will not be deleted");
