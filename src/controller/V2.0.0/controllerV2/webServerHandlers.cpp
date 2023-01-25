@@ -1,3 +1,5 @@
+#include <sys/types.h>
+#include "pgmspace.h"
 
 #include <sys/_stdint.h>
 #include <string>
@@ -67,6 +69,7 @@ public:
     if (request->hasParam("controllerID", true)) {
       String idstr;
       idstr = request->getParam("controllerID", true)->value();
+      Serial.write(idstr.c_str(), 15);
       memory->setID(idstr.c_str());
       
     //IPAddress controllerMASK = IPAddress(request->getParam("controllerMASK", true)->value());
@@ -269,8 +272,10 @@ public:
 
     server.on("/controlleridcko", HTTP_GET, [this](AsyncWebServerRequest *request) {
       char id[16];
-      memory->getID(id);
-      request->send(200, "text/plain", id);
+      uint8_t len = memory->getID(id);
+      char idsend[len];
+      memcpy(idsend, id, len);
+      request->send(200, "text/plain", idsend);
     });
 
     server.on("/controllerport", HTTP_GET, [this](AsyncWebServerRequest *request) {

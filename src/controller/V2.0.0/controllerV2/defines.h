@@ -13,7 +13,7 @@
 #define _DHCP set
 
 // simulation
-#define SIMULATION
+//#define SIMULATION
 
 // Select the IP address according to your local network, works only if _DHCP is commented
 // all info taks form memory
@@ -63,6 +63,6 @@
 #define _ETHERNET_WEBSERVER_LOGLEVEL_       3
 
 // USE ONLY FOR TESTING. BYPASS ALL SAFTY
-#define _DEBUG 
+#define _DEBUG
 
 #endif

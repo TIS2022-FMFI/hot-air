@@ -1,5 +1,3 @@
-#include <sys/_stdint.h>
-#include "IPAddress.h"
 //********************************************************
 // Class to handle EEPROM memory and save preferences
 //
@@ -17,11 +15,13 @@
 //
 //********************************************************
 #include "preferences.h"
+#include <sys/_stdint.h>
+#include "IPAddress.h"
+#include "defines.h"
 
 void Preferences::trim(char *str) {
   uint8_t index = 15;
   while (index >= 0 && (str[index] == ' ' || str[index] == '\0'))  {
-    str[index] = '\0';
     index--;
   }
 }
@@ -31,7 +31,9 @@ Preferences::Preferences() {
 
 bool Preferences::begin(uint16_t size) {
   eeprom_size = size;
-  flags = 0;
+  mem_flags = 0;
+
+
 
   if (EEPROM.begin(size) == false) {
     Serial.println("EEPROM load error.\n Rebooting...");
@@ -42,7 +44,7 @@ bool Preferences::begin(uint16_t size) {
   }
 
   readFlags();
-  if (flags == 0xFF) {
+  if (mem_flags == 0xFF) {
     Serial.println("deleting EEPROM");
     erasureAll();
   }
@@ -60,12 +62,12 @@ bool Preferences::begin(uint16_t size) {
   // ---------------------------------
 
   #ifdef _DEBUG
-    // IPAddress ip = IPAddress(10,1,1,105);
-    // IPAddress GW = IPAddress(10,1,1,1);
+    IPAddress ip = IPAddress(10,1,1,105);
+    IPAddress GW = IPAddress(10,1,1,1);
     // setMASK(24);
     // char idcko[] = "id05           ";
     // setID(idcko);
-    // setCONTROLLERIP(ip, GW);
+    setCONTROLLERIP(ip, GW);
     // setPORT(4002);
     // PID SETUP
     // setP(40/1000.0);
@@ -78,7 +80,7 @@ bool Preferences::begin(uint16_t size) {
     IPAddress ip_addres = IPAddress();  
     Serial.println("Preferences BEGIN in debug mode.");
     Serial.print("FLAGS: ");
-    Serial.printf("%X\n", flags);
+    Serial.printf("%X\n", mem_flags);
 
     Serial.print("Server IP: ");
     this->getSERVERIP(ip_addres);
@@ -89,7 +91,8 @@ bool Preferences::begin(uint16_t size) {
 
     Serial.print("ID: ");
     char id[16];
-    Serial.write(this->getID(id), 15);
+    this->getID(id);
+    Serial.write(id, 15);
     Serial.println();
 
     Serial.print("Controller IP: ");
@@ -126,23 +129,29 @@ bool Preferences::begin(uint16_t size) {
   return 1;
 }
 
-void Preferences::convertNetMask(uint8_t mm, IPAddress &addr){
-uint8_t mask = mm;
-uint8_t ip[4] = {0,0,0,0};
 
-for (uint8_t i = 0; i < 4; i++){
-    uint8_t oneip = 0;
-    for (uint8_t m = 0; m < 8; m++){
-      oneip = oneip << 1;
-      if (mask > 0){
-        oneip++;
-        mask--;
-      }
-    }
-    ip[i] = oneip;
+bool Preferences::loadEEPROM(){
+
+  return false;
 }
 
-addr = IPAddress(ip[0], ip[1], ip[2], ip[3]);
+void Preferences::convertNetMask(uint8_t mm, IPAddress &addr){
+  uint8_t mask = mm;
+  uint8_t ip[4] = {0,0,0,0};
+
+  for (uint8_t i = 0; i < 4; i++){
+      uint8_t oneip = 0;
+      for (uint8_t m = 0; m < 8; m++){
+        oneip = oneip << 1;
+        if (mask > 0){
+          oneip++;
+          mask--;
+        }
+      }
+      ip[i] = oneip;
+  }
+
+  addr = IPAddress(ip[0], ip[1], ip[2], ip[3]);
 }
 
 uint8_t Preferences::convertNetMask(IPAddress mm){
@@ -158,37 +167,37 @@ for (uint8_t i = 0; i < 4; i++){
     }
   }
 }
-return mask;    
+  return mask;    
 }
 
 bool Preferences::isServerIPset() {
-  return (flags & flag::serverip) == flag::serverip;
+  return (mem_flags & flag::serverip) == flag::serverip;
 }
 
 bool Preferences::isPORTset() {
-return (flags & flag::port) == flag::port;
+  return (mem_flags & flag::port) == flag::port;
 }
 
 bool Preferences::isIDset() {
-return (flags & flag::id) == flag::id;
+  return (mem_flags & flag::id) == flag::id;
 }
 
 bool Preferences::isControllerIPset() {
-return (flags & flag::controllerip) == flag::controllerip;
+  return (mem_flags & flag::controllerip) == flag::controllerip;
 }
 
 
 bool Preferences::setSERVERIP(IPAddress address) {
-return setIP(addresses::SERVER_IP, address);
+  return setIP(addresses::SERVER_IP, address);
 }
 
 void Preferences::getSERVERIP(IPAddress &ip) {
-return getIP(addresses::SERVER_IP, ip);
+  return getIP(addresses::SERVER_IP, ip);
 }
 
 bool Preferences::setCONTROLLERIP(IPAddress IPaddress, IPAddress GWaddress) {
-setFlag(flag::controllerip);
-return setIP(addresses::CONTROLLER_IP, IPaddress) && setIP(addresses::CONTROLLER_GW, GWaddress);
+  setFlag(flag::controllerip);
+  return setIP(addresses::CONTROLLER_IP, IPaddress) && setIP(addresses::CONTROLLER_GW, GWaddress);
 
 }
 
@@ -197,65 +206,79 @@ void Preferences::getCONTROLLERIP(IPAddress &ip){
 }
 
 void Preferences::getCONTROLLERGW(IPAddress &ip) {
-return getIP(addresses::CONTROLLER_GW, ip);
+  return getIP(addresses::CONTROLLER_GW, ip);
 }
 
 bool Preferences::setPORT(uint16_t port) {
-EEPROM.writeShort(addresses::PORT, port);
-setFlag(flag::port);
-return EEPROM.commit();
+  EEPROM.writeShort(addresses::PORT, port);
+  setFlag(flag::port);
+  return EEPROM.commit();
 }
 
 uint16_t Preferences::getPORT() {
-if (isPORTset() == false) {
-  return DEFAULT_PORT;
-}
-return EEPROM.readShort(addresses::PORT);
+  if (isPORTset() == false) {
+    return DEFAULT_PORT;
+  }
+  return EEPROM.readShort(addresses::PORT);
 }
 
 bool Preferences::setID(const char *id_name) {
-char c = 0;
-
-for (uint8_t i = 0; i < 16; i++) {
-  c = id_name[i];
-  if (c < 0x20 || c > 0x7e) {
-    c = ' ';  // A8 = ¿
-  }
-  EEPROM.writeChar(addresses::ID + i, c);
-  
-  if (c == 0){
-    break;
-  }
-}
-
-setFlag(flag::id);
-return EEPROM.commit();
-}
-
-char* Preferences::getID(char* id) {
-  if (isIDset() == false) {
-    Serial.println("ID is not set");
-    id[0] = 'i';
-    id[1] = 'd';
-    IPAddress addr = IPAddress();
-    this->getCONTROLLERIP(addr);   
-    itoa(addr[3], &id[2], 10);
-
-    for (uint8_t i = 3; i < 15; i++) {
-      id[i] = ' ';
+  char c = 0;
+  Serial.print("SAVEING TO EEPROM: ");
+  for (uint8_t i = 0; i < 16; i++) {
+    c = id_name[i];
+    
+    if (c < 0x20 || c > 0x7e) {
+      c = 0;  // A8 = ¿
     }
-    return id;
-  }
+    Serial.print(c);
+    EEPROM.writeChar(addresses::ID + i, c);
 
-  for (uint8_t i = 0; i < 15; i++) {
-    id[i] = EEPROM.readByte(addresses::ID + i);
-    if (id[i] == 0){
+    if (c == 0 || c == ' '){
+      Serial.println("END OF STRING");
       break;
     }
   }
-  id[15] = 0;
+  //15 is last char in EEPROM
+  EEPROM.writeByte(addresses::ID + 15, '\0');
+  setFlag(flag::id);
+  return EEPROM.commit();
+}
+
+uint8_t Preferences::getID(char* id) {
+  
+  if (isIDset() == false) {
+    Serial.println("ID is not set");
+    // id[0] = 'i';
+    // id[1] = 'd';
+    // IPAddress addr = IPAddress();
+    // this->getCONTROLLERIP(addr);   
+    // itoa(addr[3], &id[2], 3);
+
+    // for (uint8_t i = 3; i < 15; i++) {
+    //   id[i] = ' ';
+    // }
+    char idnotset[] = "idNOTset";
+    strncpy(id, idnotset, 8);
+    return 9;
+  }
+  
+  uint8_t len = 0;
+  Serial.println("READING FORM EEPROM: ");
+
+  for (uint8_t i = 0; i < 15; i++) {
+    id[i] = EEPROM.readByte(addresses::ID + i);
+    Serial.print(id[i]);
+    len++;
+    if (id[i] == 0 || id[i] == ' '){
+      Serial.println("\nEND OF STRING");
+      break;
+    }
+  }
+
+  //id[15] = 0;
   trim(id);
-  return id;
+  return len;
 }
 
 // PID regulator
@@ -321,16 +344,16 @@ return EEPROM.commit();
 }
 
 void Preferences::setFlag(flag mask) {
-flags = flags | mask;
+mem_flags = mem_flags | mask;
 writeFlags();
 }
 
 void Preferences::readFlags() {
-flags = EEPROM.readByte(FLAGS);
+mem_flags = EEPROM.readByte(FLAGS);
 }
 
 void Preferences::writeFlags() {
-EEPROM.writeByte(FLAGS, flags);
+EEPROM.writeByte(FLAGS, mem_flags);
 }
 
 void Preferences::erasureAll() {

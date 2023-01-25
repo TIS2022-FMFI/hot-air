@@ -1,3 +1,4 @@
+#include <sys/_stdint.h>
 //********************************************************
 // Class to handle EEPROM memory and save preferences
 //
@@ -48,10 +49,10 @@ private:
                    PORT = MEMORY_START + 5,
                    ID = MEMORY_START + 7,
                    CONTROLLER_IP = MEMORY_START + 23,
-                   CONTROLLER_GW = MEMORY_START + 27,
-                   CONTROLLER_MASK = MEMORY_START + 31,
-                   P_reg = MEMORY_START + 32,
-                   D_reg = MEMORY_START + 41,
+                   CONTROLLER_GW = MEMORY_START + 28,
+                   CONTROLLER_MASK = MEMORY_START + 33,
+                   P_reg = MEMORY_START + 38,
+                   D_reg = MEMORY_START + 47,
                    I_reg = MEMORY_START + 50,
                    ALPHA_reg = MEMORY_START + 59,
                    DELAY_reg = MEMORY_START + 68,};
@@ -61,14 +62,28 @@ private:
               id = 0x04,
               controllerip = 0x10,
               pid = 0x20};
-  uint8_t flags;
+  
   uint16_t eeprom_size;
+  volatile uint8_t mem_flags;
+  volatile IPAddress mem_server_ip = IPAddress();
+  volatile uint16_t mem_port = 0;
+  char mem_id[16];
+  volatile IPAddress mem_controller_ip = IPAddress();
+  volatile IPAddress mem_controller_gw = IPAddress();
+  volatile IPAddress mem_controller_id = IPAddress();
+  float reg_p = 0;  
+  float reg_d = 0;
+  float reg_i = 0;
+  float reg_alpha = 0;
+  uint16_t reg_delay = 0;
   
 
 public:
   Preferences();
-  
+
   bool begin(uint16_t size);
+
+  bool loadEEPROM();
 
   void trim(char *str);
   
@@ -100,7 +115,7 @@ public:
 
   bool setID(const char *id_name);
 
-  char* getID(char* id);
+  uint8_t getID(char* id);
 
   // PID regulator
 
