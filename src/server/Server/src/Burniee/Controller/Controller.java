@@ -12,6 +12,7 @@ public class Controller {
     private long time;
     private String projectName;
     private Error activeError = Error.NONE;
+    private boolean stopped;
 
     public Controller(InetAddress ip) {IP = ip;}
 
@@ -35,6 +36,9 @@ public class Controller {
 
     public synchronized int getTargetTemperature() {return targetTemperature;}
     public synchronized void setTargetTemperature(int targetTemperature) {this.targetTemperature = targetTemperature;}
+
+    public synchronized void setStopped(boolean s) {stopped = s;}
+    public synchronized boolean getStopped() {return stopped;}
 
     public InetAddress getIP() {return IP;}
 }

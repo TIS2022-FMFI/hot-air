@@ -39,8 +39,12 @@ public class RequestResult {
         private short airFlow;
         private long time;
         private String projectName;
+        private boolean stopped;
 
         public Controller(InetAddress ip) {IP = ip;}
+
+        public boolean getStopped() {return stopped;}
+        public void setStopped(boolean stopped) {this.stopped = stopped;}
 
         public String getProjectName() {return projectName;}
         public void setProjectName(String projectName) {this.projectName = projectName;}

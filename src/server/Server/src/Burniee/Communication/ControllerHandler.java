@@ -140,11 +140,13 @@ public class ControllerHandler extends Thread {
      */
     public void bigRedButton() throws IOException {
         System.out.println("[Controller] Stopping controller with id = " + controller.getID());
+        controller.setStopped(true);
         socket.writeMessage(new Message(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) 0b10000000}, true));
     }
 
     public void unlock() throws IOException {
         System.out.println("[Controller] Unlocking controller with id = " + controller.getID());
+        controller.setStopped(false);
         socket.writeMessage(new Message(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) 0b01000000}, true));
     }
 
