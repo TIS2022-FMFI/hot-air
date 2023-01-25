@@ -137,6 +137,16 @@ void dacAir(uint8_t air_power){
 }
 
 void handleDac(){
+  if (status.connected_server == false && status.disconnected_time_out == false){
+    status.disconnected_time_out_milis = millis();
+  }
+
+  if (status.disconnected_time_out_milis > 100000){ // #55 Ak vypadne sieť tak vypnúť testovanie po 100 sekund
+    dacPower(0);
+    dacAir(100);
+    return;
+  }
+
   if (status.dac_connected == false || status.thermometer_connected == false){
     return;
   }
@@ -146,16 +156,19 @@ void handleDac(){
     dacAir(100);
   }
 
-  if (status.actual_temperature <= 0){
-    dacAir(50); //chladenie po 30C
-  }
-
-  if (status.actual_power > 0){
+  if (status.actual_power >= 0){
     dacPower(status.actual_power);
   }
 
-  if (status.set_airflow > 0){
+  if (status.set_airflow >= 0){
     dacPower(status.set_airflow);
+  }
+
+  if (status.actual_temperature < 30 && status.set_temperature == 0){
+    dacAir(50);
+  }
+  if (status.actual_temperature <= 0){
+    dacAir(50); //chladenie po 30C
   }
 }
 
@@ -165,20 +178,32 @@ void handleTemperature(int update_time){
   }
 
   if (millis() - milis_temperature > update_time){
-    status.actual_temperature = thermocouple.readCelsius();
+
+    #ifdef SIMULATION
+    
+    if (status.set_temperature > 0 && status.actual_temperature < status.set_temperature){
+      status.actual_temperature += 3;
+    } else if (status.set_temperature > 0 && status.actual_temperature > status.set_temperature){
+      status.actual_temperature -= 3;
+    }
+    #else
+      status.actual_temperature = thermocouple.readCelsius();
+    #endif
+
     milis_temperature = millis();
   }
 
   if (status.actual_temperature != status.last_temperature){
-    //Serial.println(status.actual_temperature);
+    //serverComm.sendTemperature();//todo kazdu sec
     status.last_temperature = status.actual_temperature;
-  }
+  }  
 }
 
 void loop() {
   
   handleTemperature(THERMOMETER_UPDATING_TIME);
   serverComm.refresh();
+  serverComm.sendTemperatureTimeout(millis(), THERMOMETER_SENDING_INTERVAL);
   handleDac();
 
 }

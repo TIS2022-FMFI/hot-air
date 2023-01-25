@@ -1,6 +1,7 @@
 package GUI;
 
 import Communication.ClientHandler;
+import Logs.GeneralLogger;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -69,11 +70,11 @@ public class GUI extends Application {
 
             System.out.println("GUI successfully started");
         } catch (Exception e) {
+            GeneralLogger.writeExeption(e);
             System.err.println(e);
             System.err.println(e.getMessage());
             e.printStackTrace();
             alert(e);
-            // todo zapisat do logov
         }
     }
 
@@ -87,6 +88,8 @@ public class GUI extends Application {
     }
 
     public void alert(Exception e) {
+        GeneralLogger.writeExeption(e);
+
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setResizable(true);
         alert.setTitle("ERROR");
@@ -98,7 +101,9 @@ public class GUI extends Application {
         icon.setFitHeight(48);
         icon.setFitWidth(48);
         alert.getDialogPane().setGraphic(icon);
-        alert.show();
+//        if (e.getMessage().matches("[a-zA-Z0-9_-]*")) {
+//            alert.show();
+//        }
         System.err.println(e.getMessage());
         e.printStackTrace();
     }
@@ -112,6 +117,7 @@ public class GUI extends Application {
         } catch (IOException e) {
             System.err.println("An error occurred.");
             e.printStackTrace();
+            GeneralLogger.writeExeption(e);
         }
     }
 

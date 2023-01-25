@@ -54,13 +54,13 @@ public class TemperatureLogger {
         }
     }
 
-    public void logTemeperature(String phase, List<String> blowerIds, List<String> temps)
+    public void logTemeperature(String phase, List<String> blowerIds, List<String> temps,  List<String> target)
             throws IOException {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         FileWriter writer = new FileWriter(fileName, true);
         writer.write(timestamp + ", " + phase);
         for (int i = 0; i < blowerIds.size(); i++){
-            writer.write(", " + blowerIds.get(i) + ", " + temps.get(i));
+            writer.write(", " + blowerIds.get(i) + ", " + temps.get(i) + ", " + target.get(i));
         }
         writer.write("\n");
         writer.close();

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A layout example with a side menu that hides on mobile, just like the Pure website.">
+    <title>Controller - home</title>
+    <link rel="stylesheet" href="/main.css">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="mheading">BOGE</a>
+
+            <ul class="mlist">
+                <li class="mi"><a href="/indexOld.html" class="ml">Home</a></li>
+                <li class="mi menu-item-divided mselected"><a href="/settings.html" class="ml">Settings</a></li>
+
+                <li class="mi">
+                    <a href="./pid.html" class="ml">PID</a>
+                </li>
+
+                <li class="mi"><a href="/manualcontrol.html" class="ml">Manual control</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="main">
+        <div class="header">
+            <h1>Settings</h1>
+            <h2 id="id_in_h2">&nbsp;</h2>
+        </div>
+
+        <div class="content">
+            <h2 class="content-subhead">Controller setup</h2>
+            <div class="form">
+                <form id="controllersetup">
+                    <label for="ip">Controller IP:</label>
+                    <input type="text" id="ip" name="controllerIP">
+                    <div id="wip" class="emsg"></div>
+                    <br>
+                    <label for="gateway">Controller Gateway:</label>
+                    <input type="text" id="gateway" name="controllerGW">
+                    <div id="wgateway" class="emsg"></div>
+                    <br>
+                    <label for="netmask">Controller Network mask:</label>
+                    <input type="text" id="netmask" name="controllerMASK" placeholder="255.255.255.0">
+                    <div id="wnetmask" class="emsg"></div>
+                    <br>
+                    <label for="idcko">Controller ID:</label>
+                    <input type="text" id="idcko" name="controllerID">
+                    <div id="wid" class="emsg"></div>
+                    <br>
+                    <input type="submit" value="Save" onClick="console.log('posielam')">
+                </form>
+            </div>
+
+            <h2 class="content-subhead">Server setup</h2>
+            <div class="form">
+                <form id="serversetup">
+                    <label for="serverip">Server IP:</label>
+                    <input type="text" id="serverip" name="serverIP">
+                    <div id="wserverip" class="emsg"></div>
+                    <br>
+                    <label for="port">Server PORT:</label>
+                    <input type="number" min="0" max="65535" id="port" name="port" placeholder="4002">
+                    <div id="wrootport" style="color: #0078e7"></div>
+                    <div id="wport" class="emsg"></div>
+                    <input type="submit" value="Save" onClick="console.log('posielam')">
+                </form>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<script src="./js/ui.js"></script>
+<script src="./js/ajax.js"></script>
+<script src="./js/form.js"></script>
+
+
+</body>
+</html>
+

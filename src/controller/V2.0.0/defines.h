@@ -10,7 +10,10 @@
 #include <IPAddress.h>
 // comment if you want to use static IP
 // uncomment if you want to get IP from DHCP
-#define _DHCP set
+//#define _DHCP set
+
+// simulation
+//#define SIMULATION
 
 // Select the IP address according to your local network, works only if _DHCP is commented
 // all info taks form memory
@@ -26,7 +29,7 @@
 //
 //********************************************************
 #define THERMOMETER_UPDATING_TIME 250 // in milliseconds // min updating time is 250ms 
-
+#define THERMOMETER_SENDING_INTERVAL 1000 // min 500ms max 5000ms
 //********************************************************
 //
 //                     PIN OUT

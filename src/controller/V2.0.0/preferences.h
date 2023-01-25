@@ -63,12 +63,15 @@ private:
               pid = 0x20};
   uint8_t flags;
   uint16_t eeprom_size;
+  
 
 public:
   Preferences();
-
+  
   bool begin(uint16_t size);
 
+  void trim(char *str);
+  
   void convertNetMask(uint8_t mm, IPAddress &addr);
 
   uint8_t convertNetMask(IPAddress mm);
@@ -80,7 +83,6 @@ public:
   bool isIDset();
 
   bool isControllerIPset();
-
 
   bool setSERVERIP(IPAddress address);
 
@@ -104,6 +106,7 @@ public:
 
   void getMASK(IPAddress &ipaddr);
   bool setMASK(IPAddress mask);
+  bool setMASKprefix(uint8_t mask);
 
   float getP();
   bool setP(float val);

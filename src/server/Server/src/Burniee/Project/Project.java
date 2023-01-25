@@ -90,13 +90,14 @@ public class Project extends Thread {
 
         logger = Executors.newScheduledThreadPool(1);
         logger.scheduleAtFixedRate(() -> {
-            String[] temps = new String[handlers.size()];
+            String[] temps = new String[handlers.size()], targetTemps = new String[handlers.size()];
             for (int i = 0; i < handlers.size(); i++) {
                 ControllerHandler ch = handlers.get(i);
                 temps[i] = String.valueOf(ch.getController().getCurrentTemperature());
+                targetTemps[i] = String.valueOf(ch.getController().getTargetTemperature());
             }
             try {
-                temperatureLogger.logTemeperature(phaseName, handlers.stream().map(ControllerHandler::getControllerID).collect(Collectors.toList()), Arrays.asList(temps));
+                temperatureLogger.logTemeperature(phaseName, handlers.stream().map(ControllerHandler::getControllerID).collect(Collectors.toList()), Arrays.asList(temps),Arrays.asList(targetTemps));
             } catch (IOException e) {
                 GeneralLogger.writeExeption(e);
                 Server.getInstance().sendExceptionToAllActiveGUIs(e);
