@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Class for handling all communication between GUI and Server
@@ -159,6 +162,17 @@ public class ClientHandler {
         }
     }
 
+    public void stopAProject(String name) throws IOException {
+        System.out.println("[ClientHandler] Stop a project with name = " + name);
+        if (!client.isConnected()) {
+            throw new ConnectException("Disconnected from server");
+        }
+        synchronized (RequestResult.getInstance()) {
+            client.writeMessage(new Message(MessageBuilder.GUI.Request.RequestStopThisProject.build()));
+            client.writeMessage(new Message(name.getBytes(StandardCharsets.US_ASCII)));
+        }
+    }
+
     /**
      * @return IP, ID, currentTemperature, targetTemperature, airFlow, time for each connected controller(Blower)
      */
@@ -220,7 +234,10 @@ public class ClientHandler {
             rr.wait();
 
             String filename = rr.getStringData();
-            File file = new File(filename);
+            try {
+                Files.createDirectory(Paths.get("temperature_logs"));
+            } catch (FileAlreadyExistsException ignored) {}
+            File file = new File("temperature_logs\\" + filename);
             file.createNewFile();
             try (FileOutputStream fos = new FileOutputStream(filename)) {
                 fos.write(rr.getByteData());

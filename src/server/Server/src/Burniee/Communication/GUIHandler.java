@@ -189,6 +189,19 @@ public class GUIHandler extends Thread {
                     }
                 } else if (MessageBuilder.GUI.Request.RequestCheckForOldLogFiles.equals(msg)) {
                     TemperatureLogger.deleteFiles();
+                } else if (MessageBuilder.GUI.Request.RequestStopThisProject.equals(msg)) {
+                    String name = socket.readStringMessage();
+                    System.out.println("[GUI] request to stop project with name = " + name);
+                    boolean gut = false;
+                    for (Project p : Server.getInstance().getActiveProjects()) {
+                        if (p.getName().equals(name)) {
+                            p.end();
+                            gut = true;
+                        }
+                    }
+                    if (!gut) {
+                        throw new ProjectException("No project with name = " + name);
+                    }
                 }
             } catch (SocketException e) {
                 stopSocket();
