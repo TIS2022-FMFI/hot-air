@@ -224,6 +224,7 @@ public class ClientHandler {
             file.createNewFile();
             try (FileOutputStream fos = new FileOutputStream(filename)) {
                 fos.write(rr.getByteData());
+                fos.flush();
             }
             res = file.getAbsolutePath();
         }
@@ -234,11 +235,7 @@ public class ClientHandler {
     private class ExitProcess extends Thread {
         @Override
         public void run() {
-            try {
-                client.stopConnection();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            client.stopConnection();
         }
     }
 }

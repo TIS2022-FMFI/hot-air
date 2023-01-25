@@ -81,7 +81,7 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Project, Hyperlink> projectName;
     @FXML TableColumn<Project,String> projectPhase;
 
-    static ObservableList<Blower> blowersList = FXCollections.observableArrayList();
+    static final ObservableList<Blower> blowersList = FXCollections.observableArrayList();
     ObservableList<Project> projectsList = FXCollections.observableArrayList();
 
     @Override
@@ -300,7 +300,7 @@ public class GUIController implements Initializable {
         try {
             RequestResult.Controller[] controllers = gui.client.getAllControllers();
             for (RequestResult.Controller c : controllers) {
-                String projectName = (c.getProjectName() == null) ? "" : c.getProjectName() ;
+                String projectName = (c.getProjectName() == null) ? "" : c.getProjectName();
                 Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), projectName);
                 blowers.add(blower);
             }
@@ -308,7 +308,7 @@ public class GUIController implements Initializable {
             System.out.println("\nblowery v ObservableList= " + blowersList.size());
             blowersList.forEach(i -> System.out.println(i.toString()));
             System.out.println("blowery zo servera= " + blowers.size());
-            blowers.forEach(a-> System.out.println(a.toString()));
+            blowers.forEach(a -> System.out.println(a.toString()));
             for (Blower blower : blowers) {
                 boolean gut = false;
                 for (Blower b : blowersList) {
@@ -326,6 +326,7 @@ public class GUIController implements Initializable {
                 }
             }
 
+            List<Blower> blowersToRemove = new ArrayList<Blower>();
             for (Blower b : blowersList) {
                 boolean gut = false;
                 for (Blower blower : blowers) {
@@ -334,10 +335,11 @@ public class GUIController implements Initializable {
                     }
                 }
                 if (!gut) {
-                    blowersList.remove(b);
+                    blowersToRemove.add(b);
                 }
             }
-            
+            blowersToRemove.forEach(blowersList::remove);
+
 //            System.out.println("blowers were updated successfully from server");
         } catch (Exception e) {
             GeneralLogger.writeExeption(e);
