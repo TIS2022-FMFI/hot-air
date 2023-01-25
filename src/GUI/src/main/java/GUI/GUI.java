@@ -71,7 +71,6 @@ public class GUI extends Application {
             System.out.println("GUI successfully started");
         } catch (Exception e) {
             GeneralLogger.writeExeption(e);
-            System.err.println(e);
             System.err.println(e.getMessage());
             e.printStackTrace();
             alert(e);
@@ -88,8 +87,6 @@ public class GUI extends Application {
     }
 
     public void alert(Exception e) {
-        GeneralLogger.writeExeption(e);
-
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setResizable(true);
         alert.setTitle("ERROR");
@@ -101,9 +98,8 @@ public class GUI extends Application {
         icon.setFitHeight(48);
         icon.setFitWidth(48);
         alert.getDialogPane().setGraphic(icon);
-//        if (e.getMessage().matches("[a-zA-Z0-9_-]*")) {
-//            alert.show();
-//        }
+
+        GeneralLogger.writeExeption(e);
         System.err.println(e.getMessage());
         e.printStackTrace();
     }
@@ -116,6 +112,7 @@ public class GUI extends Application {
             }
         } catch (IOException e) {
             System.err.println("An error occurred.");
+            System.err.println(e);
             e.printStackTrace();
             GeneralLogger.writeExeption(e);
         }
@@ -145,11 +142,13 @@ public class GUI extends Application {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
-            System.out.println("files will be deleted");
+            System.out.println("temperature log files will be deleted");
+            GeneralLogger.writeMessage("temperature log files will be deleted");
             return true;
         } else {
-            System.out.println("files will not be deleted");
+            System.out.println("temperature log files will not be deleted");
             return false;
         }
     }
+
 }
