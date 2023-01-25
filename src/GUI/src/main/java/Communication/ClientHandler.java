@@ -224,6 +224,7 @@ public class ClientHandler {
             file.createNewFile();
             try (FileOutputStream fos = new FileOutputStream(filename)) {
                 fos.write(rr.getByteData());
+                fos.flush();
             }
             res = file.getAbsolutePath();
         }

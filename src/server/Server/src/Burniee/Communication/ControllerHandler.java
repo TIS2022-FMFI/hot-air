@@ -36,13 +36,16 @@ public class ControllerHandler extends Thread {
     public Project getProject() {return project;}
     public void setProject(Project p) {project = p;}
     public boolean isActive() {
+        if (isActive && (project == null || project.isAtEnd())) {
+            isActive = false;
+        }
         return isActive;
     }
 
-    public synchronized void override(Project p) {
-        isActive = true;
-        project = p;
-    }
+//    public synchronized void override(Project p) {
+//        isActive = true;
+//        project = p;
+//    }
 
     public synchronized void startUsing(Project p) {
         if (activeStateChangeDelay) {return;}
