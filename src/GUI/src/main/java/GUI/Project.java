@@ -14,6 +14,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -32,7 +33,7 @@ public class Project {
     private String name;
     private Hyperlink graph;
     private SimpleStringProperty currentPhase;
-    private HashMap<String, List<String>> temperatures;
+    private HashMap<String, List<Pair<String, String>>> temperatures;
 
 
 
@@ -54,6 +55,7 @@ public class Project {
         this.name = name;
         this.currentPhase = new SimpleStringProperty(currentPhase);
         xAxis.setLabel("time");
+        xAxis.setAutoRanging(false);
         yAxis.setLabel("temperature");
         this.graph = new Hyperlink(this.name);
         this.graph.setOnAction(new EventHandler<ActionEvent>() {
@@ -71,13 +73,15 @@ public class Project {
                             List<String> values = Arrays.asList(line.split(","));
                             for (int i = 2; i<values.size()-1; i++) {
                                 String key = values.get(i).trim();
-                                String value = values.get(i+1).trim();
+                                String value1 = values.get(i+1).trim();
+                                String value2 = values.get(i+2).trim();
+                                Pair<String, String> pair = new Pair<>(value1, value2);
                                 if (temperatures.containsKey(key)) {
-                                    temperatures.get(key).add(value);
+                                    temperatures.get(key).add(pair);
                                 }
 
-                                temperatures.putIfAbsent(key, new ArrayList<>(Arrays.asList(value)));
-                                i++;
+                                temperatures.putIfAbsent(key, new ArrayList<>(Arrays.asList(pair)));
+                                i+=2;
                             }
                         }
                     }
@@ -92,14 +96,19 @@ public class Project {
                         System.out.println("key: " + key);
                         Blower blower = blowers.filtered(b -> b.idProperty().getValue().equals(key)).get(0);
                         System.out.println(blower);
-                        blower.getCurrentSeries().setName("Blower " + key);
-                        blower.getTargetSeries().setName("Target " + key);
+
+//                        blower.getCurrentSeries().setName("Blower " + key);
+//                        blower.getTargetSeries().setName("Target " + key);
                         lineChart.getData().add(blower.getCurrentSeries());
                         lineChart.getData().add(blower.getTargetSeries());
-                        List<String> values = temperatures.get(key);
+                        List<Pair<String, String>> values = temperatures.get(key);
                         for (int i = 0; i <values.size(); i++) {
                             try {
-                                blower.getCurrentSeries().getData().add(new XYChart.Data<>(i, Float.parseFloat(values.get(i))));
+                                blower.getCurrentSeries().getData().add(new XYChart.Data<>(i, Float.parseFloat(values.get(i).getKey())));
+                                blower.getTargetSeries().getData().add(new XYChart.Data<>(i, Float.parseFloat(values.get(i).getValue())));
+
+//                                blower.currentSeriesData.add(new XYChart.Data<>(i, Float.parseFloat(values.get(i).getKey())));
+//                                blower.targetSeriesData.add(new XYChart.Data<>(i, Float.parseFloat(values.get(i).getValue())));
                             } catch (NumberFormatException e) {
                                 GeneralLogger.writeExeption(e);
                                 System.err.println(values.get(i));
@@ -118,11 +127,11 @@ public class Project {
 
                     }
 
-                    ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-                    executor.scheduleAtFixedRate(() -> {
-                        System.out.println("UPDATE GRAFU");
-                        updateGraph();
-                    }, 0, 1, TimeUnit.SECONDS);
+//                    ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+//                    executor.scheduleAtFixedRate(() -> {
+//                        System.out.println("UPDATE GRAFU");
+//                        updateGraph();
+//                    }, 0, 1, TimeUnit.SECONDS);
 //                    if (projects.filtered(a-> a.getName().equals(name)).size() == 0) executor.shutdownNow();
 
                     ScrollPane scroll = new ScrollPane(lineChart);
@@ -168,8 +177,12 @@ public class Project {
             System.out.println(blower);
             int i = blower.getCurrentSeries().getData().size();
             try {
+
                 blower.getCurrentSeries().getData().add(new XYChart.Data<>(i+1, blower.currentTempProperty().getValue()));
                 blower.getTargetSeries().getData().add(new XYChart.Data<>(i+1, blower.targetTempProperty().getValue()));
+
+//                blower.currentSeriesData.add(new XYChart.Data<>(i+1, blower.currentTempProperty().getValue()));
+//                blower.targetSeriesData.add(new XYChart.Data<>(i+1, blower.targetTempProperty().getValue()));
             } catch (NumberFormatException e) {
                 GeneralLogger.writeExeption(e);
                 System.err.println(e.getMessage());

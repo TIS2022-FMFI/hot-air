@@ -98,6 +98,7 @@ public class GUI extends Application {
         icon.setFitHeight(48);
         icon.setFitWidth(48);
         alert.getDialogPane().setGraphic(icon);
+        alert.show();
 
         GeneralLogger.writeExeption(e);
         System.err.println(e.getMessage());

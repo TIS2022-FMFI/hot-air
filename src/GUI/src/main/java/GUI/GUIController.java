@@ -305,12 +305,11 @@ public class GUIController implements Initializable {
                 blowers.add(blower);
             }
 
-//            System.out.println("\nblowery v ObservableList= " + blowersList.size());
-//            blowersList.forEach(i -> System.out.println(i.toString()));
-//            System.out.println("blowery zo servera= " + blowers.size());
-
+            System.out.println("\nblowery v ObservableList= " + blowersList.size());
+            blowersList.forEach(i -> System.out.println(i.toString()));
+            System.out.println("blowery zo servera= " + blowers.size());
+            blowers.forEach(a-> System.out.println(a.toString()));
             for (Blower blower : blowers) {
-//                System.out.println(blower.toString());
                 boolean gut = false;
                 for (Blower b : blowersList) {
                     if (b.equals(blower)) {
@@ -319,7 +318,6 @@ public class GUIController implements Initializable {
                         b.setCurrentTempProperty(blower.currentTempProperty());
                         b.setTargetTempProperty(blower.targetTempProperty());
                         b.setProjectNameProperty(blower.projectNameProperty());
-                        b.setGraph(blower.getGraph());
                         gut = true;
                     }
                 }
@@ -331,7 +329,7 @@ public class GUIController implements Initializable {
             for (Blower b : blowersList) {
                 boolean gut = false;
                 for (Blower blower : blowers) {
-                    if (b.equals(blower) && b.equalsEverything(blower)) {
+                    if (b.equals(blower)) {
                         gut = true;
                     }
                 }
@@ -343,7 +341,8 @@ public class GUIController implements Initializable {
 //            System.out.println("blowers were updated successfully from server");
         } catch (Exception e) {
             GeneralLogger.writeExeption(e);
-//            System.err.println("blowers were not updated from server");
+            System.err.println(e);
+            e.printStackTrace();
         }
     }
 

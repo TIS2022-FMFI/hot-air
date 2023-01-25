@@ -3,6 +3,8 @@ package GUI;
 import Logs.GeneralLogger;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
@@ -39,11 +41,19 @@ public class Blower {
     private final Button stopButton;
     private final Button hiddenButton;
 
+    final NumberAxis xAxis = new NumberAxis();
+    final NumberAxis yAxis = new NumberAxis();
+
     private XYChart.Series<Number, Number> currentSeries = new XYChart.Series<>();
     private XYChart.Series<Number, Number> targetSeries = new XYChart.Series<>();
 
-    final NumberAxis xAxis = new NumberAxis();
-    final NumberAxis yAxis = new NumberAxis();
+
+//    final ObservableList<XYChart.Data> currentSeriesData = FXCollections.observableArrayList();
+//    XYChart.Series currentSeries = new XYChart.Series("Blower" + idProperty().getValue(), currentSeriesData);
+//
+//    final ObservableList<XYChart.Data> targetSeriesData = FXCollections.observableArrayList();
+//    XYChart.Series targetSeries = new XYChart.Series("Target" + idProperty().getValue(), targetSeriesData);
+
 
     /**
      * Instantiates a new Blower.
@@ -190,23 +200,23 @@ public class Blower {
         this.currentTemp = currentTemp;
     }
 
-    /**
-     * Gets current link to graph.
-     *
-     * @return the link to graph
-     */
-    public Hyperlink getGraph() {
-        return graph;
-    }
-
-    /**
-     * Sets link to open the graph.
-     *
-     * @param graph the graph
-     */
-    public void setGraph(Hyperlink graph) {
-        this.graph.setText(graph.getText());
-    }
+//    /**
+//     * Gets current link to graph.
+//     *
+//     * @return the link to graph
+//     */
+//    public Hyperlink getGraph() {
+//        return graph;
+//    }
+//
+//    /**
+//     * Sets link to open the graph.
+//     *
+//     * @param graph the graph
+//     */
+//    public void setGraph(Hyperlink graph) {
+//        this.graph.setText(graph.getText());
+//    }
 
     /**
      * Gets target temperature of blower.

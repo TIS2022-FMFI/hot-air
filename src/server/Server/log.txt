@@ -94,3 +94,138 @@ java.net.BindException: Address already in use: Cannot bind
 2023-01-25 15:11:37.786
 Burniee.Controller.ControllerException: Controller with ID = id           E is currently being used by another project
 [Burniee.Project.Project.<init>(Project.java:55), Burniee.Communication.EXEHandler.run(EXEHandler.java:28)]
+
+2023-01-25 15:54:38.932
+Burniee.Controller.ControllerException: DAC not found
+[Burniee.Communication.ControllerHandler.run(ControllerHandler.java:183)]
+
+2023-01-25 15:56:35.845
+java.net.BindException: Address already in use: JVM_Bind
+[java.net.DualStackPlainSocketImpl.bind0(Native Method), java.net.DualStackPlainSocketImpl.socketBind(DualStackPlainSocketImpl.java:106), java.net.AbstractPlainSocketImpl.bind(AbstractPlainSocketImpl.java:387), java.net.PlainSocketImpl.bind(PlainSocketImpl.java:190), java.net.ServerSocket.bind(ServerSocket.java:375), java.net.ServerSocket.<init>(ServerSocket.java:237), java.net.ServerSocket.<init>(ServerSocket.java:128), Burniee.Server.<init>(Server.java:58), Burniee.Server.<clinit>(Server.java:24), Main.main(Main.java:5)]
+
+2023-01-25 15:56:41.96
+java.net.BindException: Address already in use: Cannot bind
+[java.net.DualStackPlainDatagramSocketImpl.socketBind(Native Method), java.net.DualStackPlainDatagramSocketImpl.bind0(DualStackPlainDatagramSocketImpl.java:84), java.net.AbstractPlainDatagramSocketImpl.bind(AbstractPlainDatagramSocketImpl.java:93), java.net.DatagramSocket.bind(DatagramSocket.java:392), java.net.DatagramSocket.<init>(DatagramSocket.java:242), java.net.DatagramSocket.<init>(DatagramSocket.java:299), java.net.DatagramSocket.<init>(DatagramSocket.java:271), Burniee.Communication.UDPCommunicationHandler.<init>(UDPCommunicationHandler.java:27), Burniee.Communication.UDPCommunicationHandler.<clinit>(UDPCommunicationHandler.java:21), Burniee.Server.lambda$begin$0(Server.java:78), java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511), java.util.concurrent.FutureTask.runAndReset(FutureTask.java:308), java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:180), java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:294), java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149), java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624), java.lang.Thread.run(Thread.java:748)]
+
+2023-01-25 16:12:17.108
+Server started!
+
+2023-01-25 16:12:18.078
+Burniee.Controller.ControllerException: DAC not found
+[Burniee.Communication.ControllerHandler.run(ControllerHandler.java:183)]
+
+2023-01-25 16:13:41.052
+java.net.SocketTimeoutException: Read timed out
+[java.net.SocketInputStream.socketRead0(Native Method), java.net.SocketInputStream.socketRead(SocketInputStream.java:116), java.net.SocketInputStream.read(SocketInputStream.java:171), java.net.SocketInputStream.read(SocketInputStream.java:141), java.io.BufferedInputStream.fill(BufferedInputStream.java:246), java.io.BufferedInputStream.read(BufferedInputStream.java:265), Burniee.Communication.SocketHandler.readMessage(SocketHandler.java:101), Burniee.Communication.ControllerHandler.run(ControllerHandler.java:158)]
+
+2023-01-25 16:13:43.365
+Burniee.Controller.ControllerException: DAC not found
+[Burniee.Communication.ControllerHandler.run(ControllerHandler.java:183)]
+
+2023-01-25 16:18:09.842
+java.net.SocketTimeoutException: Read timed out
+[java.net.SocketInputStream.socketRead0(Native Method), java.net.SocketInputStream.socketRead(SocketInputStream.java:116), java.net.SocketInputStream.read(SocketInputStream.java:171), java.net.SocketInputStream.read(SocketInputStream.java:141), java.io.BufferedInputStream.fill(BufferedInputStream.java:246), java.io.BufferedInputStream.read(BufferedInputStream.java:265), Burniee.Communication.SocketHandler.readMessage(SocketHandler.java:101), Burniee.Communication.ControllerHandler.run(ControllerHandler.java:158)]
+
+2023-01-25 16:29:50.503
+Burniee.Controller.ControllerException: DAC not found
+[Burniee.Communication.ControllerHandler.run(ControllerHandler.java:183)]
+
+2023-01-25 16:30:13.729
+java.net.SocketTimeoutException: Read timed out
+[java.net.SocketInputStream.socketRead0(Native Method), java.net.SocketInputStream.socketRead(SocketInputStream.java:116), java.net.SocketInputStream.read(SocketInputStream.java:171), java.net.SocketInputStream.read(SocketInputStream.java:141), java.io.BufferedInputStream.fill(BufferedInputStream.java:246), java.io.BufferedInputStream.read(BufferedInputStream.java:265), Burniee.Communication.SocketHandler.readMessage(SocketHandler.java:101), Burniee.Communication.ControllerHandler.run(ControllerHandler.java:158)]
+
+2023-01-25 16:30:15.981
+Burniee.Controller.ControllerException: DAC not found
+[Burniee.Communication.ControllerHandler.run(ControllerHandler.java:183)]
+
+2023-01-25 16:33:03.362
+java.net.SocketTimeoutException: Read timed out
+[java.net.SocketInputStream.socketRead0(Native Method), java.net.SocketInputStream.socketRead(SocketInputStream.java:116), java.net.SocketInputStream.read(SocketInputStream.java:171), java.net.SocketInputStream.read(SocketInputStream.java:141), java.io.BufferedInputStream.fill(BufferedInputStream.java:246), java.io.BufferedInputStream.read(BufferedInputStream.java:265), Burniee.Communication.SocketHandler.readMessage(SocketHandler.java:101), Burniee.Communication.ControllerHandler.run(ControllerHandler.java:158)]
+
+2023-01-25 16:53:47.636
+Burniee.Controller.ControllerException: DAC not found
+[Burniee.Communication.ControllerHandler.run(ControllerHandler.java:183)]
+
+2023-01-25 16:56:46.874
+java.net.SocketTimeoutException: Read timed out
+[java.net.SocketInputStream.socketRead0(Native Method), java.net.SocketInputStream.socketRead(SocketInputStream.java:116), java.net.SocketInputStream.read(SocketInputStream.java:171), java.net.SocketInputStream.read(SocketInputStream.java:141), java.io.BufferedInputStream.fill(BufferedInputStream.java:246), java.io.BufferedInputStream.read(BufferedInputStream.java:265), Burniee.Communication.SocketHandler.readMessage(SocketHandler.java:101), Burniee.Communication.ControllerHandler.run(ControllerHandler.java:158)]
+
+2023-01-25 17:00:14.765
+Burniee.Controller.ControllerException: DAC not found
+[Burniee.Communication.ControllerHandler.run(ControllerHandler.java:183)]
+
+2023-01-25 17:02:30.529
+java.net.SocketTimeoutException: Read timed out
+[java.net.SocketInputStream.socketRead0(Native Method), java.net.SocketInputStream.socketRead(SocketInputStream.java:116), java.net.SocketInputStream.read(SocketInputStream.java:171), java.net.SocketInputStream.read(SocketInputStream.java:141), java.io.BufferedInputStream.fill(BufferedInputStream.java:246), java.io.BufferedInputStream.read(BufferedInputStream.java:265), Burniee.Communication.SocketHandler.readMessage(SocketHandler.java:101), Burniee.Communication.ControllerHandler.run(ControllerHandler.java:158)]
+
+2023-01-25 17:03:39.756
+Burniee.Controller.ControllerException: DAC not found
+[Burniee.Communication.ControllerHandler.run(ControllerHandler.java:183)]
+
+2023-01-25 17:04:01.362
+java.net.SocketTimeoutException: Read timed out
+[java.net.SocketInputStream.socketRead0(Native Method), java.net.SocketInputStream.socketRead(SocketInputStream.java:116), java.net.SocketInputStream.read(SocketInputStream.java:171), java.net.SocketInputStream.read(SocketInputStream.java:141), java.io.BufferedInputStream.fill(BufferedInputStream.java:246), java.io.BufferedInputStream.read(BufferedInputStream.java:265), Burniee.Communication.SocketHandler.readMessage(SocketHandler.java:101), Burniee.Communication.ControllerHandler.run(ControllerHandler.java:158)]
+
+2023-01-25 17:04:08.761
+Burniee.Controller.ControllerException: DAC not found
+[Burniee.Communication.ControllerHandler.run(ControllerHandler.java:183)]
+
+2023-01-25 17:05:38.123
+java.net.SocketTimeoutException: Read timed out
+[java.net.SocketInputStream.socketRead0(Native Method), java.net.SocketInputStream.socketRead(SocketInputStream.java:116), java.net.SocketInputStream.read(SocketInputStream.java:171), java.net.SocketInputStream.read(SocketInputStream.java:141), java.io.BufferedInputStream.fill(BufferedInputStream.java:246), java.io.BufferedInputStream.read(BufferedInputStream.java:265), Burniee.Communication.SocketHandler.readMessage(SocketHandler.java:101), Burniee.Communication.ControllerHandler.run(ControllerHandler.java:158)]
+
+2023-01-25 17:06:50.756
+Burniee.Controller.ControllerException: DAC not found
+[Burniee.Communication.ControllerHandler.run(ControllerHandler.java:183)]
+
+2023-01-25 17:08:11.395
+java.net.SocketTimeoutException: Read timed out
+[java.net.SocketInputStream.socketRead0(Native Method), java.net.SocketInputStream.socketRead(SocketInputStream.java:116), java.net.SocketInputStream.read(SocketInputStream.java:171), java.net.SocketInputStream.read(SocketInputStream.java:141), java.io.BufferedInputStream.fill(BufferedInputStream.java:246), java.io.BufferedInputStream.read(BufferedInputStream.java:265), Burniee.Communication.SocketHandler.readMessage(SocketHandler.java:101), Burniee.Communication.ControllerHandler.run(ControllerHandler.java:158)]
+
+2023-01-25 17:08:31.312
+Burniee.Controller.ControllerException: DAC not found
+[Burniee.Communication.ControllerHandler.run(ControllerHandler.java:183)]
+
+2023-01-25 17:09:23.844
+java.net.SocketException: Socket Closed
+[java.net.SocketInputStream.socketRead0(Native Method), java.net.SocketInputStream.socketRead(SocketInputStream.java:116), java.net.SocketInputStream.read(SocketInputStream.java:171), java.net.SocketInputStream.read(SocketInputStream.java:141), java.io.BufferedInputStream.fill(BufferedInputStream.java:246), java.io.BufferedInputStream.read(BufferedInputStream.java:265), Burniee.Communication.SocketHandler.readMessage(SocketHandler.java:101), Burniee.Communication.ControllerHandler.run(ControllerHandler.java:158)]
+
+2023-01-25 17:09:24.752
+Burniee.Controller.ControllerException: DAC not found
+[Burniee.Communication.ControllerHandler.run(ControllerHandler.java:183)]
+
+2023-01-25 17:11:52.917
+java.net.SocketTimeoutException: Read timed out
+[java.net.SocketInputStream.socketRead0(Native Method), java.net.SocketInputStream.socketRead(SocketInputStream.java:116), java.net.SocketInputStream.read(SocketInputStream.java:171), java.net.SocketInputStream.read(SocketInputStream.java:141), java.io.BufferedInputStream.fill(BufferedInputStream.java:246), java.io.BufferedInputStream.read(BufferedInputStream.java:265), Burniee.Communication.SocketHandler.readMessage(SocketHandler.java:101), Burniee.Communication.ControllerHandler.run(ControllerHandler.java:158)]
+
+2023-01-25 17:12:49.695
+Burniee.Controller.ControllerException: DAC not found
+[Burniee.Communication.ControllerHandler.run(ControllerHandler.java:183)]
+
+2023-01-25 17:15:14.534
+java.net.SocketTimeoutException: Read timed out
+[java.net.SocketInputStream.socketRead0(Native Method), java.net.SocketInputStream.socketRead(SocketInputStream.java:116), java.net.SocketInputStream.read(SocketInputStream.java:171), java.net.SocketInputStream.read(SocketInputStream.java:141), java.io.BufferedInputStream.fill(BufferedInputStream.java:246), java.io.BufferedInputStream.read(BufferedInputStream.java:265), Burniee.Communication.SocketHandler.readMessage(SocketHandler.java:101), Burniee.Communication.ControllerHandler.run(ControllerHandler.java:158)]
+
+2023-01-25 17:15:52.527
+java.net.SocketTimeoutException: Read timed out
+[java.net.SocketInputStream.socketRead0(Native Method), java.net.SocketInputStream.socketRead(SocketInputStream.java:116), java.net.SocketInputStream.read(SocketInputStream.java:171), java.net.SocketInputStream.read(SocketInputStream.java:141), java.io.BufferedInputStream.fill(BufferedInputStream.java:246), java.io.BufferedInputStream.read(BufferedInputStream.java:265), Burniee.Communication.SocketHandler.readMessage(SocketHandler.java:101), Burniee.Communication.ControllerHandler.run(ControllerHandler.java:158)]
+
+2023-01-25 17:21:43.846
+java.net.SocketTimeoutException: Read timed out
+[java.net.SocketInputStream.socketRead0(Native Method), java.net.SocketInputStream.socketRead(SocketInputStream.java:116), java.net.SocketInputStream.read(SocketInputStream.java:171), java.net.SocketInputStream.read(SocketInputStream.java:141), java.io.BufferedInputStream.fill(BufferedInputStream.java:246), java.io.BufferedInputStream.read(BufferedInputStream.java:265), Burniee.Communication.SocketHandler.readMessage(SocketHandler.java:101), Burniee.Communication.ControllerHandler.run(ControllerHandler.java:158)]
+
+2023-01-25 17:22:24.312
+Burniee.Controller.ControllerException: DAC not found
+[Burniee.Communication.ControllerHandler.run(ControllerHandler.java:183)]
+
+2023-01-25 17:22:49.445
+java.net.SocketTimeoutException: Read timed out
+[java.net.SocketInputStream.socketRead0(Native Method), java.net.SocketInputStream.socketRead(SocketInputStream.java:116), java.net.SocketInputStream.read(SocketInputStream.java:171), java.net.SocketInputStream.read(SocketInputStream.java:141), java.io.BufferedInputStream.fill(BufferedInputStream.java:246), java.io.BufferedInputStream.read(BufferedInputStream.java:265), Burniee.Communication.SocketHandler.readMessage(SocketHandler.java:101), Burniee.Communication.ControllerHandler.run(ControllerHandler.java:158)]
+
+2023-01-25 17:23:10.458
+java.net.SocketTimeoutException: Read timed out
+[java.net.SocketInputStream.socketRead0(Native Method), java.net.SocketInputStream.socketRead(SocketInputStream.java:116), java.net.SocketInputStream.read(SocketInputStream.java:171), java.net.SocketInputStream.read(SocketInputStream.java:141), java.io.BufferedInputStream.fill(BufferedInputStream.java:246), java.io.BufferedInputStream.read(BufferedInputStream.java:265), Burniee.Communication.SocketHandler.readMessage(SocketHandler.java:101), Burniee.Communication.ControllerHandler.run(ControllerHandler.java:158)]
+
+2023-01-25 17:23:18.3
+Burniee.Controller.ControllerException: DAC not found
+[Burniee.Communication.ControllerHandler.run(ControllerHandler.java:183)]
