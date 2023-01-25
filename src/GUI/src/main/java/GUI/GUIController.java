@@ -81,7 +81,7 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Project, Hyperlink> projectName;
     @FXML TableColumn<Project,String> projectPhase;
 
-    static ObservableList<Blower> blowersList = FXCollections.observableArrayList();
+    static final ObservableList<Blower> blowersList = FXCollections.observableArrayList();
     ObservableList<Project> projectsList = FXCollections.observableArrayList();
 
     @Override
@@ -326,18 +326,19 @@ public class GUIController implements Initializable {
                 }
             }
 
-            for (Blower b : blowersList) {
-                boolean gut = false;
-                for (Blower blower : blowers) {
-                    if (b.equals(blower)) {
-                        gut = true;
+            synchronized (blowersList) {
+                for (Blower b : blowersList) {
+                    boolean gut = false;
+                    for (Blower blower : blowers) {
+                        if (b.equals(blower)) {
+                            gut = true;
+                        }
+                    }
+                    if (!gut) {
+                        blowersList.remove(b);
                     }
                 }
-                if (!gut) {
-                    blowersList.remove(b);
-                }
             }
-            
 //            System.out.println("blowers were updated successfully from server");
         } catch (Exception e) {
             GeneralLogger.writeExeption(e);
