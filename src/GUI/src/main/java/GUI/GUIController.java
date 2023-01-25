@@ -46,8 +46,6 @@ public class GUIController implements Initializable {
     final FileChooser fileChooser = new FileChooser();
     private GUI gui = GUI.gui;
     public static GUIController guiController;
-//    private int numberOfBlowers = 4;
-//    private int numberOfProjects = 2;
 
     @FXML TextField filePath;
     @FXML TextField filePath2;
@@ -80,7 +78,6 @@ public class GUIController implements Initializable {
     @FXML TableColumn<Blower, Button> blowerCaution;
 
     @FXML TableView<Project> projectsView;
-//    @FXML TableColumn<Project,String> projectName;
     @FXML TableColumn<Project, Hyperlink> projectName;
     @FXML TableColumn<Project,String> projectPhase;
 
@@ -193,7 +190,6 @@ public class GUIController implements Initializable {
     }
 
     private void setProjectsTable() {
-//        projectName.setCellValueFactory(new PropertyValueFactory<>("name"));
         projectName.setCellValueFactory(new PropertyValueFactory<>("graph"));
         projectName.setCellFactory(new Callback<TableColumn<Project, Hyperlink>, TableCell<Project, Hyperlink>>() {
             @Override
@@ -249,7 +245,6 @@ public class GUIController implements Initializable {
 //            blowers.add(blower);
 //        }
 
-//        todo debug
         try {
             RequestResult.Controller[] controllers = gui.client.getAllControllers();
             for (RequestResult.Controller c : controllers) {
@@ -260,9 +255,10 @@ public class GUIController implements Initializable {
                 Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), projectName);
                 blowers.add(blower);
             }
-//            System.out.println("blowers were loaded successfully from server");
         } catch (Exception e) {
             GeneralLogger.writeExeption(e);
+            System.err.println(e);
+            e.printStackTrace();
 //            System.err.println("blowers were not loaded from server");
         }
 
@@ -287,35 +283,33 @@ public class GUIController implements Initializable {
     private Project[] addProjects() {
         try {
             Project[] projects = gui.client.getAllProjects();
-//            System.out.println("projects were loaded successfully from server");
             return projects;
-        }
-        catch (Exception e) {
-            GeneralLogger.writeExeption(e);
+        } catch (Exception e) {
 //            System.err.println("projects were not loaded from server");
+            GeneralLogger.writeExeption(e);
+            System.err.println(e);
+            e.printStackTrace();
             Project[] projects = {};
             return projects;
         }
     }
 
-    private List<Blower> updateBlowers() {
+    private void updateBlowers() {
         List<Blower> blowers = new ArrayList<Blower>();
 
         try {
             RequestResult.Controller[] controllers = gui.client.getAllControllers();
             for (RequestResult.Controller c : controllers) {
                 String projectName = (c.getProjectName() == null) ? "" : c.getProjectName() ;
-                if (projectName.contains("\\")) {
-                    projectName = projectName.substring(projectName.lastIndexOf("\\")+1);
-                }
                 Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), projectName);
                 blowers.add(blower);
             }
-            System.out.println("blowery v ObservableList= " + blowersList.size());
+
+            System.out.println("\nblowery v ObservableList= " + blowersList.size());
             blowersList.forEach(i -> System.out.println(i.toString()));
             System.out.println("blowery zo servera= " + blowers.size());
+            blowers.forEach(a-> System.out.println(a.toString()));
             for (Blower blower : blowers) {
-                System.out.println(blower.toString());
                 boolean gut = false;
                 for (Blower b : blowersList) {
                     if (b.equals(blower)) {
@@ -324,7 +318,6 @@ public class GUIController implements Initializable {
                         b.setCurrentTempProperty(blower.currentTempProperty());
                         b.setTargetTempProperty(blower.targetTempProperty());
                         b.setProjectNameProperty(blower.projectNameProperty());
-                        b.setGraph(blower.getGraph());
                         gut = true;
                     }
                 }
@@ -336,7 +329,7 @@ public class GUIController implements Initializable {
             for (Blower b : blowersList) {
                 boolean gut = false;
                 for (Blower blower : blowers) {
-                    if (b.equals(blower) && b.equalsEverything(blower)) {
+                    if (b.equals(blower)) {
                         gut = true;
                     }
                 }
@@ -348,19 +341,24 @@ public class GUIController implements Initializable {
 //            System.out.println("blowers were updated successfully from server");
         } catch (Exception e) {
             GeneralLogger.writeExeption(e);
-//            System.err.println("blowers were not updated from server");
+            System.err.println(e);
+            e.printStackTrace();
         }
-        return blowers ;
     }
 
-    private Project[] updateProjects() {
+    private void updateProjects() {
         try {
-            System.out.println("projects v ObservableList= " + projectsList.size());
-            Arrays.asList(projectsList).forEach(i -> System.out.println(i.toString()));
+//            System.out.println("\nprojects v ObservableList= " + projectsList.size());
+//            Arrays.asList(projectsList).forEach(i -> System.out.println(i.toString()));
             Project[] projects = gui.client.getAllProjects();
-            System.out.println("projecty zo servera= " + projects.length);
+//            System.out.println("projecty zo servera= " + projects.length);
+            if (projects.length == 0) {
+                projectsList.clear();
+                return;
+            }
+
             for (Project project : projects) {
-                System.out.println(project.toString());
+//                System.out.println(project.toString());
                 boolean gut = false;
                 for (Project p : projectsList) {
                     if (p.equals(project)) {
@@ -384,14 +382,12 @@ public class GUIController implements Initializable {
                     projectsList.remove(p);
                 }
             }
-//            System.out.println("projects were updated successfully from server");
-            return projects;
         }
         catch (Exception e) {
             GeneralLogger.writeExeption(e);
+            System.err.println(e);
+            e.printStackTrace();
 //            System.err.println("projects were not updated from server");
-            Project[] projects = {};
-            return projects;
         }
     }
 
@@ -404,7 +400,6 @@ public class GUIController implements Initializable {
         blowersInfo.setText("");
         projectsInfo.setText("");
 
-        System.out.println("Search XML file button clicked");
         File file = fileChooser.showOpenDialog(gui.getStage());
         if (file != null) {
             String path = file.getPath();
@@ -434,7 +429,6 @@ public class GUIController implements Initializable {
      * @param actionEvent the action event
      */
     public void searchEXE(ActionEvent actionEvent) {
-        System.out.println("Search EXE path button clicked");
         File file = fileChooser.showOpenDialog(gui.getStage());
         if (file != null) {
             pathToExe.setText(file.getPath());
@@ -448,11 +442,8 @@ public class GUIController implements Initializable {
      */
     public void submitFile(ActionEvent actionEvent) {
         try {
-            System.out.println("Submit button clicked");
-
             if (pathToExe.getText().isEmpty()) {
-                XMLLoadException exception = new XMLLoadException("File can't be loaded. Set path to EXE in settings first!");
-                throw exception;
+                throw new XMLLoadException("File can't be loaded. Set path to EXE in settings first!");
             }
 
             String originalPath = filePath.getText();
@@ -462,7 +453,7 @@ public class GUIController implements Initializable {
             makeCopyOfXML(originalFile, copiedFile);
 
             XMLEditor.addPath(copiedPath, pathToExe.getText());
-            System.out.println("File successfully loaded");
+            GeneralLogger.writeMessage("XML file successfully loaded");
 
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("SUCCESSFUL LOADING");
@@ -481,10 +472,12 @@ public class GUIController implements Initializable {
             filePath.setText("");
             filePath2.setText("");
 
-            GeneralLogger.writeMessage("XML file was successfully loaded.");
         } catch (IllegalArgumentException | ParserConfigurationException | IOException | SAXException | TransformerException | XMLLoadException e) {
             GeneralLogger.writeExeption(e);
             System.err.println("Error loading file");
+            System.err.println(e);
+            e.printStackTrace();
+
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setResizable(true);
             alert.setTitle("ERROR LOADING");
@@ -514,10 +507,10 @@ public class GUIController implements Initializable {
         try {
             gui.client.searchForNewControllers();  // todo debug
             updateTable();
-            System.out.println("Search for new blowers was successful");
             GeneralLogger.writeMessage("Search for new blowers was successful");
         } catch (Exception e) {
-            System.err.println("Search for new blowers was not successful");
+            System.err.println(e);
+            e.printStackTrace();
             gui.alert(e);
         }
     }
@@ -528,10 +521,10 @@ public class GUIController implements Initializable {
             for (Blower b: blowersList) {
                 b.getHiddenButton().setVisible(true);
             }
-            System.out.println("all blowers were stopped successfully");
-            GeneralLogger.writeMessage("all blowers were stopped successfully");
+            GeneralLogger.writeMessage("all blowers were stopped successfully (by GUI)");
         } catch (Exception e) {
-            System.err.println("all blowers could not be stopped");
+            System.err.println(e);
+            e.printStackTrace();
             gui.alert(e);
         }
     }

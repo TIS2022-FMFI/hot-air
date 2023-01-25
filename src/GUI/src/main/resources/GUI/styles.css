@@ -50,6 +50,15 @@
     -fx-border-color: #000000;
 }
 
+.onHover{
+    -fx-background-color: ORANGE;
+}
+
+.my-node {
+    -fx-opacity: 0.5;
+    -fx-stroke-width: 10px;
+}
+
 /* na transpaerntne buttony */
 /*#submitBtn, #submitBtn2 {*/
 /*    -fx-background-color: transparent;*/
