@@ -143,6 +143,7 @@ public class Project extends Thread {
     public synchronized String getPhaseName() {return phaseName;}
     private synchronized void setPhaseName(String name) {phaseName = name;}
     public String getProjectName() {return name;}
+    public boolean isAtEnd() {return projectAtEnd;}
 
     public synchronized void confirmEndOfPhase() {
         phaseEnded = true;
