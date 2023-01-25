@@ -135,10 +135,12 @@ public class Client extends Thread {
         out.flush();
     }
 
-    public void stopConnection() throws IOException {
-        in.close();
-        out.close();
-        clientSocket.close();
+    public void stopConnection() {
+        try {
+            in.close();
+            out.close();
+            clientSocket.close();
+        } catch (IOException ignored) {}
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.schedule(() -> {
             try {
@@ -262,13 +264,9 @@ public class Client extends Thread {
                     }
                 }
             } catch (SocketException e) {
-                try {
-                    System.err.println("Disconnected, stopping connection");
-                    stopConnection();
-                    Platform.runLater(() -> {GUI.gui.alert(new ConnectException("Disconnected from server!"));});
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                System.err.println("Disconnected, stopping connection");
+                stopConnection();
+                Platform.runLater(() -> {GUI.gui.alert(new ConnectException("Disconnected from server!"));});
             } catch (Exception e) {
                 e.printStackTrace();
             }

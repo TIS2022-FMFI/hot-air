@@ -234,11 +234,7 @@ public class ClientHandler {
     private class ExitProcess extends Thread {
         @Override
         public void run() {
-            try {
-                client.stopConnection();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            client.stopConnection();
         }
     }
 }
