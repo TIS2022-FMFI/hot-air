@@ -45,6 +45,7 @@ public class Project extends Thread {
             Server.getInstance().sendRequestForDeletingOldLogFiles();
         }
         System.out.println("[Project] starting project " + name);
+        GeneralLogger.writeMessage("[Project] starting project " + name);
         handlers = new ArrayList<>();
         for (String i : XMLAnalyzer.getAllBlowers(pathToXML)) {
             ControllerHandler ch = findControllerByID(i);
@@ -56,6 +57,7 @@ public class Project extends Thread {
             }
             ch.startUsing(this);
             System.out.println("[Project] controller with id = " + ch.getControllerID() + " found");
+            GeneralLogger.writeMessage("[Project] controller with id = " + ch.getControllerID() + " found");
             handlers.add(ch);
         }
 //        handlerIDs = new ArrayList<>(XMLAnalyzer.getAllBlowers(pathToXML));
@@ -87,6 +89,7 @@ public class Project extends Thread {
             jobs.add(new AbstractMap.SimpleEntry<>(phase.getKey(), phaseJobs));
         }
         System.out.println("[Project] job queue prepared");
+        GeneralLogger.writeMessage("[Project] job queue prepared");
 
         logger = Executors.newScheduledThreadPool(1);
         logger.scheduleAtFixedRate(() -> {
@@ -126,6 +129,7 @@ public class Project extends Thread {
     public synchronized void end() {
         projectAtEnd = true;
         System.out.println("[Project] Project with ID = " + ID + ", name = " + name + " ended");
+        GeneralLogger.writeMessage("[Project] Project with ID = " + ID + ", name = " + name + " ended");
         Server.getInstance().removeProject(this);
         for (ControllerHandler ch : handlers) {
             if (ch != null) {
@@ -219,12 +223,14 @@ public class Project extends Thread {
             int temperature;
             long time = 0;
             System.out.println("[Project] Starting first job");
+            GeneralLogger.writeMessage("[Project] Starting first job");
             AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>> job;
             for (int i = 0; i < jobs.size(); i++) {
                 job = jobs.get(i);
 //            for (AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>> job : jobs) {
                 setPhaseName(job.getKey());
                 System.out.println("[Project] Phase " + job.getKey() + " started");
+                GeneralLogger.writeMessage("[Project] Phase " + job.getKey() + " started");
                 for (AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>> controllerJob : job.getValue()) {
                     time = controllerJob.getValue().getValue();
                     temperature = controllerJob.getValue().getKey();
@@ -234,9 +240,11 @@ public class Project extends Thread {
                     }
                 }
                 System.out.println("[Project] Instructions sent to controller(s), awaiting end of phase confirmation");
+                GeneralLogger.writeMessage("[Project] Instructions sent to controller(s), awaiting end of phase confirmation");
                 phaseEnded = false;
                 if (i == jobs.size()-1) {
                     System.out.println("[Project] Last phase reached");
+                    GeneralLogger.writeMessage("[Project] Last phase reached");
                     sleep(time*1000);
                     coolAllControllers();
                     return;
@@ -247,11 +255,12 @@ public class Project extends Thread {
                     return;
                 }
                 System.out.println("[Project] End of phase received, continuing to another phase");
+                GeneralLogger.writeMessage("[Project] End of phase received, continuing to another phase");
             }
         } catch (Exception e) {
             e.printStackTrace();
             GeneralLogger.writeExeption(e);
-            Server.getInstance().sendExceptionToAllActiveGUIs(e);
+//            Server.getInstance().sendExceptionToAllActiveGUIs(e);
         } finally {
             end();
         }

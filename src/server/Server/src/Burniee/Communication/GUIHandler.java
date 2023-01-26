@@ -112,6 +112,7 @@ public class GUIHandler extends Thread {
                         newID = socket.readStringMessage();
                     }
                     System.out.println("[GUI] request for new id = " + newID + " for controller with id = " + oldID);
+                    GeneralLogger.writeMessage("[GUI] request for new id = " + newID + " for controller with id = " + oldID);
                     boolean gut = false;
                     for (ControllerHandler i : Server.getInstance().getControllers()) {
                         if (i.getControllerID().equals(oldID)) {
@@ -127,6 +128,7 @@ public class GUIHandler extends Thread {
                     UDPCommunicationHandler.sendUDPPacket(UDPCommunicationHandler.LOOKING_FOR_CONTROLLERS_MESSAGE, UDPCommunicationHandler.getBroadcastAddresses());
                 } else if (MessageBuilder.GUI.Request.BigRedButton.equals(msg)) {
                     System.out.println("[GUI] request to stop all controllers, and end all projects");
+                    GeneralLogger.writeMessage("[GUI] request to stop all controllers, and end all projects");
                     for (ControllerHandler ch : Server.getInstance().getControllers()) {
                         ch.bigRedButton();
                     }
@@ -136,6 +138,7 @@ public class GUIHandler extends Thread {
                 } else if (MessageBuilder.GUI.Request.StopThisController.equals(msg)) {
                     String ID = socket.readStringMessage();
                     System.out.println("[GUI] request to stop controller with id = " + ID);
+                    GeneralLogger.writeMessage("[GUI] request to stop controller with id = " + ID);
                     boolean gut = false;
                     for (ControllerHandler ch : Server.getInstance().getControllers()) {
                         if (ch.getControllerID().equals(ID)) {
@@ -171,6 +174,7 @@ public class GUIHandler extends Thread {
                 } else if (MessageBuilder.GUI.Request.UnlockThisController.equals(msg)) {
                     String ID = socket.readStringMessage();
                     System.out.println("[GUI] request to unlock controller with id = " + ID);
+                    GeneralLogger.writeMessage("[GUI] request to unlock controller with id = " + ID);
                     boolean gut = false;
                     for (ControllerHandler ch : Server.getInstance().getControllers()) {
                         if (ch.getControllerID().equals(ID)) {
@@ -185,6 +189,7 @@ public class GUIHandler extends Thread {
                     synchronized (socket) {
                         String projectName = socket.readStringMessage();
                         System.out.println("[GUI] request to get temperature log file for project with name = " + projectName);
+                        GeneralLogger.writeMessage("[GUI] request to get temperature log file for project with name = " + projectName);
                         Project p = Server.getInstance().findProjectByName(projectName);
                         sendFile(p.getLogger().getFileName());
                     }
@@ -193,6 +198,7 @@ public class GUIHandler extends Thread {
                 } else if (MessageBuilder.GUI.Request.RequestStopThisProject.equals(msg)) {
                     String name = socket.readStringMessage();
                     System.out.println("[GUI] request to stop project with name = " + name);
+                    GeneralLogger.writeMessage("[GUI] request to stop project with name = " + name);
                     boolean gut = false;
                     for (Project p : Server.getInstance().getActiveProjects()) {
                         if (p.getProjectName().equals(name)) {

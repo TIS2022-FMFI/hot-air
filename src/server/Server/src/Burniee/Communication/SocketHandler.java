@@ -34,16 +34,20 @@ public class SocketHandler {
         out = new BufferedOutputStream(socket.getOutputStream());
         in = new BufferedInputStream(socket.getInputStream());
         System.out.println("[TCP] New socket connected from IP = " + socket.getInetAddress().getHostAddress());
+        GeneralLogger.writeMessage("[TCP] New socket connected from IP = " + socket.getInetAddress().getHostAddress());
         writeMessage(new Message(SERVER_PASSWORD));
         byte type = readTypeOfSocket();
         if (MessageBuilder.GUI.is(type)) {
             System.out.println("[TCP] GUI connected");
+            GeneralLogger.writeMessage("[TCP] GUI connected");
             new GUIHandler(this).start();
         } else if (MessageBuilder.EXE.is(type)) {
             System.out.println("[TCP] EXE connected");
+            GeneralLogger.writeMessage("[TCP] EXE connected");
             new EXEHandler(this).start();
         } else if (MessageBuilder.Controller.is(type)) {
             System.out.println("[TCP] Controller connected");
+            GeneralLogger.writeMessage("[TCP] Controller connected");
             new ControllerHandler(this, s.getInetAddress()).start();
         } else {
             stopSocket();

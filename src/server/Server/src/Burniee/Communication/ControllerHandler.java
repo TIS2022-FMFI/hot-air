@@ -49,8 +49,10 @@ public class ControllerHandler extends Thread {
 
     public synchronized void startUsing(Project p) {
         System.out.println("[Controller] free from service attempt");
+        GeneralLogger.writeMessage("[Controller] free from service attempt");
         if (activeStateChangeDelay) {return;}
         System.out.println("[Controller] free from service success");
+        GeneralLogger.writeMessage("[Controller] free from service success");
         isActive = true;
         project = p;
         controller.setProjectName(p.getProjectName());
@@ -63,8 +65,10 @@ public class ControllerHandler extends Thread {
 
     public synchronized void freeFromService() {
         System.out.println("[Controller] free from service attempt");
+        GeneralLogger.writeMessage("[Controller] free from service attempt");
         if (activeStateChangeDelay) {return;}
         System.out.println("[Controller] free from service success");
+        GeneralLogger.writeMessage("[Controller] free from service success");
         isActive = false;
         if (project != null) {
             project.end();
@@ -101,6 +105,7 @@ public class ControllerHandler extends Thread {
 
     public void changeId(String newId) throws ControllerException, IOException {
         System.out.println("[Controller] ID change, new id = " + newId + " old id = " + controller.getID());
+        GeneralLogger.writeMessage("[Controller] ID change, new id = " + newId + " old id = " + controller.getID());
         if (newId.length() > 15) {
             throw new ControllerException("new id too long");
         }
@@ -123,6 +128,7 @@ public class ControllerHandler extends Thread {
 
     public synchronized void changeControllerParameters(int temperature, short airFlow, long time) throws IOException {
         System.out.println("[Controller] Sending new parameters");
+        GeneralLogger.writeMessage("[Controller] Sending new parameters");
         controller.setTime(time);
         controller.setAirFlow(airFlow);
         controller.setTargetTemperature(temperature);
@@ -144,12 +150,14 @@ public class ControllerHandler extends Thread {
      */
     public void bigRedButton() throws IOException {
         System.out.println("[Controller] Stopping controller with id = " + controller.getID());
+        GeneralLogger.writeMessage("[Controller] Stopping controller with id = " + controller.getID());
         controller.setStopped(true);
         socket.writeMessage(new Message(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) 0b10000000}, true));
     }
 
     public void unlock() throws IOException {
         System.out.println("[Controller] Unlocking controller with id = " + controller.getID());
+        GeneralLogger.writeMessage("[Controller] Unlocking controller with id = " + controller.getID());
         controller.setStopped(false);
         socket.writeMessage(new Message(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) 0b01000000}, true));
     }
@@ -171,6 +179,7 @@ public class ControllerHandler extends Thread {
                 if (flags == 0b0000010) {
                     controller.setID(resolveId(msg));
                     System.out.println("[Controller] New ID arrived = " + controller.getID());
+                    GeneralLogger.writeMessage("[Controller] New ID arrived = " + controller.getID());
                 } else if ((flags&0b00000001) == 1) {
                     if ((flags&0b00000100) > 0) {
                         if (controller.getActiveError() == Controller.Error.NONE) {
@@ -223,7 +232,8 @@ public class ControllerHandler extends Thread {
                 stopConnection();
                 GeneralLogger.writeExeption(e);
                 System.out.println("[Controller] Lost connection to controller");
-//                Server.getInstance().sendExceptionToAllActiveGUIs(e);
+                GeneralLogger.writeMessage("[Controller] Lost connection to controller");
+                Server.getInstance().sendExceptionToAllActiveGUIs(new ControllerException("Controller disconnected!"));
             } catch (Exception e) {
                 Server.getInstance().sendExceptionToAllActiveGUIs(e);
                 GeneralLogger.writeExeption(e);

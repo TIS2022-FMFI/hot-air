@@ -25,6 +25,7 @@ public class UDPCommunicationHandler extends Thread {
     private static final UDPCommunicationHandler INSTANCE = new UDPCommunicationHandler();
     private UDPCommunicationHandler() {
         System.out.println("[UDP] Attempting to start UDP socket");
+        GeneralLogger.writeMessage("[UDP] Attempting to start UDP socket");
         socket = null;
         createConnection();
     }
@@ -52,6 +53,7 @@ public class UDPCommunicationHandler extends Thread {
             }
         }
         System.out.println("[UDP] Socket started successfully");
+        GeneralLogger.writeMessage("[UDP] Socket started successfully");
     }
 
     /**
@@ -83,6 +85,7 @@ public class UDPCommunicationHandler extends Thread {
     public boolean isThereAnotherServer() {
         sendUDPPacket(LOOKING_FOR_SERVER_MESSAGE, getBroadcastAddresses());
         System.out.println("[Server] check if another server is running");
+        GeneralLogger.writeMessage("[Server] check if another server is running");
         try {
             socket.setSoTimeout(500);
             byte[] buff = new byte[4096];
@@ -154,12 +157,15 @@ public class UDPCommunicationHandler extends Thread {
                     continue;
                 }
                 System.out.println("[UDP] awaiting arrival of a packet");
+                GeneralLogger.writeMessage("[UDP] awaiting arrival of a packet");
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
                 System.out.println("[UDP] packet arrived");
+                GeneralLogger.writeMessage("[UDP] packet arrived");
 
                 if (areMessagesEqual(packet.getData(), LOOKING_FOR_SERVER_MESSAGE)) {
                     System.out.println("[UDP] packet is looking for server");
+                    GeneralLogger.writeMessage("[UDP] packet is looking for server");
                     sendUDPPacket(I_AM_THE_SERVER_MESSAGE, Collections.singletonList(packet.getAddress()));
                     sendUDPPacket(I_AM_THE_SERVER_MESSAGE, getBroadcastAddresses()); //one of them will work
                 }
