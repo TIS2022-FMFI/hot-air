@@ -228,7 +228,7 @@ public class XMLAnalyzer {
                         blowers.add(name[0]);
                         temps.add(name[1]);
                     }
-                    subroutines.put(names[0], getThreadTimeAndTemp(firstChild, blowers, temps));
+                    subroutines.put(subrtName, getThreadTimeAndTemp(firstChild, blowers, temps));
                 } else {
                     subroutines.put(subrt.getAttributes().getNamedItem("NAME").getNodeValue(), getThreadTimeAndTemp(firstChild));
                 }
