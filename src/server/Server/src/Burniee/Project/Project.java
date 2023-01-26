@@ -185,10 +185,14 @@ public class Project extends Thread {
 //        return String.format("%dd %dh %dm %ds (day, hour, min, sec)", day,hour,min,sec);
 //    }
 
-    private void coolAllControllers() throws IOException {
+    private void coolAllControllers() {
         for (ControllerHandler ch : handlers) {
             if (ch != null) {
-                ch.changeControllerParameters(0, (short) 100, 0);
+                try {
+                    ch.changeControllerParameters(0, (short) 100, 0);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
