@@ -282,10 +282,10 @@ public class GUIController implements Initializable {
                 blowers.add(blower);
             }
 
-            System.out.println("\nblowery v ObservableList= " + blowersList.size());
-            blowersList.forEach(i -> System.out.println(i.toString()));
-            System.out.println("blowery zo servera= " + blowers.size());
-            blowers.forEach(a -> System.out.println(a.toString()));
+//            System.out.println("\nblowery v ObservableList= " + blowersList.size());
+//            blowersList.forEach(i -> System.out.println(i.toString()));
+//            System.out.println("blowery zo servera= " + blowers.size());
+//            blowers.forEach(a -> System.out.println(a.toString()));
             for (Blower blower : blowers) {
                 synchronized (blower) {
                     boolean gut = false;
@@ -341,18 +341,22 @@ public class GUIController implements Initializable {
 
             for (Project project : projects) {
 //                System.out.println(project.toString());
-                boolean gut = false;
-                for (Project p : projectsList) {
-                    if (p.equals(project)) {
-                        p.setCurrentPhaseProperty(project.currentPhaseProperty());
-                        gut = true;
+                synchronized (project) {
+                    boolean gut = false;
+                    for (Project p : projectsList) {
+                        if (p.equals(project)) {
+                            p.setCurrentPhaseProperty(project.currentPhaseProperty());
+                            gut = true;
+                        }
                     }
-                }
-                if (!gut) {
-                    projectsList.add(project);
+                    if (!gut) {
+                        projectsList.add(project);
+                    }
                 }
             }
 
+
+            List<Project> projectsToRemove = new ArrayList<Project>();
             for (Project p : projectsList) {
                 boolean gut = false;
                 for (Project project : projects) {
@@ -361,9 +365,11 @@ public class GUIController implements Initializable {
                     }
                 }
                 if (!gut) {
-                    projectsList.remove(p);
+                    projectsToRemove.add(p);
                 }
             }
+            projectsToRemove.forEach(projectsList::remove);
+
         }
         catch (Exception e) {
             GeneralLogger.writeExeption(e);

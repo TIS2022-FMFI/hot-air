@@ -1,6 +1,7 @@
 package GUI;
 
 import Logs.GeneralLogger;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -31,6 +32,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static GUI.GUI.gui;
+import static GUI.GUIController.blowersList;
 import static GUI.GUIController.setAlertIcons;
 import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 
@@ -45,10 +47,9 @@ public class Project {
 
     private final Button stopButton;
 
-    final NumberAxis xAxis = new NumberAxis();
-    final NumberAxis yAxis = new NumberAxis();
-    private final LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
-
+    NumberAxis xAxis;
+    NumberAxis yAxis;
+    private LineChart<Number, Number> lineChart;
 
     /**
      * Instantiates a new Project.
@@ -59,9 +60,6 @@ public class Project {
     public Project(String name, String currentPhase) {
         this.name = name;
         this.currentPhase = new SimpleStringProperty(currentPhase);
-        xAxis.setLabel("time");
-        xAxis.setAutoRanging(false);
-        yAxis.setLabel("temperature");
         this.graph = new Hyperlink(this.name);
         this.graph.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -91,8 +89,16 @@ public class Project {
                         }
                     }
 
+                    xAxis = new NumberAxis();
+                    xAxis.setLabel("time");
+                    xAxis.setAutoRanging(false);
+                    yAxis = new NumberAxis();
+                    yAxis.setLabel("temperature");
+
+                    lineChart = new LineChart<>(xAxis, yAxis);
                     lineChart.setPrefSize(500, 200);
                     lineChart.setCreateSymbols(false);
+                    lineChart.getData().clear();
 //                    lineChart.setFocusTraversable(true);
 //                    lineChart.setAnimated(true);
                     ObservableList<Blower> blowers = GUIController.getBlowersList();
@@ -103,17 +109,17 @@ public class Project {
                         Blower blower = blowers.filtered(b -> b.idProperty().getValue().equals(key)).get(0);
                         System.out.println(blower);
 
+                        lineChart.getData().remove(blower.getCurrentSeries());
+                        lineChart.getData().remove(blower.getTargetSeries());
+                        lineChart.getData().add(blower.getCurrentSeries());
+                        lineChart.getData().add(blower.getTargetSeries());
+
+
                         blower.getCurrentSeries().setName("Blower " + key);
                         blower.getTargetSeries().setName("Target " + key);
-                        if (!lineChart.getData().contains(blower.getCurrentSeries())) {
-                            lineChart.getData().add(blower.getCurrentSeries());
-                        }
-                        if (!lineChart.getData().contains(blower.getTargetSeries())) {
-                            lineChart.getData().add(blower.getTargetSeries());
-                        }
-
                         blower.getCurrentSeries().getData().clear();
                         blower.getTargetSeries().getData().clear();
+                        System.out.println("vymazavam");
 
                         List<Pair<String, String>> values = temperatures.get(key);
                         for (int i = 0; i <values.size(); i++) {
@@ -144,34 +150,39 @@ public class Project {
                         updateGraph();
                     }, 0, 1, TimeUnit.SECONDS);
 
-                    ScrollPane scroll = new ScrollPane(lineChart);
-                    scroll.viewportBoundsProperty().addListener(new ChangeListener<Bounds>() {
-                        @Override
-                        public void changed(ObservableValue<? extends Bounds> observableValue, Bounds oldBounds, Bounds newBounds) {
-                            lineChart.setMinSize(Math.max(lineChart.getPrefWidth(), newBounds.getWidth()), Math.max(lineChart.getPrefHeight(), newBounds.getHeight()));
-                            scroll.setPannable((lineChart.getPrefWidth() > newBounds.getWidth()) || (lineChart.getPrefHeight() > newBounds.getHeight()));
-                        }
-                    });
+//                    ScrollPane scroll = new ScrollPane(lineChart);
+//                    scroll.viewportBoundsProperty().addListener(new ChangeListener<Bounds>() {
+//                        @Override
+//                        public void changed(ObservableValue<? extends Bounds> observableValue, Bounds oldBounds, Bounds newBounds) {
+//                            lineChart.setMinSize(Math.max(lineChart.getPrefWidth(), newBounds.getWidth()), Math.max(lineChart.getPrefHeight(), newBounds.getHeight()));
+//                            scroll.setPannable((lineChart.getPrefWidth() > newBounds.getWidth()) || (lineChart.getPrefHeight() > newBounds.getHeight()));
+//                        }
+//                    });
 
                     lineChart.setOnScroll(new EventHandler<ScrollEvent>() {
                         @Override
                         public void handle(ScrollEvent ev) {
-                            double delta = 5;
                             double deltaY = ev.getDeltaY();
 
                             if (deltaY < 0) {
-                                delta = -5;
+                                Platform.runLater(()-> {
+                                    NumberAxis xAxisLocal = ((NumberAxis) lineChart.getXAxis());
+                                    xAxisLocal.setUpperBound(xAxisLocal.getUpperBound() - 5);
+                                    xAxisLocal.setLowerBound(xAxisLocal.getLowerBound() - 5);
+                                });
+                            } else {
+                                Platform.runLater(()-> {
+                                    NumberAxis xAxisLocal = ((NumberAxis) lineChart.getXAxis());
+                                    xAxisLocal.setUpperBound(xAxisLocal.getUpperBound() + 5);
+                                    xAxisLocal.setLowerBound(xAxisLocal.getLowerBound() + 5);
+                                });
                             }
-
-                            NumberAxis xAxisLocal = ((NumberAxis) lineChart.getXAxis());
-                            xAxisLocal.setUpperBound(xAxisLocal.getUpperBound() + delta);
-                            xAxisLocal.setLowerBound(xAxisLocal.getLowerBound() + delta);
 
                             ev.consume();
                         }
                     });
 
-                    Scene scene = new Scene(scroll, 500, 500);
+                    Scene scene = new Scene(lineChart, 500, 500);
                     Stage graphWindow = new Stage();
                     graphWindow.setTitle("GRAPH " + name);
                     graphWindow.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("boge_icon.jpg")).toString()));
