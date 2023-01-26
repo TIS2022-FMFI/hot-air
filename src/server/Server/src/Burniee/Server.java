@@ -143,6 +143,7 @@ public class Server {
                 if (i.isActive()) {
                     ch.startUsing(i.getProject());
                 }
+                System.out.println("[Controller] found duplicate");
                 i.stopConnection();
             }
             controllers.add(ch);

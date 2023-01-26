@@ -83,6 +83,7 @@ public class ControllerHandler extends Thread {
 
     public void stopConnection() {
         if (project != null) {
+            System.out.println("[Controller] stopping connection");
             project.end();
         }
         Server.getInstance().removeController(this);
