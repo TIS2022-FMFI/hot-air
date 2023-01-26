@@ -287,20 +287,22 @@ public class GUIController implements Initializable {
             System.out.println("blowery zo servera= " + blowers.size());
             blowers.forEach(a -> System.out.println(a.toString()));
             for (Blower blower : blowers) {
-                boolean gut = false;
-                for (Blower b : blowersList) {
-                    if (b.equals(blower)) {
-                        b.setLink(blower.getLink());
-                        b.setIdProperty(blower.idProperty());
-                        b.setCurrentTempProperty(blower.currentTempProperty());
-                        b.setTargetTempProperty(blower.targetTempProperty());
-                        b.setProjectNameProperty(blower.projectNameProperty());
-                        b.setStopped(blower.isStopped());
-                        gut = true;
+                synchronized (blower) {
+                    boolean gut = false;
+                    for (Blower b : blowersList) {
+                        if (b.equals(blower)) {
+                            b.setLink(blower.getLink());
+                            b.setIdProperty(blower.idProperty());
+                            b.setCurrentTempProperty(blower.currentTempProperty());
+                            b.setTargetTempProperty(blower.targetTempProperty());
+                            b.setProjectNameProperty(blower.projectNameProperty());
+                            b.setStopped(blower.isStopped());
+                            gut = true;
+                        }
                     }
-                }
-                if (!gut) {
-                    blowersList.add(blower);
+                    if (!gut) {
+                        blowersList.add(blower);
+                    }
                 }
             }
 
