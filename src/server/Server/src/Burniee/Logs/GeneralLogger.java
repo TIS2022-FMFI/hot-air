@@ -25,6 +25,7 @@ public class GeneralLogger {
             writer.flush();
         } catch (IOException exception){
             System.out.println("Errror");
+            GeneralLogger.writeMessage("Errror");
         }
     }
 
@@ -40,6 +41,7 @@ public class GeneralLogger {
             writer.flush();
         } catch (IOException exception){
             System.out.println("Errror");
+            GeneralLogger.writeMessage("Errror");
         }
     }
 
@@ -56,6 +58,7 @@ public class GeneralLogger {
             }
         } catch (IOException e){
             System.out.println("Errror");
+            GeneralLogger.writeMessage("Errror");
         }
     }
 

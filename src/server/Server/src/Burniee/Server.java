@@ -43,12 +43,14 @@ public class Server {
                 prop.load(fis);
                 PORT = Integer.parseInt(prop.getProperty("PORT"));
                 System.out.println("New PORT = " + PORT);
+                GeneralLogger.writeMessage("New PORT = " + PORT);
             } catch (IOException ignored) {}
         } else {
             try (FileOutputStream fos = new FileOutputStream(f.getName())) {
                 prop.setProperty("PORT", "4002");
                 prop.store(fos, null);
                 System.out.println("File created");
+                GeneralLogger.writeMessage("File created");
             } catch (IOException e) {
                 e.printStackTrace();
                 GeneralLogger.writeExeption(e);
@@ -72,6 +74,7 @@ public class Server {
         UDPCommunicationHandler.getInstance().start();
         System.out.println("Server started!");
         GeneralLogger.writeMessage("Server started!");
+        GeneralLogger.writeMessage("Server started!");
     }
 
     /**
@@ -82,6 +85,7 @@ public class Server {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(() -> {
                 System.out.println("[UDP] Sending regular UDP discovery packet to broadcast");
+                GeneralLogger.writeMessage("[UDP] Sending regular UDP discovery packet to broadcast");
                 UDPCommunicationHandler.sendUDPPacket(UDPCommunicationHandler.LOOKING_FOR_CONTROLLERS_MESSAGE, UDPCommunicationHandler.getBroadcastAddresses());
             }, 0, 3, TimeUnit.MINUTES);
         while (!serverSocket.isClosed()) {
@@ -139,6 +143,7 @@ public class Server {
                 if (i.isActive()) {
                     ch.startUsing(i.getProject());
                 }
+                System.out.println("[Controller] found duplicate");
                 i.stopConnection();
             }
             controllers.add(ch);
@@ -232,6 +237,7 @@ public class Server {
         th.printStackTrace();
         System.err.println(th.getMessage());
         System.out.println("[TCP] Sending exception to " + getAllGUIS().size() + " GUIs");
+        GeneralLogger.writeMessage("[TCP] Sending exception to " + getAllGUIS().size() + " GUIs");
         try {
             String c = th.getClass().getCanonicalName();
             String msg = th.getMessage();
