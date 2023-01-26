@@ -152,6 +152,7 @@ public class Project extends Thread {
     private synchronized void setPhaseName(String name) {phaseName = name;}
     public String getProjectName() {return name;}
     public boolean isAtEnd() {return projectAtEnd;}
+    public List<String> getHandlerIDs() {return handlerIDs;}
 
     public synchronized void confirmEndOfPhase() {
         phaseEnded = true;
