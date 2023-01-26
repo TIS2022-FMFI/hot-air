@@ -130,10 +130,9 @@ public class Project {
                         xAxisLocal.setUpperBound(values.size()+70);
                         xAxisLocal.setLowerBound(values.size()-30);
 
-                        blower.getCurrentSeries().getNode().setStyle("-fx-stroke-width: 3px;");
-                        blower.getTargetSeries().getNode().setStyle("-fx-stroke-width: 2px;");
-                        blower.getTargetSeries().getNode().setStyle("-fx-opacity: 0.5 ");
-
+                        blower.getCurrentSeries().getNode().setStyle("-fx-stroke-width: 5px;");
+                        blower.getTargetSeries().getNode().setStyle("-fx-stroke-width: 3px;");
+                        blower.getTargetSeries().getNode().setStyle("-fx-opacity: 0.5");
                     }
 
                     ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
@@ -276,6 +275,15 @@ public class Project {
      */
     public void setGraph(Hyperlink graph) {
         this.graph.setText(graph.getText());
+    }
+
+    /**
+     * Gets stop button.
+     *
+     * @return the stop button
+     */
+    public Button getStopButton() {
+        return stopButton;
     }
 
     /**
