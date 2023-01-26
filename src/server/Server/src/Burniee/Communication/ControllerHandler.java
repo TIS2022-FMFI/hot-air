@@ -128,6 +128,7 @@ public class ControllerHandler extends Thread {
     }
 
     public synchronized void changeControllerParameters(int temperature, short airFlow, long time) throws IOException {
+
         System.out.println("[Controller] Sending new parameters");
         GeneralLogger.writeMessage("[Controller] Sending new parameters");
         controller.setTime(time);
@@ -149,14 +150,14 @@ public class ControllerHandler extends Thread {
     /**
      * Stop controller after big red button has been pressed
      */
-    public void bigRedButton() throws IOException {
+    public synchronized void bigRedButton() throws IOException {
         System.out.println("[Controller] Stopping controller with id = " + controller.getID());
         GeneralLogger.writeMessage("[Controller] Stopping controller with id = " + controller.getID());
         controller.setStopped(true);
         socket.writeMessage(new Message(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) 0b10000000}, true));
     }
 
-    public void unlock() throws IOException {
+    public synchronized void unlock() throws IOException {
         System.out.println("[Controller] Unlocking controller with id = " + controller.getID());
         GeneralLogger.writeMessage("[Controller] Unlocking controller with id = " + controller.getID());
         controller.setStopped(false);
