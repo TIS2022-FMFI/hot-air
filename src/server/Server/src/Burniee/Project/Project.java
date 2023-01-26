@@ -48,15 +48,20 @@ public class Project extends Thread {
         System.out.println("[Project] starting project " + name);
         GeneralLogger.writeMessage("[Project] starting project " + name);
         handlerIDs = new ArrayList<>();
+        List<ControllerHandler> assigned = new LinkedList<>();
         for (String i : XMLAnalyzer.getAllBlowers(pathToXML)) {
             ControllerHandler ch = findControllerByID(i);
             if (ch == null) {
                 throw new ControllerException("No controller with such ID");
             }
             if (ch.isActive()) {
+                for (ControllerHandler c : assigned) {
+                    c.freeFromService();
+                }
                 throw new ControllerException("Controller with ID = " + ch.getControllerID() + " is currently being used by another project");
             }
             ch.startUsing(this);
+            assigned.add(ch);
             System.out.println("[Project] controller with id = " + ch.getControllerID() + " found");
             GeneralLogger.writeMessage("[Project] controller with id = " + ch.getControllerID() + " found");
             handlerIDs.add(i);
@@ -134,6 +139,7 @@ public class Project extends Thread {
         System.out.println("[Project] Project with ID = " + ID + ", name = " + name + " ended");
         GeneralLogger.writeMessage("[Project] Project with ID = " + ID + ", name = " + name + " ended");
         Server.getInstance().removeProject(this);
+        coolAllControllers();
         for (String i : handlerIDs) {
             ControllerHandler ch = findControllerByID(i);
             if (ch != null) {

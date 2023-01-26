@@ -141,8 +141,8 @@ public class Server {
             }
             for (ControllerHandler i : toRemove) {
                 if (i.isActive()) {
-                    i.freeFromService();
                     ch.startUsing(i.getProject());
+                    i.setProject(null);
                     try {
                         ch.changeControllerParameters(i.getController().getTargetTemperature(), i.getController().getAirFlow(), i.getController().getTime());
                     } catch (IOException e) {
