@@ -1,5 +1,6 @@
 package Burniee.Communication;
 
+import Burniee.Logs.GeneralLogger;
 import Burniee.xml.FileReceiver;
 
 import java.io.BufferedInputStream;
