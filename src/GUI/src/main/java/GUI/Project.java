@@ -112,6 +112,9 @@ public class Project {
                             lineChart.getData().add(blower.getTargetSeries());
                         }
 
+                        blower.getCurrentSeries().getData().clear();
+                        blower.getTargetSeries().getData().clear();
+
                         List<Pair<String, String>> values = temperatures.get(key);
                         for (int i = 0; i <values.size(); i++) {
                             try {
@@ -224,21 +227,22 @@ public class Project {
 //            System.out.println("key: " + key);
             Blower blower = blowers.filtered(b -> b.idProperty().getValue().equals(key)).get(0);
 //            System.out.println(blower);
-            int i = blower.getCurrentSeries().getData().size();
-            try {
-                blower.getCurrentSeries().getData().add(new XYChart.Data<>(i + 1, blower.currentTempProperty().getValue()));
-                blower.getTargetSeries().getData().add(new XYChart.Data<>(i + 1, blower.targetTempProperty().getValue()));
-                if (i % 50 == 49) {
-                    NumberAxis xAxisLocal = ((NumberAxis) lineChart.getXAxis());
-                    xAxisLocal.setUpperBound(i + 70);
-                    xAxisLocal.setLowerBound(i - 30);
+            synchronized (blower) {
+                int i = blower.getCurrentSeries().getData().size();
+                try {
+                    blower.getCurrentSeries().getData().add(new XYChart.Data<>(i + 1, blower.currentTempProperty().getValue()));
+                    blower.getTargetSeries().getData().add(new XYChart.Data<>(i + 1, blower.targetTempProperty().getValue()));
+                    if (i % 50 == 49) {
+                        NumberAxis xAxisLocal = ((NumberAxis) lineChart.getXAxis());
+                        xAxisLocal.setUpperBound(i + 70);
+                        xAxisLocal.setLowerBound(i - 30);
+                    }
+                } catch (NumberFormatException e) {
+                    GeneralLogger.writeExeption(e);
+                    System.err.println(e.getMessage());
+                    e.printStackTrace();
                 }
-            } catch (NumberFormatException e) {
-                GeneralLogger.writeExeption(e);
-                System.err.println(e.getMessage());
-                e.printStackTrace();
             }
-
         }
     }
 
