@@ -3,21 +3,16 @@ package GUI;
 import Logs.GeneralLogger;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Bounds;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -32,7 +27,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static GUI.GUI.gui;
-import static GUI.GUIController.blowersList;
 import static GUI.GUIController.setAlertIcons;
 import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 
@@ -41,8 +35,8 @@ import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
  */
 public class Project {
     private String name;
-    private Hyperlink graph;
     private SimpleStringProperty currentPhase;
+    private Hyperlink graph;
     private HashMap<String, List<Pair<String, String>>> temperatures;
 
     private final Button stopButton;
@@ -106,7 +100,7 @@ public class Project {
 
                     for (String key : temperatures.keySet()) {
                         System.out.println("key: " + key);
-                        Blower blower = blowers.filtered(b -> b.idProperty().getValue().equals(key)).get(0);
+                        Blower blower = blowers.filtered(b -> b.getId().equals(key)).get(0);
                         System.out.println(blower);
 
                         lineChart.getData().remove(blower.getCurrentSeries());
@@ -236,13 +230,13 @@ public class Project {
         ObservableList<Blower> blowers = GUIController.getBlowersList();
         for (String key : temperatures.keySet()) {
 //            System.out.println("key: " + key);
-            Blower blower = blowers.filtered(b -> b.idProperty().getValue().equals(key)).get(0);
+            Blower blower = blowers.filtered(b -> b.getId().equals(key)).get(0);
 //            System.out.println(blower);
             synchronized (blower) {
                 int i = blower.getCurrentSeries().getData().size();
                 try {
-                    blower.getCurrentSeries().getData().add(new XYChart.Data<>(i + 1, blower.currentTempProperty().getValue()));
-                    blower.getTargetSeries().getData().add(new XYChart.Data<>(i + 1, blower.targetTempProperty().getValue()));
+                    blower.getCurrentSeries().getData().add(new XYChart.Data<>(i + 1, blower.getCurrentTemp()));
+                    blower.getTargetSeries().getData().add(new XYChart.Data<>(i + 1, blower.getTargetTemp()));
                     if (i % 50 == 49) {
                         NumberAxis xAxisLocal = ((NumberAxis) lineChart.getXAxis());
                         xAxisLocal.setUpperBound(i + 70);
@@ -255,6 +249,46 @@ public class Project {
                 }
             }
         }
+    }
+
+    public String getCurrentPhase() {
+        return currentPhase.get();
+    }
+
+    public void setCurrentPhase(String currentPhase) {
+        this.currentPhase.set(currentPhase);
+    }
+
+    public HashMap<String, List<Pair<String, String>>> getTemperatures() {
+        return temperatures;
+    }
+
+    public void setTemperatures(HashMap<String, List<Pair<String, String>>> temperatures) {
+        this.temperatures = temperatures;
+    }
+
+    public NumberAxis getxAxis() {
+        return xAxis;
+    }
+
+    public void setxAxis(NumberAxis xAxis) {
+        this.xAxis = xAxis;
+    }
+
+    public NumberAxis getyAxis() {
+        return yAxis;
+    }
+
+    public void setyAxis(NumberAxis yAxis) {
+        this.yAxis = yAxis;
+    }
+
+    public LineChart<Number, Number> getLineChart() {
+        return lineChart;
+    }
+
+    public void setLineChart(LineChart<Number, Number> lineChart) {
+        this.lineChart = lineChart;
     }
 
     /**
