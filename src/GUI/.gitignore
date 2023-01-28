@@ -1,3 +1,5 @@
+**/.idea
+**/out
+*.xml
+*.txt
 *.csv
-log.txt
-logOld.txt
