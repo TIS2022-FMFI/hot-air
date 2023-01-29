@@ -225,6 +225,9 @@ public class Project extends Thread {
     @Override
     public void run() {
         try {
+            if (projectAtEnd) {
+                return;
+            }
             startedAt = System.nanoTime();
 //            System.out.println("[Project] project started at " + getReadableTime(startedAt));
             Server.getInstance().addProject(this);
