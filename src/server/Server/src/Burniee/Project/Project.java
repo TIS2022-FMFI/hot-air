@@ -37,66 +37,66 @@ public class Project extends Thread {
     private final List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>>> jobs;
     //           ^Queue<Pair<PhaseName, List<Pair<ControllerID, Pair<Temperature, Time>>>>>
 
-    public Project(String pathToXML, String id) throws ProjectException, XMLException, ParserConfigurationException, IOException, SAXException, ControllerException {
+    public Project(String pathToXML, String id) throws ParserConfigurationException, IOException, SAXException {
         ID = id;
-        List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> script = XMLAnalyzer.XMLtoCommands(pathToXML);
-        name = XMLAnalyzer.getProjectName(pathToXML);
-        temperatureLogger = new TemperatureLogger(name);
-        if (TemperatureLogger.numFilesToDelete() > 0) {
-            Server.getInstance().sendRequestForDeletingOldLogFiles();
-        }
-        System.out.println("[Project] starting project " + name);
-        GeneralLogger.writeMessage("[Project] starting project " + name);
-        handlerIDs = new ArrayList<>();
-        List<ControllerHandler> assigned = new LinkedList<>();
-        for (String i : XMLAnalyzer.getAllBlowers(pathToXML)) {
-            ControllerHandler ch = findControllerByID(i);
-            if (ch == null) {
-                throw new ControllerException("No controller with such ID");
+        handlerIDs = new ArrayList<>(XMLAnalyzer.getAllBlowers(pathToXML));
+        String notFinalName = null;
+        TemperatureLogger notFinalTemperatureLogger = null;
+        List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>>> notFinalJobs = null;
+        try {
+            List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> script = XMLAnalyzer.XMLtoCommands(pathToXML);
+            notFinalName = XMLAnalyzer.getProjectName(pathToXML);
+            notFinalTemperatureLogger = new TemperatureLogger(notFinalName);
+            if (TemperatureLogger.numFilesToDelete() > 0) {
+                Server.getInstance().sendRequestForDeletingOldLogFiles();
             }
-            if (ch.isActive()) {
-                for (ControllerHandler c : assigned) {
-                    c.freeFromService();
+            System.out.println("[Project] starting project " + notFinalName);
+            GeneralLogger.writeMessage("[Project] starting project " + notFinalName);
+            List<ControllerHandler> assigned = new LinkedList<>();
+            for (String i : handlerIDs) {
+                ControllerHandler ch = findControllerByID(i);
+                if (ch == null) {
+                    throw new ControllerException("No controller with such ID");
                 }
-                throw new ControllerException("Controller with ID = " + ch.getControllerID() + " is currently being used by another project");
-            }
-            ch.startUsing(this);
-            assigned.add(ch);
-            System.out.println("[Project] controller with id = " + ch.getControllerID() + " found");
-            GeneralLogger.writeMessage("[Project] controller with id = " + ch.getControllerID() + " found");
-            handlerIDs.add(i);
-        }
-//        handlerIDs = new ArrayList<>(XMLAnalyzer.getAllBlowers(pathToXML));
-        jobs = new LinkedList<>();
-        List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>> phaseJobs;
-//        System.out.println("[Project] searching for controllers");
-//        for (AbstractMap.SimpleEntry<String, String> controller : script.get(0).getValue()) {
-//            ControllerHandler ch = findControllerByID(controller.getKey());
-//            if (ch == null || ch.isActive()) {
-//                throw new ControllerException("Controller with ID = " + controller.getKey() + " is currently being used by another project");
-//            }
-//            ch.startUsing(this);
-//            System.out.println("[Project] controller with id = " + ch.getControllerID() + " found");
-//            handlerIDs.add(controller.getKey());
-//        }
-
-        for (AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>> phase : script) {
-            phaseJobs = new LinkedList<>();
-            for (AbstractMap.SimpleEntry<String, String> controller : phase.getValue()) {
-                String tempTime = controller.getValue();
-                if (!tempTime.matches("[.0-9]+\\$[.0-9]+")) {
-                    throw new XMLException("Expected [.0-9]+\\$[.0-9]+, got " + tempTime);
+                if (ch.isActive()) {
+                    for (ControllerHandler c : assigned) {
+                        c.freeFromService();
+                    }
+                    throw new ControllerException("Controller with ID = " + ch.getControllerID() + " is currently being used by another project");
                 }
-                String[] split = tempTime.split("\\$");
-                int temperature = Integer.parseInt(split[0]);
-                long time = (long)(Float.parseFloat(split[1]));
-                phaseJobs.add(new AbstractMap.SimpleEntry<>(controller.getKey(), new AbstractMap.SimpleEntry<>(temperature, time)));
+                ch.startUsing(this);
+                assigned.add(ch);
+                System.out.println("[Project] controller with id = " + ch.getControllerID() + " found");
+                GeneralLogger.writeMessage("[Project] controller with id = " + ch.getControllerID() + " found");
             }
-            jobs.add(new AbstractMap.SimpleEntry<>(phase.getKey(), phaseJobs));
-        }
-        System.out.println("[Project] job queue prepared");
-        GeneralLogger.writeMessage("[Project] job queue prepared");
+            notFinalJobs = new LinkedList<>();
+            List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>> phaseJobs;
 
+            for (AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>> phase : script) {
+                phaseJobs = new LinkedList<>();
+                for (AbstractMap.SimpleEntry<String, String> controller : phase.getValue()) {
+                    String tempTime = controller.getValue();
+                    if (!tempTime.matches("[.0-9]+\\$[.0-9]+")) {
+                        throw new XMLException("Expected [.0-9]+\\$[.0-9]+, got " + tempTime);
+                    }
+                    String[] split = tempTime.split("\\$");
+                    int temperature = Integer.parseInt(split[0]);
+                    long time = (long) (Float.parseFloat(split[1]));
+                    phaseJobs.add(new AbstractMap.SimpleEntry<>(controller.getKey(), new AbstractMap.SimpleEntry<>(temperature, time)));
+                }
+                notFinalJobs.add(new AbstractMap.SimpleEntry<>(phase.getKey(), phaseJobs));
+            }
+            System.out.println("[Project] job queue prepared");
+            GeneralLogger.writeMessage("[Project] job queue prepared");
+        } catch (Exception e) {
+            end();
+            GeneralLogger.writeExeption(e);
+            Server.getInstance().sendExceptionToAllActiveGUIs(e);
+        } finally {
+            name = notFinalName;
+            temperatureLogger = notFinalTemperatureLogger;
+            jobs = notFinalJobs;
+        }
         logger = Executors.newScheduledThreadPool(1);
         logger.scheduleAtFixedRate(() -> {
             String[] temps = new String[handlerIDs.size()], targetTemps = new String[handlerIDs.size()];
@@ -283,7 +283,7 @@ public class Project extends Thread {
         } catch (Exception e) {
             e.printStackTrace();
             GeneralLogger.writeExeption(e);
-//            Server.getInstance().sendExceptionToAllActiveGUIs(e);
+            Server.getInstance().sendExceptionToAllActiveGUIs(e);
         } finally {
             end();
         }

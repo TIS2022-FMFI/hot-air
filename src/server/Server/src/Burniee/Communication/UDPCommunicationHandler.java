@@ -117,7 +117,7 @@ public class UDPCommunicationHandler extends Thread {
     public static void sendUDPPacket(byte[] data, List<InetAddress> ips) {
         try (DatagramSocket socket = new DatagramSocket()) {
             for (InetAddress b : ips) {
-                socket.send(new DatagramPacket(data, data.length, b, 4002));
+                socket.send(new DatagramPacket(data, data.length, b, Server.PORT));
             }
         } catch (IOException e) {
             GeneralLogger.writeExeption(e);

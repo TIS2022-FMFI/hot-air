@@ -61,7 +61,11 @@ public class GUIHandler extends Thread {
         synchronized (socket) {
             socket.writeMessage(new Message(MessageBuilder.GUI.Exception.build()));
             socket.writeMessage(new Message(className.getBytes(StandardCharsets.UTF_8)));
-            socket.writeMessage(new Message(message.getBytes(StandardCharsets.UTF_8)));
+            if (message != null) {
+                socket.writeMessage(new Message(message.getBytes(StandardCharsets.UTF_8)));
+            } else {
+                socket.writeMessage(new Message("".getBytes()));
+            }
             socket.writeMessage(new Message(exception));
         }
     }
