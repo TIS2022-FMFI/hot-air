@@ -43,6 +43,7 @@ public class Project extends Thread {
         String notFinalName = null;
         TemperatureLogger notFinalTemperatureLogger = null;
         List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>>> notFinalJobs = null;
+        logger = Executors.newScheduledThreadPool(1);
         try {
             List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> script = XMLAnalyzer.XMLtoCommands(pathToXML);
             notFinalName = XMLAnalyzer.getProjectName(pathToXML);
@@ -92,12 +93,12 @@ public class Project extends Thread {
             end();
             GeneralLogger.writeExeption(e);
             Server.getInstance().sendExceptionToAllActiveGUIs(e);
+            return;
         } finally {
             name = notFinalName;
             temperatureLogger = notFinalTemperatureLogger;
             jobs = notFinalJobs;
         }
-        logger = Executors.newScheduledThreadPool(1);
         logger.scheduleAtFixedRate(() -> {
             String[] temps = new String[handlerIDs.size()], targetTemps = new String[handlerIDs.size()];
             for (int i = 0; i < handlerIDs.size(); i++) {
