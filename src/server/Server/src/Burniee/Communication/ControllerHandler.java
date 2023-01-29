@@ -48,37 +48,37 @@ public class ControllerHandler extends Thread {
 //    }
 
     public synchronized void startUsing(Project p) {
-        System.out.println("[Controller] free from service attempt");
-        GeneralLogger.writeMessage("[Controller] free from service attempt");
-        if (activeStateChangeDelay) {return;}
-        System.out.println("[Controller] free from service success");
-        GeneralLogger.writeMessage("[Controller] free from service success");
+//        System.out.println("[Controller] free from service attempt");
+//        GeneralLogger.writeMessage("[Controller] free from service attempt");
+//        if (activeStateChangeDelay) {return;}
+//        System.out.println("[Controller] free from service success");
+//        GeneralLogger.writeMessage("[Controller] free from service success");
         isActive = true;
         project = p;
         controller.setProjectName(p.getProjectName());
-        activeStateChangeDelay = true;
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.schedule(() -> {
-            activeStateChangeDelay = false;
-        }, 10, TimeUnit.SECONDS);
+//        activeStateChangeDelay = true;
+//        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+//        scheduler.schedule(() -> {
+//            activeStateChangeDelay = false;
+//        }, 10, TimeUnit.SECONDS);
     }
 
     public synchronized void freeFromService() {
-        System.out.println("[Controller] free from service attempt");
-        GeneralLogger.writeMessage("[Controller] free from service attempt");
-        if (activeStateChangeDelay) {return;}
-        System.out.println("[Controller] free from service success");
-        GeneralLogger.writeMessage("[Controller] free from service success");
+//        System.out.println("[Controller] free from service attempt");
+//        GeneralLogger.writeMessage("[Controller] free from service attempt");
+//        if (activeStateChangeDelay) {return;}
+//        System.out.println("[Controller] free from service success");
+//        GeneralLogger.writeMessage("[Controller] free from service success");
         isActive = false;
         if (project != null) {
             project.end();
         }
         controller.setTargetTemperature(0);
-        activeStateChangeDelay = true;
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.schedule(() -> {
-            activeStateChangeDelay = false;
-        }, 10, TimeUnit.SECONDS);
+//        activeStateChangeDelay = true;
+//        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+//        scheduler.schedule(() -> {
+//            activeStateChangeDelay = false;
+//        }, 10, TimeUnit.SECONDS);
     }
 
     public void stopConnection() {
