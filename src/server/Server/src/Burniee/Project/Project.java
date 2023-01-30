@@ -39,34 +39,34 @@ public class Project extends Thread {
 
     public Project(String pathToXML, String id) throws ParserConfigurationException, IOException, SAXException {
         ID = id;
+        name = XMLAnalyzer.getProjectName(pathToXML);
         handlerIDs = new ArrayList<>(XMLAnalyzer.getAllBlowers(pathToXML));
-        String notFinalName = null;
         TemperatureLogger notFinalTemperatureLogger = null;
         List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>>> notFinalJobs = null;
         logger = Executors.newScheduledThreadPool(1);
+
         try {
             List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> script = XMLAnalyzer.XMLtoCommands(pathToXML);
-            notFinalName = XMLAnalyzer.getProjectName(pathToXML);
-            notFinalTemperatureLogger = new TemperatureLogger(notFinalName);
+            notFinalTemperatureLogger = new TemperatureLogger(name);
             if (TemperatureLogger.numFilesToDelete() > 0) {
                 Server.getInstance().sendRequestForDeletingOldLogFiles();
             }
-            System.out.println("[Project] starting project " + notFinalName);
-            GeneralLogger.writeMessage("[Project] starting project " + notFinalName);
-            List<ControllerHandler> assigned = new LinkedList<>();
+            System.out.println("[Project] starting project " + name);
+            GeneralLogger.writeMessage("[Project] starting project " + name);
+//            List<ControllerHandler> assigned = new LinkedList<>();
             for (String i : handlerIDs) {
                 ControllerHandler ch = findControllerByID(i);
                 if (ch == null) {
                     throw new ControllerException("No controller with such ID");
                 }
                 if (ch.isActive()) {
-                    for (ControllerHandler c : assigned) {
-                        c.freeFromService();
-                    }
+//                    for (ControllerHandler c : assigned) {
+//                        c.freeFromService();
+//                    }
                     throw new ControllerException("Controller with ID = " + ch.getControllerID() + " is currently being used by another project");
                 }
                 ch.startUsing(this);
-                assigned.add(ch);
+//                assigned.add(ch);
                 System.out.println("[Project] controller with id = " + ch.getControllerID() + " found");
                 GeneralLogger.writeMessage("[Project] controller with id = " + ch.getControllerID() + " found");
             }
@@ -95,7 +95,6 @@ public class Project extends Thread {
             Server.getInstance().sendExceptionToAllActiveGUIs(e);
             return;
         } finally {
-            name = notFinalName;
             temperatureLogger = notFinalTemperatureLogger;
             jobs = notFinalJobs;
         }
