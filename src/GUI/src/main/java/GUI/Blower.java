@@ -4,8 +4,8 @@ import Logs.GeneralLogger;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
@@ -41,8 +41,9 @@ public class Blower {
     private final Button stopButton;
     private final Button hiddenButton;
 
-    private XYChart.Series<Number, Number> currentSeries = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> targetSeries = new XYChart.Series<>();
+    private ObservableList<XYChart.Data<Number, Number>> currentData;
+    private ObservableList<XYChart.Data<Number, Number>> targetData;
+
 
     /**
      * Instantiates a new Blower.
@@ -59,6 +60,7 @@ public class Blower {
         this.id = new SimpleStringProperty(id);
         this.link = new Hyperlink();
         setLink();
+
         this.currentTemp = new SimpleFloatProperty(currentTemp);
         this.targetTemp = new SimpleFloatProperty(targetTemp);
         this.projectName = new SimpleStringProperty(projectName);
@@ -66,16 +68,19 @@ public class Blower {
         this.markedForProject = new SimpleBooleanProperty(false);
 
         this.marker = new CheckBox();
-        marker.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                markedForProject.setValue(newValue);
-            }
-        });
+        this.marker.selectedProperty().addListener((observable, oldValue, newValue) -> markedForProject.setValue(newValue));
+        this.currentData = FXCollections.observableArrayList();
+        this.targetData = FXCollections.observableArrayList();
+        this.hiddenButton = new Button("");
+        setHiddenButton();
+        this.stopButton = new Button("STOP");
+        setStopButton();
+    }
+
+    private void setHiddenButton() {
         ImageView imageView = new ImageView(Objects.requireNonNull(getClass().getResource("caution.png")).toExternalForm());
         imageView.setFitWidth(25);
         imageView.setFitHeight(20);
-        this.hiddenButton = new Button("");
         hiddenButton.setId("cautionBtn");
         hiddenButton.setVisible(false);
         hiddenButton.setGraphic(imageView);
@@ -106,7 +111,9 @@ public class Blower {
                 System.out.println("blower " + getId() + " will not be resumed");
             }
         });
-        this.stopButton = new Button("STOP");
+    }
+
+    private void setStopButton() {
         stopButton.setId("stopBtn");
         stopButton.setFont(Font.font("Arial", FontWeight.BOLD, 11.0));
         stopButton.setMinWidth(75);
@@ -135,6 +142,8 @@ public class Blower {
             }
         });
     }
+
+//    TODO delete co netreba
 
     /**
      * Gets ip address of blower.
@@ -298,6 +307,22 @@ public class Blower {
         return marker;
     }
 
+    public ObservableList<XYChart.Data<Number, Number>> getCurrentData() {
+        return currentData;
+    }
+
+    public void setCurrentData(ObservableList<XYChart.Data<Number, Number>> currentData) {
+        this.currentData = currentData;
+    }
+
+    public ObservableList<XYChart.Data<Number, Number>> getTargetData() {
+        return targetData;
+    }
+
+    public void setTargetData(ObservableList<XYChart.Data<Number, Number>> targetData) {
+        this.targetData = targetData;
+    }
+
     /**
      * Gets stop button.
      *
@@ -314,22 +339,6 @@ public class Blower {
      */
     public Button getHiddenButton() {
         return hiddenButton;
-    }
-
-    public XYChart.Series<Number, Number> getCurrentSeries() {
-        return currentSeries;
-    }
-
-    public void setCurrentSeries(XYChart.Series<Number, Number> currentSeries) {
-        this.currentSeries = currentSeries;
-    }
-
-    public XYChart.Series<Number, Number> getTargetSeries() {
-        return targetSeries;
-    }
-
-    public void setTargetSeries(XYChart.Series<Number, Number> targetSeries) {
-        this.targetSeries = targetSeries;
     }
 
     @Override

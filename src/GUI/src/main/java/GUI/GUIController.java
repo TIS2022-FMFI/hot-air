@@ -274,8 +274,8 @@ public class GUIController implements Initializable {
 
 //            System.out.println("\nblowery v ObservableList= " + blowersList.size());
 //            blowersList.forEach(i -> System.out.println(i.toString()));
-//            System.out.println("blowery zo servera= " + blowers.size());
-//            blowers.forEach(a -> System.out.println(a.toString()));
+            System.out.println("blowery zo servera= " + blowers.size());
+            blowers.forEach(a -> System.out.println(a.toString()));
             for (Blower blower : blowers) {
                 synchronized (blower) {
                     boolean gut = false;
@@ -324,19 +324,19 @@ public class GUIController implements Initializable {
 //            System.out.println("\n projects v ObservableList= " + projectsList.size());
 //            Arrays.asList(projectsList).forEach(i -> System.out.println(i.toString()));
             Project[] projects = GUI.client.getAllProjects();
-//            System.out.println("projects zo servera= " + projects.length);
+            System.out.println("projects zo servera= " + projects.length);
+            Arrays.asList(projects).forEach(a -> System.out.println(a.toString()));
             if (projects.length == 0) {
                 projectsList.clear();
                 return;
             }
 
             for (Project project : projects) {
-//                System.out.println(project.toString());
                 synchronized (project) {
                     boolean gut = false;
                     for (Project p : projectsList) {
                         if (p.equals(project)) {
-                            p.setCurrentPhaseProperty(project.currentPhaseProperty());
+                            p.setCurrentPhase(project.getCurrentPhase());
                             gut = true;
                         }
                     }
@@ -345,7 +345,6 @@ public class GUIController implements Initializable {
                     }
                 }
             }
-
 
             List<Project> projectsToRemove = new ArrayList<>();
             for (Project p : projectsList) {
