@@ -5,12 +5,13 @@
 .button {
     -fx-background-radius: 5;
     -fx-border-radius: 5;
+    -fx-cursor: hand;
 }
 
-/* .button:selected */
 .button:hover, .button:focused {
     -fx-border-color: red;
     -fx-background-insets: 0;
+
 }
 
 .button#cautionBtn {
@@ -50,14 +51,6 @@
     -fx-border-color: #000000;
 }
 
-.onHover{
-    -fx-background-color: ORANGE;
-}
-
-.my-node {
-    -fx-opacity: 0.5;
-    -fx-stroke-width: 10px;
-}
 
 /* na transpaerntne buttony */
 /*#submitBtn, #submitBtn2 {*/

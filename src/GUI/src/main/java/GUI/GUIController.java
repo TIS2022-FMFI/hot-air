@@ -3,21 +3,22 @@ package GUI;
 import Communication.RequestResult;
 import Logs.GeneralLogger;
 import XML.XMLEditor;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -44,7 +45,7 @@ import java.util.concurrent.TimeUnit;
 public class GUIController implements Initializable {
 
     final FileChooser fileChooser = new FileChooser();
-    private GUI gui = GUI.gui;
+    private final GUI gui = GUI.gui;
     public static GUIController guiController;
 
     @FXML TextField filePath;
@@ -69,6 +70,7 @@ public class GUIController implements Initializable {
     @FXML CheckBox  showCurrentPhase;
 
     @FXML TableView<Blower> blowersView;
+    @FXML TableColumn<Blower,CheckBox> blowerMark;
     @FXML TableColumn<Blower,Hyperlink> blowerID;
     @FXML TableColumn<Blower,String> blowerIP;
     @FXML TableColumn<Blower, Float> blowerCurrentTmp;
@@ -147,6 +149,7 @@ public class GUIController implements Initializable {
     }
 
     private void setBlowersTable() {
+        blowerMark.setCellValueFactory(new PropertyValueFactory<>("marker"));
         blowerID.setCellValueFactory(new PropertyValueFactory<>("link"));
         blowerID.setCellFactory(new Callback<TableColumn<Blower, Hyperlink>, TableCell<Blower, Hyperlink>>() {
             @Override
@@ -164,24 +167,18 @@ public class GUIController implements Initializable {
                 };
             }
         });
-        blowerID.setComparator((o1, o2) -> o1.getText().compareTo(o2.getText()));
-        blowerID.setSortType(TableColumn.SortType.ASCENDING);
-        blowerID.setComparator((o2, o1) -> o2.getText().compareTo(o1.getText()));
-        blowerID.setSortType(TableColumn.SortType.DESCENDING);
+        blowerID.setComparator(Comparator.comparing(Labeled::getText));
         blowerIP.setCellValueFactory(new PropertyValueFactory<>("IPAddress"));
-        blowerIP.setComparator(new Comparator<String>() {
-            @Override
-            public int compare(String o1 , String o2) {
-                String[] v1 = o1.split("\\.");
-                String[] v2 = o2.split("\\.");
-                for (int i=0; i<v1.length; i++) {
-                    if (Integer.parseInt(v1[i]) < Integer.parseInt(v2[i]))
-                        return -1;
-                    if (Integer.parseInt(v1[i]) > Integer.parseInt(v2[i]))
-                        return 1;
-                }
-                return 0;
+        blowerIP.setComparator((o1, o2) -> {
+            String[] v1 = o1.split("\\.");
+            String[] v2 = o2.split("\\.");
+            for (int i=0; i<v1.length; i++) {
+                if (Integer.parseInt(v1[i]) < Integer.parseInt(v2[i]))
+                    return -1;
+                if (Integer.parseInt(v1[i]) > Integer.parseInt(v2[i]))
+                    return 1;
             }
+            return 0;
         });
         blowerCurrentTmp.setCellValueFactory(new PropertyValueFactory<>("currentTemp"));
         blowerTargetTmp.setCellValueFactory(new PropertyValueFactory<>("targetTemp"));
@@ -208,10 +205,7 @@ public class GUIController implements Initializable {
                 };
             }
         });
-        projectName.setComparator((o1, o2) -> Float.valueOf(o1.getText()).compareTo(Float.valueOf(o2.getText())));
-        projectName.setSortType(TableColumn.SortType.ASCENDING);
-        projectName.setComparator((o2, o1) -> Float.valueOf(o2.getText()).compareTo(Float.valueOf(o1.getText())));
-        projectName.setSortType(TableColumn.SortType.DESCENDING);
+        projectName.setComparator(Comparator.comparing(o -> Float.valueOf(o.getText())));
         projectPhase.setCellValueFactory(new PropertyValueFactory<>("currentPhase"));
         projectStop.setCellValueFactory(new PropertyValueFactory<>("stopButton"));
     }
@@ -234,11 +228,9 @@ public class GUIController implements Initializable {
     }
 
     private List<Blower> addBlowers() {
-
-        List<Blower> blowers = new ArrayList<Blower>();
-
+        List<Blower> blowers = new ArrayList<>();
         try {
-            RequestResult.Controller[] controllers = gui.client.getAllControllers();
+            RequestResult.Controller[] controllers = GUI.client.getAllControllers();
             for (RequestResult.Controller c : controllers) {
                 String projectName = (c.getProjectName() == null) ? "" : c.getProjectName() ;
                 if (projectName.contains("\\")) {
@@ -259,8 +251,7 @@ public class GUIController implements Initializable {
 
     private Project[] addProjects() {
         try {
-            Project[] projects = gui.client.getAllProjects();
-            return projects;
+            return GUI.client.getAllProjects();
         } catch (Exception e) {
 //            System.err.println("projects were not loaded from server");
             GeneralLogger.writeExeption(e);
@@ -272,10 +263,9 @@ public class GUIController implements Initializable {
     }
 
     private void updateBlowers() {
-        List<Blower> blowers = new ArrayList<Blower>();
-
+        List<Blower> blowers = new ArrayList<>();
         try {
-            RequestResult.Controller[] controllers = gui.client.getAllControllers();
+            RequestResult.Controller[] controllers = GUI.client.getAllControllers();
             for (RequestResult.Controller c : controllers) {
                 String projectName = (c.getProjectName() == null) ? "" : c.getProjectName();
                 Blower blower = new Blower(c.getIP().getHostAddress(), c.getID(), c.getCurrentTemperature(), c.getTargetTemperature(), projectName, c.getStopped());
@@ -284,19 +274,20 @@ public class GUIController implements Initializable {
 
 //            System.out.println("\nblowery v ObservableList= " + blowersList.size());
 //            blowersList.forEach(i -> System.out.println(i.toString()));
-//            System.out.println("blowery zo servera= " + blowers.size());
-//            blowers.forEach(a -> System.out.println(a.toString()));
+            System.out.println("blowery zo servera= " + blowers.size());
+            blowers.forEach(a -> System.out.println(a.toString()));
             for (Blower blower : blowers) {
                 synchronized (blower) {
                     boolean gut = false;
                     for (Blower b : blowersList) {
                         if (b.equals(blower)) {
-                            b.setLink(blower.getLink());
-                            b.setIdProperty(blower.idProperty());
-                            b.setCurrentTempProperty(blower.currentTempProperty());
-                            b.setTargetTempProperty(blower.targetTempProperty());
-                            b.setProjectNameProperty(blower.projectNameProperty());
+                            b.setId(blower.getId());
+                            b.setLink();
+                            b.setCurrentTemp(blower.getCurrentTemp());
+                            b.setTargetTemp(blower.getTargetTemp());
+                            b.setProjectName(blower.getProjectName());
                             b.setStopped(blower.isStopped());
+                            b.setMarkedForProject(blower.isMarkedForProject());
                             gut = true;
                         }
                     }
@@ -306,7 +297,7 @@ public class GUIController implements Initializable {
                 }
             }
 
-            List<Blower> blowersToRemove = new ArrayList<Blower>();
+            List<Blower> blowersToRemove = new ArrayList<>();
             for (Blower b : blowersList) {
                 boolean gut = false;
                 for (Blower blower : blowers) {
@@ -330,22 +321,22 @@ public class GUIController implements Initializable {
 
     private void updateProjects() {
         try {
-//            System.out.println("\nprojects v ObservableList= " + projectsList.size());
+//            System.out.println("\n projects v ObservableList= " + projectsList.size());
 //            Arrays.asList(projectsList).forEach(i -> System.out.println(i.toString()));
-            Project[] projects = gui.client.getAllProjects();
-//            System.out.println("projecty zo servera= " + projects.length);
+            Project[] projects = GUI.client.getAllProjects();
+            System.out.println("projects zo servera= " + projects.length);
+            Arrays.asList(projects).forEach(a -> System.out.println(a.toString()));
             if (projects.length == 0) {
                 projectsList.clear();
                 return;
             }
 
             for (Project project : projects) {
-//                System.out.println(project.toString());
                 synchronized (project) {
                     boolean gut = false;
                     for (Project p : projectsList) {
                         if (p.equals(project)) {
-                            p.setCurrentPhaseProperty(project.currentPhaseProperty());
+                            p.setCurrentPhase(project.getCurrentPhase());
                             gut = true;
                         }
                     }
@@ -355,8 +346,7 @@ public class GUIController implements Initializable {
                 }
             }
 
-
-            List<Project> projectsToRemove = new ArrayList<Project>();
+            List<Project> projectsToRemove = new ArrayList<>();
             for (Project p : projectsList) {
                 boolean gut = false;
                 for (Project project : projects) {
@@ -382,9 +372,8 @@ public class GUIController implements Initializable {
     /**
      * Search XML file.
      *
-     * @param actionEvent the action event
      */
-    public void searchXML(ActionEvent actionEvent) {
+    public void searchXML() {
         blowersInfo.setText("");
         projectsInfo.setText("");
 
@@ -397,7 +386,7 @@ public class GUIController implements Initializable {
         }
     }
 
-    public void checkTypeOfFile(ActionEvent actionEvent) {
+    public void checkTypeOfFile() {
         String path = filePath.getText();
         checkType(path);
     }
@@ -414,9 +403,8 @@ public class GUIController implements Initializable {
     /**
      * Search / Select directory for EXE.
      *
-     * @param actionEvent the action event
      */
-    public void searchEXE(ActionEvent actionEvent) {
+    public void searchEXE() {
         File file = fileChooser.showOpenDialog(gui.getStage());
         if (file != null) {
             pathToExe.setText(file.getPath());
@@ -426,9 +414,8 @@ public class GUIController implements Initializable {
     /**
      * Submit file.
      *
-     * @param actionEvent the action event
      */
-    public void submitFile(ActionEvent actionEvent) {
+    public void submitFile() {
         try {
             if (pathToExe.getText().isEmpty()) {
                 throw new XMLLoadException("File can't be loaded. Set path to EXE in settings first!");
@@ -459,6 +446,8 @@ public class GUIController implements Initializable {
 
             filePath.setText("");
             filePath2.setText("");
+            blowersList.forEach(b -> b.setMarkedForProject(false));
+            blowersList.forEach(b -> b.getMarker().setSelected(false));
 
         } catch (IllegalArgumentException | ParserConfigurationException | IOException | SAXException | TransformerException | XMLLoadException e) {
             GeneralLogger.writeExeption(e);
@@ -491,9 +480,9 @@ public class GUIController implements Initializable {
         }
     }
 
-    public void scanBlowers(ActionEvent actionEvent) {
+    public void scanBlowers() {
         try {
-            gui.client.searchForNewControllers();  // todo debug
+            GUI.client.searchForNewControllers();
             updateTable();
             GeneralLogger.writeMessage("Search for new blowers was successful");
         } catch (Exception e) {
@@ -503,9 +492,9 @@ public class GUIController implements Initializable {
         }
     }
 
-    public void stopAllBlowers(ActionEvent actionEvent) {
+    public void stopAllBlowers() {
         try {
-            gui.client.stopAllControllers();  // todo debug
+            GUI.client.stopAllControllers();
             for (Blower b: blowersList) {
                 b.getHiddenButton().setVisible(true);
             }
@@ -517,7 +506,7 @@ public class GUIController implements Initializable {
         }
     }
 
-    public void saveSettings(ActionEvent actionEvent) {
+    public void saveSettings() {
         try {
             FileWriter writer = new FileWriter("GUIconfig.txt");
             writer.write(pathToExe.getText());
@@ -545,35 +534,35 @@ public class GUIController implements Initializable {
         }
     }
 
-    public void showId(ActionEvent actionEvent) {
+    public void showId() {
         blowerID.setVisible(showID.isSelected());
     }
 
-    public void showIp(ActionEvent actionEvent) {
+    public void showIp() {
         blowerIP.setVisible(showIP.isSelected());
     }
 
-    public void showCurrentTmp(ActionEvent actionEvent) {
+    public void showCurrentTmp() {
         blowerCurrentTmp.setVisible(showCurrentTmp.isSelected());
     }
 
-    public void showTargetTmp(ActionEvent actionEvent) {
+    public void showTargetTmp() {
         blowerTargetTmp.setVisible(showTargetTmp.isSelected());
     }
 
-    public void showProject(ActionEvent actionEvent) {
+    public void showProject() {
         blowerProject.setVisible(showProject.isSelected());
     }
 
-    public void showBlowerStop(ActionEvent actionEvent) {
+    public void showBlowerStop() {
         blowerStop.setVisible(showBlowerStop.isSelected());
     }
 
-    public void showName(ActionEvent actionEvent) {
+    public void showName() {
         projectName.setVisible(showName.isSelected());
     }
 
-    public void showCurrentPhase(ActionEvent actionEvent) {
+    public void showCurrentPhase() {
         projectPhase.setVisible(showCurrentPhase.isSelected());
     }
 

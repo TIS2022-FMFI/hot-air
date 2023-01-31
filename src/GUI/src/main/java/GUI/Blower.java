@@ -1,18 +1,14 @@
 package GUI;
 
 import Logs.GeneralLogger;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
@@ -32,19 +28,22 @@ import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
  * Class for blowers.
  */
 public class Blower {
-    private SimpleStringProperty id;
-    private Hyperlink link;
     private String IPAddress;
-    private SimpleFloatProperty currentTemp;
-    private SimpleFloatProperty targetTemp;
-    private SimpleStringProperty projectName;
-    private SimpleBooleanProperty stopped;
+    private final SimpleStringProperty id;
+    private final Hyperlink link;
+    private final SimpleFloatProperty currentTemp;
+    private final SimpleFloatProperty targetTemp;
+    private final SimpleStringProperty projectName;
+    private final SimpleBooleanProperty stopped;
+    private final SimpleBooleanProperty markedForProject;
 
+    private final CheckBox marker;
     private final Button stopButton;
     private final Button hiddenButton;
 
-    private XYChart.Series<Number, Number> currentSeries = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> targetSeries = new XYChart.Series<>();
+    private ObservableList<XYChart.Data<Number, Number>> currentData;
+    private ObservableList<XYChart.Data<Number, Number>> targetData;
+
 
     /**
      * Instantiates a new Blower.
@@ -53,30 +52,35 @@ public class Blower {
      * @param id          the id
      * @param currentTemp the current temperature
      * @param targetTemp  the target temperature
-     * @param projectName     the corresponding project
+     * @param projectName the corresponding project
+     * @param stopped     if the blower is stopped
      */
     public Blower(String IPAddress, String id, float currentTemp, float targetTemp, String projectName, Boolean stopped) {
         this.IPAddress = IPAddress.trim();
         this.id = new SimpleStringProperty(id);
+        this.link = new Hyperlink();
+        setLink();
+
         this.currentTemp = new SimpleFloatProperty(currentTemp);
         this.targetTemp = new SimpleFloatProperty(targetTemp);
         this.projectName = new SimpleStringProperty(projectName);
-        this.link = new Hyperlink(idProperty().getValue());
-        this.link.setOnAction(event -> {
-            try {
-                String url = "http://" + this.IPAddress;
-                Desktop.getDesktop().browse(new URI(url));
-                GeneralLogger.writeMessage(url);
-            } catch (IOException | URISyntaxException e) {
-                GeneralLogger.writeExeption(e);
-                e.printStackTrace();
-            }
-        });
         this.stopped = new SimpleBooleanProperty(stopped);
+        this.markedForProject = new SimpleBooleanProperty(false);
+
+        this.marker = new CheckBox();
+        this.marker.selectedProperty().addListener((observable, oldValue, newValue) -> markedForProject.setValue(newValue));
+        this.currentData = FXCollections.observableArrayList();
+        this.targetData = FXCollections.observableArrayList();
+        this.hiddenButton = new Button("");
+        setHiddenButton();
+        this.stopButton = new Button("STOP");
+        setStopButton();
+    }
+
+    private void setHiddenButton() {
         ImageView imageView = new ImageView(Objects.requireNonNull(getClass().getResource("caution.png")).toExternalForm());
         imageView.setFitWidth(25);
         imageView.setFitHeight(20);
-        this.hiddenButton = new Button("");
         hiddenButton.setId("cautionBtn");
         hiddenButton.setVisible(false);
         hiddenButton.setGraphic(imageView);
@@ -89,25 +93,27 @@ public class Blower {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setResizable(true);
             alert.setTitle("RESUMING BLOWER");
-            alert.setHeaderText("Do you really want to resume blower " + idProperty().getValue() + "?");
+            alert.setHeaderText("Do you really want to resume blower " + getId() + "?");
             setAlertIcons(alert);
 
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == ButtonType.OK){
                 try {
-                    GUI.gui.client.unlockController(idProperty().getValue());    // todo debug
+                    GUI.gui.client.unlockController(getId());
                     hiddenButton.setVisible(false);
-                    System.out.println("blower " + idProperty().getValue() + " was resumed");
+                    System.out.println("blower " + getId() + " was resumed");
                 } catch (Exception e) {
                     GeneralLogger.writeExeption(e);
-                    System.err.println("blower " + idProperty().getValue() + " could not be resumed");
+                    System.err.println("blower " + getId() + " could not be resumed");
                     gui.alert(e);
                 }
             } else {
-                System.out.println("blower " + idProperty().getValue() + " will not be resumed");
+                System.out.println("blower " + getId() + " will not be resumed");
             }
         });
-        this.stopButton = new Button("STOP");
+    }
+
+    private void setStopButton() {
         stopButton.setId("stopBtn");
         stopButton.setFont(Font.font("Arial", FontWeight.BOLD, 11.0));
         stopButton.setMinWidth(75);
@@ -117,43 +123,27 @@ public class Blower {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setResizable(true);
             alert.setTitle("STOPPING BLOWER");
-            alert.setHeaderText("Do you really want to stop blower " + idProperty().getValue() + "?");
+            alert.setHeaderText("Do you really want to stop blower " + getId() + "?");
             setAlertIcons(alert);
 
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == ButtonType.OK){
                 try {
-                    gui.client.stopAController(idProperty().getValue());  // todo debug
+                    gui.client.stopAController(getId());
                     hiddenButton.setVisible(true);
-                    System.out.println("blower " + idProperty().getValue() + " stopped");
+                    System.out.println("blower " + getId() + " stopped");
                 } catch (Exception e) {
                     GeneralLogger.writeExeption(e);
-                    System.err.println("blower " + idProperty().getValue() + " could not be stopped");
+                    System.err.println("blower " + getId() + " could not be stopped");
                     gui.alert(e);
                 }
             } else {
-                System.out.println("blower " + idProperty().getValue() + " will not be stopped");
+                System.out.println("blower " + getId()+ " will not be stopped");
             }
         });
     }
 
-    /**
-     * Gets blower id.
-     *
-     * @return blower id
-     */
-    public SimpleStringProperty idProperty() {
-        return id;
-    }
-
-    /**
-     * Sets blower id.
-     *
-     * @param id blower id
-     */
-    public void setIdProperty(SimpleStringProperty id) {
-        this.id = id;
-    }
+//    TODO delete co netreba
 
     /**
      * Gets ip address of blower.
@@ -174,69 +164,21 @@ public class Blower {
     }
 
     /**
-     * Gets current temperature of blower.
+     * Gets blower id.
      *
-     * @return the current temperature of blower
+     * @return blower id
      */
-    public SimpleFloatProperty currentTempProperty() {
-        return currentTemp;
+    public String getId() {
+        return id.get();
     }
 
     /**
-     * Sets current temperature of blower.
+     * Sets blower id.
      *
-     * @param currentTemp the current temperature of blower
+     * @param id blower id
      */
-    public void setCurrentTempProperty(SimpleFloatProperty currentTemp) {
-        this.currentTemp = currentTemp;
-    }
-
-    /**
-     * Gets target temperature of blower.
-     *
-     * @return the target temperature of blower
-     */
-    public SimpleFloatProperty targetTempProperty() {
-        return targetTemp;
-    }
-
-    /**
-     * Sets target temperature of blower.
-     *
-     * @param targetTemp the target temperature of blower
-     */
-    public void setTargetTempProperty(SimpleFloatProperty targetTemp) {
-        this.targetTemp = targetTemp;
-    }
-
-    /**
-     * Gets project name for blower.
-     *
-     * @return the project name for blower
-     */
-    public SimpleStringProperty projectNameProperty() {
-        return projectName;
-    }
-
-    /**
-     * Sets project name for blower.
-     *
-     * @param projectName the project name for blower
-     */
-    public void setProjectNameProperty(SimpleStringProperty projectName) {
-        this.projectName = projectName;
-    }
-
-    public boolean isStopped() {
-        return stopped.get();
-    }
-
-    public SimpleBooleanProperty stoppedProperty() {
-        return stopped;
-    }
-
-    public void setStopped(boolean stopped) {
-        this.stopped.set(stopped);
+    public void setId(String id) {
+        this.id.set(id);
     }
 
     /**
@@ -251,10 +193,134 @@ public class Blower {
     /**
      * Sets link to blower's website.
      *
-     * @param link the link to blower's website
      */
-    public void setLink(Hyperlink link) {
-        this.link = link;
+    public void setLink() {
+        this.link.setText(getId());
+        this.link.setOnAction(event -> {
+            try {
+                String url = "http://" + this.IPAddress;
+                Desktop.getDesktop().browse(new URI(url));
+                GeneralLogger.writeMessage(url);
+            } catch (IOException | URISyntaxException e) {
+                GeneralLogger.writeExeption(e);
+                e.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * Gets current temperature of blower.
+     *
+     * @return the current temperature of blower
+     */
+    public float getCurrentTemp() {
+        return currentTemp.get();
+    }
+
+    /**
+     * Sets current temperature of blower.
+     *
+     * @param currentTemp the current temperature of blower
+     */
+    public void setCurrentTemp(float currentTemp) {
+        this.currentTemp.set(currentTemp);
+    }
+
+    /**
+     * Gets target temperature of blower.
+     *
+     * @return the target temperature of blower
+     */
+    public float getTargetTemp() {
+        return targetTemp.get();
+    }
+
+    /**
+     * Sets target temperature of blower.
+     *
+     * @param targetTemp the target temperature of blower
+     */
+    public void setTargetTemp(float targetTemp) {
+        this.targetTemp.set(targetTemp);
+    }
+
+    /**
+     * Gets project name for blower.
+     *
+     * @return the project name for blower
+     */
+    public String getProjectName() {
+        return projectName.get();
+    }
+
+    /**
+     * Sets project name for blower.
+     *
+     * @param projectName the project name for blower
+     */
+    public void setProjectName(String projectName) {
+        this.projectName.set(projectName);
+    }
+
+    /**
+     * Gets if blower is stopped.
+     *
+     * @return if blower is stopped
+     */
+    public boolean isStopped() {
+        return stopped.get();
+    }
+
+    /**
+     * Sets if blower is stopped.
+     *
+     * @param stopped if blower is stopped
+     */
+    public void setStopped(boolean stopped) {
+        this.stopped.set(stopped);
+    }
+
+    /**
+     * Gets if blower is marked for project.
+     *
+     * @return if blower is marked for project
+     */
+    public boolean isMarkedForProject() {
+        return markedForProject.get();
+    }
+
+    /**
+     * Sets if blower is marked for project.
+     *
+     * @param markedForProject if blower is marked for project
+     */
+    public void setMarkedForProject(boolean markedForProject) {
+        this.markedForProject.set(markedForProject);
+    }
+
+    /**
+     * Gets checkbox for marking blower for project.
+     *
+     * @return the checkbox for marking blower for project
+     */
+    public CheckBox getMarker() {
+        return marker;
+    }
+
+    public ObservableList<XYChart.Data<Number, Number>> getCurrentData() {
+        return currentData;
+    }
+
+    public void setCurrentData(ObservableList<XYChart.Data<Number, Number>> currentData) {
+        this.currentData = currentData;
+    }
+
+    public ObservableList<XYChart.Data<Number, Number>> getTargetData() {
+        return targetData;
+    }
+
+    public void setTargetData(ObservableList<XYChart.Data<Number, Number>> targetData) {
+        this.targetData = targetData;
     }
 
     /**
@@ -275,39 +341,12 @@ public class Blower {
         return hiddenButton;
     }
 
-    public XYChart.Series<Number, Number> getCurrentSeries() {
-        return currentSeries;
-    }
-
-    public void setCurrentSeries(XYChart.Series<Number, Number> currentSeries) {
-        this.currentSeries = currentSeries;
-    }
-
-    public XYChart.Series<Number, Number> getTargetSeries() {
-        return targetSeries;
-    }
-
-    public void setTargetSeries(XYChart.Series<Number, Number> targetSeries) {
-        this.targetSeries = targetSeries;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Blower blower = (Blower) o;
         return Objects.equals(IPAddress, blower.IPAddress);
-    }
-
-    public boolean equalsEverything(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Blower blower = (Blower) o;
-        return Objects.equals(idProperty().getValue(), blower.idProperty().getValue())
-                && Objects.equals(IPAddress, blower.IPAddress)
-                && Objects.equals(currentTempProperty().getValue(), blower.currentTempProperty().getValue())
-                && Objects.equals(targetTempProperty().getValue(), blower.targetTempProperty().getValue())
-                && Objects.equals(projectNameProperty().getValue(), blower.projectNameProperty().getValue());
     }
 
     @Override

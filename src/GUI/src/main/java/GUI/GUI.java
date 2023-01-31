@@ -48,7 +48,7 @@ public class GUI extends Application {
         try {
             createGUIConfigFile();
 
-            client = new ClientHandler();   // todo debug
+            client = new ClientHandler();
 
             Parent root = FXMLLoader.load(Objects.requireNonNull(GUI.class.getResource("gui.fxml")));
             Scene scene = new Scene(root, 850, 510);
