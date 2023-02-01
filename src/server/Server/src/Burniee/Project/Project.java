@@ -1,7 +1,6 @@
 package Burniee.Project;
 
 import Burniee.Communication.ControllerHandler;
-import Burniee.Communication.UDPCommunicationHandler;
 import Burniee.Logs.GeneralLogger;
 import Burniee.Logs.TemperatureLogger;
 import Burniee.xml.XMLException;
@@ -17,7 +16,6 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class Project extends Thread {
     private final String ID;
@@ -25,6 +23,7 @@ public class Project extends Thread {
     private final String name;
     private static final byte AIR_FLOW = 100;
     private String phaseName = "";
+    private int phaseIndex = 0;
     private boolean phaseEnded = false;
     private boolean projectAtEnd = false;
 //    private boolean controllerReconnected = false;
@@ -33,13 +32,14 @@ public class Project extends Thread {
 //    private final List<ControllerHandler> handlers;
     private final ScheduledExecutorService logger;
     private final TemperatureLogger temperatureLogger;
-//    private final Map<String, ControllerHandler> handlers;
+    private final Map<String, ControllerHandler> handlers;
     private final List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>>> jobs;
     //           ^Queue<Pair<PhaseName, List<Pair<ControllerID, Pair<Temperature, Time>>>>>
 
     public Project(String pathToXML, String id) throws ParserConfigurationException, IOException, SAXException {
         ID = id;
         name = XMLAnalyzer.getProjectName(pathToXML);
+        handlers = new HashMap<>();
         handlerIDs = new ArrayList<>(XMLAnalyzer.getAllBlowers(pathToXML));
         TemperatureLogger notFinalTemperatureLogger = null;
         List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>>> notFinalJobs = null;
@@ -53,20 +53,16 @@ public class Project extends Thread {
             }
             System.out.println("[Project] starting project " + name);
             GeneralLogger.writeMessage("[Project] starting project " + name);
-//            List<ControllerHandler> assigned = new LinkedList<>();
             for (String i : handlerIDs) {
-                ControllerHandler ch = findControllerByID(i);
+                ControllerHandler ch = Server.getInstance().findControllerByID(i);
                 if (ch == null) {
                     throw new ControllerException("No controller with such ID");
                 }
                 if (ch.isActive()) {
-//                    for (ControllerHandler c : assigned) {
-//                        c.freeFromService();
-//                    }
                     throw new ControllerException("Controller with ID = " + ch.getControllerID() + " is currently being used by another project");
                 }
-                ch.startUsing(this);
-//                assigned.add(ch);
+                ch.startProject(this);
+                handlers.put(i, ch);
                 System.out.println("[Project] controller with id = " + ch.getControllerID() + " found");
                 GeneralLogger.writeMessage("[Project] controller with id = " + ch.getControllerID() + " found");
             }
@@ -99,9 +95,9 @@ public class Project extends Thread {
             jobs = notFinalJobs;
         }
         logger.scheduleAtFixedRate(() -> {
-            String[] temps = new String[handlerIDs.size()], targetTemps = new String[handlerIDs.size()];
-            for (int i = 0; i < handlerIDs.size(); i++) {
-                ControllerHandler ch = findControllerByID(handlerIDs.get(i));
+            String[] temps = new String[handlers.size()], targetTemps = new String[handlers.size()];
+            for (int i = 0; i < handlers.size(); i++) {
+                ControllerHandler ch = handlers.get(handlerIDs.get(i));
                 if (ch != null) {
                     temps[i] = String.valueOf(ch.getController().getCurrentTemperature());
                     targetTemps[i] = String.valueOf(ch.getController().getTargetTemperature());
@@ -139,13 +135,15 @@ public class Project extends Thread {
         System.out.println("[Project] Project with ID = " + ID + ", name = " + name + " ended");
         GeneralLogger.writeMessage("[Project] Project with ID = " + ID + ", name = " + name + " ended");
         Server.getInstance().removeProject(this);
-        coolAllControllers();
-        for (String i : handlerIDs) {
-            ControllerHandler ch = findControllerByID(i);
-            if (ch != null) {
-                ch.getController().setProjectName(null);
-                ch.setProject(null);
-                ch.freeFromService();
+        for (Map.Entry<String, ControllerHandler> ch : handlers.entrySet()) {
+            if (ch.getValue().getProject().equals(this)) {
+                try {
+                    ch.getValue().endProject();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    GeneralLogger.writeExeption(e);
+                    Server.getInstance().sendExceptionToAllActiveGUIs(new ControllerException("Stopping of controller with id = " + ch.getValue().getControllerID() + " may have failed"));
+                }
             }
         }
         logger.shutdown();
@@ -156,9 +154,9 @@ public class Project extends Thread {
     public long getTimeSinceStart() {return System.nanoTime()-startedAt;}
     public synchronized String getPhaseName() {return phaseName;}
     private synchronized void setPhaseName(String name) {phaseName = name;}
+    private void incrementPhaseIndex() {phaseIndex++;}
     public String getProjectName() {return name;}
     public boolean isAtEnd() {return projectAtEnd;}
-    public List<String> getHandlerIDs() {return handlerIDs;}
 
     public synchronized void confirmEndOfPhase() {
         phaseEnded = true;
@@ -176,16 +174,6 @@ public class Project extends Thread {
         }
     }
 
-    private ControllerHandler findControllerByID(String id) {
-        List<ControllerHandler> controllers = Server.getInstance().getControllers();
-        for (ControllerHandler c : controllers) {
-            if (c.getControllerID().equals(id)) {
-                return c;
-            }
-        }
-        return null;
-    }
-
 //    private String getReadableTime(Long nanos){
 //        long tempSec    = nanos/(1000*1000*1000);
 //        long sec        = tempSec % 60;
@@ -196,18 +184,18 @@ public class Project extends Thread {
 //        return String.format("%dd %dh %dm %ds (day, hour, min, sec)", day,hour,min,sec);
 //    }
 
-    private void coolAllControllers() {
-        for (String i : handlerIDs) {
-            ControllerHandler ch = findControllerByID(i);
-            if (ch != null) {
-                try {
-                    ch.changeControllerParameters(0, (short) 100, 0);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
+//    private void coolAllControllers() {
+//        for (String i : handlerIDs) {
+//            ControllerHandler ch = findControllerByID(i);
+//            if (ch != null) {
+//                try {
+//                    ch.changeControllerParameters(0, (short) 100, 0);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//    }
 
 //    public boolean beYouMyLostChild(ControllerHandler controller) {
 //        if (controller.getControllerID().equals(disconnectedController)) {
@@ -228,17 +216,7 @@ public class Project extends Thread {
                 return;
             }
             startedAt = System.nanoTime();
-//            System.out.println("[Project] project started at " + getReadableTime(startedAt));
             Server.getInstance().addProject(this);
-//            for (String entry : handlerIDs) {
-//                ControllerHandler ch = findControllerByID(entry);
-//                if (ch != null) {
-//                    beYouMyLostChild(ch);
-//                }
-//            }
-//            for (Map.Entry<String, ControllerHandler> entry : handlers.entrySet()) {
-//                entry.getValue().getController().setProjectName(name);
-//            }
             int temperature;
             long time = 0;
             System.out.println("[Project] Starting first job");
@@ -246,24 +224,15 @@ public class Project extends Thread {
             AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>> job;
             for (int i = 0; i < jobs.size(); i++) {
                 job = jobs.get(i);
-//            for (AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>> job : jobs) {
                 setPhaseName(job.getKey());
+                incrementPhaseIndex();
                 System.out.println("[Project] Phase " + job.getKey() + " started");
                 GeneralLogger.writeMessage("[Project] Phase " + job.getKey() + " started");
                 for (AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>> controllerJob : job.getValue()) {
-                    for (int j = 0; j < 5; j++) {
-                        try {
-                            time = controllerJob.getValue().getValue();
-                            temperature = controllerJob.getValue().getKey();
-                            ControllerHandler ch = findControllerByID(controllerJob.getKey());
-                            if (ch != null) {
-                                ch.changeControllerParameters(temperature, AIR_FLOW, time);
-                            }
-                            break;
-                        } catch (SocketException ignored) {
-                            sleep(10);
-                        }
-                    }
+                    time = controllerJob.getValue().getValue();
+                    temperature = controllerJob.getValue().getKey();
+                    ControllerHandler ch = handlers.get(controllerJob.getKey());
+                    ch.changeControllerParameters(phaseIndex, temperature, AIR_FLOW, time);
                 }
                 System.out.println("[Project] Instructions sent to controller(s), awaiting end of phase confirmation");
                 GeneralLogger.writeMessage("[Project] Instructions sent to controller(s), awaiting end of phase confirmation");
@@ -272,12 +241,10 @@ public class Project extends Thread {
                     System.out.println("[Project] Last phase reached");
                     GeneralLogger.writeMessage("[Project] Last phase reached");
                     sleep(time*1000);
-                    coolAllControllers();
                     return;
                 }
                 awaitEndOfPhase();
                 if (projectAtEnd) {
-                    coolAllControllers();
                     return;
                 }
                 System.out.println("[Project] End of phase received, continuing to another phase");

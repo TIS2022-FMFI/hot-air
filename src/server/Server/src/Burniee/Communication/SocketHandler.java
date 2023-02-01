@@ -46,10 +46,10 @@ public class SocketHandler {
             System.out.println("[TCP] EXE connected");
             GeneralLogger.writeMessage("[TCP] EXE connected");
             new EXEHandler(this).start();
-        } else if (MessageBuilder.Controller.is(type)) {
-            System.out.println("[TCP] Controller connected");
-            GeneralLogger.writeMessage("[TCP] Controller connected");
-            new ControllerHandler(this, s.getInetAddress()).start();
+//        } else if (MessageBuilder.Controller.is(type)) {
+//            System.out.println("[TCP] Controller connected");
+//            GeneralLogger.writeMessage("[TCP] Controller connected");
+//            new ControllerHandler(this, s.getInetAddress()).start();
         } else {
             stopSocket();
             throw new ConnectException("Unknown type of connection");
