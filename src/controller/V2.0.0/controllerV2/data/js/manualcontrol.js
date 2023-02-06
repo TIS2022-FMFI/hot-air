@@ -4,6 +4,22 @@
     getValueFromAPI("air", document.getElementById("airflow2"), true);
     getValueFromAPI("power", document.getElementById("power"), true);
 
+    const powerform = document.getElementById("powerform");
+    powerform.addEventListener("submit", event => {
+        event.preventDefault();
+        console.log("sending data for power setup");
+        fetchData(powerform, "/data");
+    });
+
+    const temperatureform = document.getElementById("temperatureform");
+    temperatureform.addEventListener("submit", event => {
+        event.preventDefault();
+        console.log("sending data for temperature set");
+        fetchData(temperatureform, "/data");
+    });
+
+
+
 }(this, this.document));
 
 function toggleForm() {
