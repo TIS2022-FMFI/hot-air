@@ -1,5 +1,6 @@
 package Burniee.Communication;
 
+import Burniee.Controller.ControllerCommunicator;
 import Burniee.Logs.GeneralLogger;
 import Burniee.Server;
 
@@ -21,15 +22,19 @@ public class UDPCommunicationHandler extends Thread {
     public static final byte[] LOOKING_FOR_CONTROLLERS_MESSAGE = {0x41, 0x48, 0x4f, 0x4a, 0x2b};
     private DatagramSocket socket;
     private final static Random rnd = new Random();
+    private final Map<InetAddress, ControllerCommunicator> controllers;
 
-    private static final UDPCommunicationHandler INSTANCE = new UDPCommunicationHandler();
+    private static final UDPCommunicationHandler INSTANCE = new UDPCommunicationHandler(); //TODO remove magical numbers
     private UDPCommunicationHandler() {
+        controllers = new HashMap<>();
         System.out.println("[UDP] Attempting to start UDP socket");
         GeneralLogger.writeMessage("[UDP] Attempting to start UDP socket");
         socket = null;
         createConnection();
     }
+
     public static UDPCommunicationHandler getInstance() {return INSTANCE;}
+    public void addNewController(ControllerCommunicator controller) {synchronized (controllers) {controllers.put(controller.getIP(), controller);}}
 
     private void createConnection() {
         for (int i = 0; i < 5; i++) {
@@ -40,9 +45,9 @@ public class UDPCommunicationHandler extends Thread {
                 e.printStackTrace();
                 if (i == 4) {
                     GeneralLogger.writeExeption(e);
-                    System.err.println("[UDP] socket failed to start, trying again in 1 minute");
+                    System.err.println("[UDP] socket failed to start, trying again in 30 seconds");
                     ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-                    scheduler.schedule(this::createConnection, 1, TimeUnit.MINUTES);
+                    scheduler.schedule(this::createConnection, 30, TimeUnit.SECONDS);
                     return;
                 } else {
                     System.err.println("[UDP] socket failed to start, trying again");
@@ -87,8 +92,13 @@ public class UDPCommunicationHandler extends Thread {
         System.out.println("[Server] check if another server is running");
         GeneralLogger.writeMessage("[Server] check if another server is running");
         try {
+            if (socket == null) {
+                System.out.println("[UDP] Check for another server failed");
+                GeneralLogger.writeMessage("[UDP] Check for another server failed");
+                return false;
+            }
             socket.setSoTimeout(500);
-            byte[] buff = new byte[4096];
+            byte[] buff = new byte[MAX_UDP_PACKET_SIZE];
             DatagramPacket packet;
             long startTime = System.currentTimeMillis();
             while (startTime+2000 > System.currentTimeMillis()) {
@@ -141,21 +151,20 @@ public class UDPCommunicationHandler extends Thread {
     @Override
     public void run() {
         byte[] buffer = new byte[MAX_UDP_PACKET_SIZE];
+        while (socket == null) {
+            try {
+                System.out.println("[UDP] socket not activated, waiting for a minute and trying again");
+                GeneralLogger.writeMessage("[UDP] socket not activated, waiting for a minute and trying again");
+                sleep(31000);
+            } catch (InterruptedException ignored) {}
+        }
         try {
             socket.setSoTimeout(0);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        while (true) {
+        while (socket.isBound()) {
             try {
-                if (socket == null) {
-                    try {
-                        sleep(1000);
-                    } catch (InterruptedException e) {
-                        continue;
-                    }
-                    continue;
-                }
                 System.out.println("[UDP] awaiting arrival of a packet");
                 GeneralLogger.writeMessage("[UDP] awaiting arrival of a packet");
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -168,13 +177,22 @@ public class UDPCommunicationHandler extends Thread {
                     GeneralLogger.writeMessage("[UDP] packet is looking for server");
                     sendUDPPacket(I_AM_THE_SERVER_MESSAGE, Collections.singletonList(packet.getAddress()));
                     sendUDPPacket(I_AM_THE_SERVER_MESSAGE, getBroadcastAddresses()); //one of them will work
+                } else if (packet.getLength() == 16 && !areMessagesEqual(packet.getData(), I_AM_THE_SERVER_MESSAGE) && !areMessagesEqual(packet.getData(), LOOKING_FOR_CONTROLLERS_MESSAGE)) {
+                    synchronized (controllers) {
+                        if (controllers.containsKey(packet.getAddress())) {
+                            controllers.get(packet.getAddress()).resolvePacket(packet);
+                        } else {
+                            new ControllerCommunicator(packet.getAddress()).resolvePacket(packet);
+                        }
+                    }
                 }
-
-            } catch (IOException e) {
+            } catch (Exception e) {
                 GeneralLogger.writeExeption(e);
                 e.printStackTrace();
             }
         }
+        System.out.println("[UDP] UDP socket no longer bound");
+        GeneralLogger.writeMessage("[UDP] UDP socket no longer bound");
     }
 
     public void stopSocket() {

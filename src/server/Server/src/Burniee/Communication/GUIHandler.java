@@ -49,10 +49,10 @@ public class GUIHandler extends Thread {
         socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(c.getTargetTemperature()).array()));
         socket.writeMessage(new Message(ByteBuffer.allocate(2).putShort(c.getAirFlow()).array()));
         socket.writeMessage(new Message(ByteBuffer.allocate(8).putLong(c.getTime()).array()));
-        if (c.getProjectName() == null) {
+        if (c.getProject() == null) {
             socket.writeMessage(new Message(new byte[]{(byte)0}));
         } else {
-            socket.writeMessage(new Message(c.getProjectName().getBytes()));
+            socket.writeMessage(new Message(c.getProject().getProjectName().getBytes()));
         }
         socket.writeMessage(new Message(new byte[] {(byte) (c.getStopped() ? 1 : 0)}));
     }
@@ -109,24 +109,24 @@ public class GUIHandler extends Thread {
                         socket.writeMessage(new Message(MessageBuilder.GUI.Request.NumberOfProjects.build()));
                         socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getActiveProjects().size()).array()));
                     }
-                } else if (MessageBuilder.GUI.Request.ChangeControllerID.equals(msg)) { //TODO -> check if new id is unique
-                    String oldID, newID;
-                    synchronized (socket) {
-                        oldID = socket.readStringMessage();
-                        newID = socket.readStringMessage();
-                    }
-                    System.out.println("[GUI] request for new id = " + newID + " for controller with id = " + oldID);
-                    GeneralLogger.writeMessage("[GUI] request for new id = " + newID + " for controller with id = " + oldID);
-                    boolean gut = false;
-                    for (ControllerHandler i : Server.getInstance().getControllers()) {
-                        if (i.getControllerID().equals(oldID)) {
-                            i.changeId(newID);
-                            gut = true;
-                        }
-                    }
-                    if (!gut) {
-                        throw new ControllerException("No controller with id = " + oldID + " found!");
-                    }
+//                } else if (MessageBuilder.GUI.Request.ChangeControllerID.equals(msg)) { //TODO -> check if new id is unique
+//                    String oldID, newID;
+//                    synchronized (socket) {
+//                        oldID = socket.readStringMessage();
+//                        newID = socket.readStringMessage();
+//                    }
+//                    System.out.println("[GUI] request for new id = " + newID + " for controller with id = " + oldID);
+//                    GeneralLogger.writeMessage("[GUI] request for new id = " + newID + " for controller with id = " + oldID);
+//                    boolean gut = false;
+//                    for (ControllerHandler i : Server.getInstance().getControllers()) {
+//                        if (i.getControllerID().equals(oldID)) {
+//                            i.changeId(newID);
+//                            gut = true;
+//                        }
+//                    }
+//                    if (!gut) {
+//                        throw new ControllerException("No controller with id = " + oldID + " found!");
+//                    }
                 } else if (MessageBuilder.GUI.Request.SearchForNewControllers.equals(msg)) {
 //                    System.out.println("[GUI] request to search for new controllers");
                     UDPCommunicationHandler.sendUDPPacket(UDPCommunicationHandler.LOOKING_FOR_CONTROLLERS_MESSAGE, UDPCommunicationHandler.getBroadcastAddresses());
