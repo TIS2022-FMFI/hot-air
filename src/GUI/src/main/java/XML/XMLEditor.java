@@ -24,7 +24,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class XMLEditor {
-    public static void addPath(String xmlPath, String pathToExe) throws ParserConfigurationException, IOException, SAXException, TransformerException {
+    public static void addPath(String xmlPath, String pathToExe, List<String> blowers)
+            throws ParserConfigurationException, IOException, SAXException, TransformerException {
         File file = new File(xmlPath);
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
@@ -33,19 +34,37 @@ public class XMLEditor {
         NodeList blocks = doc.getElementsByTagName("B");
         Node block = blocks.item(0);
 
-        updateBlock(block, doc, pathToExe, xmlPath);
+        updateBlock(block, doc, pathToExe, xmlPath, blowers);
 
         for (int i = 1; i < blocks.getLength(); i++){
             block = blocks.item(i);
-            updateBlock(block, doc, pathToExe, "$" + xmlPath);
+            updateBlock(block, doc, pathToExe, "$" + xmlPath, blowers);
         }
 
+        NodeList calls = doc.getElementsByTagName("CALL");
         NodeList subrts = doc.getElementsByTagName("SUBRT");
         for (int i = 0; i < subrts.getLength(); i++){
             Element subrt = (Element) subrts.item(i);
-            String name = subrt.getAttributeNode("NAME").getNodeValue();
-            if (name.equals("Measurement") || name.equals("measurement") || name.equals("MEASUREMENT")){
-                subrt.getAttributeNode("NAME").setNodeValue(name + "#blower_id1@temperature");
+            String name = subrt.getAttributeNode("NAME").getNodeValue().split("#")[0];
+            if (name.contains("Measurement") || name.contains("measurement") || name.contains("MEASUREMENT")){
+                if (! name.contains("@")){
+                    name = name + "@temperature";
+                }
+                for (String blower : blowers){
+                    name = name + "#" + blower;
+                }
+                subrt.getAttributes().getNamedItem("NAME").setNodeValue(name);
+
+                for (int j = 0; j < calls.getLength(); j++){
+                    String calledBlk = calls.item(j).getAttributes().getNamedItem("BLK").getNodeValue().split("#")[0];
+                    if (calledBlk.contains("Measurement") || calledBlk.contains("measurement") || calledBlk.contains("MEASUREMENT")) {
+                        if (!calledBlk.contains("@") || calledBlk.equals(name.split("#")[0])) {
+                            calledBlk = name;
+                            calls.item(j).getAttributes().getNamedItem("BLK").setNodeValue(calledBlk);
+                        }
+                    }
+                }
+
                 NodeList blocksInMeasurement = subrt.getElementsByTagName("B");
                 for (int j = 0; j < blocksInMeasurement.getLength(); j++){
                     String[] bName = blocksInMeasurement.item(j).getAttributes().getNamedItem("NAME").getNodeValue().split("#");
@@ -81,11 +100,15 @@ public class XMLEditor {
         return result;
     }
 
-    private static void updateBlock(Node block, Document doc, String pathToExe, String xmlPath){
-        String name = block.getAttributes().getNamedItem("NAME").getNodeValue();
+    private static void updateBlock(Node block, Document doc, String pathToExe, String xmlPath, List<String> blowers){
+        String name = block.getAttributes().getNamedItem("NAME").getNodeValue().split("#")[0];
         if (! name.contains("@")){
-            block.getAttributes().getNamedItem("NAME").setNodeValue(name + "#blower_id1@temperature");
+            name = name + "@temperature";
         }
+        for (String blower : blowers){
+            name = name + "#" + blower;
+        }
+        block.getAttributes().getNamedItem("NAME").setNodeValue(name);
 
         Node actions = getChildNodeWithTag(block, "ACTIONS");
         if (actions == null){
