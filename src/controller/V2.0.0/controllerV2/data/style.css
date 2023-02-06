@@ -1,25 +1,20 @@
 body {
     color: #777;
 }
-
 .pure-img-responsive {
     max-width: 100%;
     height: auto;
 }
-
 .OK {
     color: green;
 }
-
 .ERROR {
     color: Red;
 }
-
 .settings {
     padding-left: 0.5em;
     padding-bottom: 0.2em;
 }
-
 /*
 Add transition to containers so they can push in and out.
 */
@@ -32,7 +27,6 @@ Add transition to containers so they can push in and out.
     -o-transition: all 0.2s ease-out;
     transition: all 0.2s ease-out;
 }
-
 /*
 This is the parent `<div>` that contains the menu and the content area.
 */
@@ -84,13 +78,6 @@ The content `<div>` is where all your content goes.
     font-weight: 300;
     color: #888;
 }
-
-
-
-/*
-The `#menu` `<div>` is the parent `<div>` that contains the `.pure-menu` that
-appears on the left side of the page.
-*/
 
 #menu {
     margin-left: -150px; /* "#menu" width */
@@ -159,17 +146,6 @@ appears on the left side of the page.
         margin: 0;
     }
 
-/* -- Dynamic Button For Responsive Menu -------------------------------------*/
-
-/*
-The button to open/close the Menu is custom-made and not part of Pure. Here's
-how it works:
-*/
-
-/*
-`.menu-link` represents the responsive menu toggle that shows/hides on
-small screens.
-*/
 .menu-link {
     position: fixed;
     display: block; /* show this only on small screens */
@@ -214,12 +190,6 @@ small screens.
             margin-top: 0.6em;
         }
 
-
-/* -- Responsive Styles (Media Queries) ------------------------------------- */
-
-/*
-Hides the menu at `48em`, but modify this based on your app's needs.
-*/
 @media (min-width: 48em) {
 
     .header,
@@ -248,12 +218,6 @@ Hides the menu at `48em`, but modify this based on your app's needs.
 }
 
 @media (max-width: 48em) {
-    /* Only apply this when the window is small. Otherwise, the following
-    case results in extra padding on the left:
-        * Make the window small.
-        * Tap the menu to trigger the active state.
-        * Make the window large again.
-    */
     #layout.active {
         position: relative;
         left: 150px;
