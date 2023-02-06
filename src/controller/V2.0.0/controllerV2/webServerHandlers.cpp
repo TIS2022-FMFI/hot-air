@@ -71,6 +71,7 @@ public:
       idstr = request->getParam("controllerID", true)->value();
       Serial.write(idstr.c_str(), 15);
       memory->setID(idstr.c_str());
+      status->id_has_change = true;
       
     //IPAddress controllerMASK = IPAddress(request->getParam("controllerMASK", true)->value());
     //memory->setMASK(controllerMASK);
@@ -105,8 +106,8 @@ public:
       Serial.println(d);
       memory->setD(d.toFloat());
     }
-    if(request->hasParam("a",true)){
-      String a = request->getParam("a", true)->value();
+    if(request->hasParam("alpha",true)){
+      String a = request->getParam("alpha", true)->value();
       Serial.print("A: ");
       Serial.println(a);
       memory->setA(a.toFloat());
@@ -122,18 +123,22 @@ public:
      if(request->hasParam("power",true)){
       String powerstr = request->getParam("power", true)->value();
       status->set_power = powerstr.toInt();
+      Serial.print("Get new POWER: ");
+      Serial.println(status->set_temperature);
     }
      if(request->hasParam("airflow",true)){
       String airflowstr;
       airflowstr = request->getParam("airflow", true)->value();
-      status->set_power = airflowstr.toInt();
+      status->set_power = airflowstr.toInt() * 100;
+      Serial.print("Get new AIRFLOW: ");
+      Serial.println(status->set_temperature);
     }
      if(request->hasParam("temp",true)){
       String temp = request->getParam("temp", true)->value();
       status->set_temperature = temp.toInt();
+      Serial.print("Get new TEMPERATURE: ");
+      Serial.println(status->set_temperature);
     }
-
-
     return false;
   };
 
@@ -146,6 +151,7 @@ public:
     // STATIC WEB PAGES
     // html
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+
       request->send(SPIFFS, "/index.html", "text/html");
     });
 
@@ -154,7 +160,9 @@ public:
     });
 
     server.on("/manualcontrol.html", HTTP_GET, [](AsyncWebServerRequest *request) {
+
       request->send(SPIFFS, "/manualcontrol.html", "text/html");
+
     });
 
 
@@ -233,9 +241,9 @@ public:
 
 
     server.on("/alpha", HTTP_GET, [this](AsyncWebServerRequest *request) {
-      char str[10];
-      sprintf(str, "%f", memory->getA());
-      request->send(200, F("text/plain"), str);
+      char str[11];
+      sprintf(str, "%10f", memory->getA());
+      request->send(200, "text/plain", str);
     });
 
     server.on("/delay", HTTP_GET, [this](AsyncWebServerRequest *request) {
@@ -349,7 +357,7 @@ public:
     });
 
     server.on("/actualpower", HTTP_GET, [this](AsyncWebServerRequest *request) {
-      char str[4];
+      char str[6];
       sprintf(str, "%d", status->actual_power);
       request->send(200, "text/plain", str);
     });

@@ -65,17 +65,17 @@ private:
   
   uint16_t eeprom_size;
   volatile uint8_t mem_flags;
-  volatile IPAddress mem_server_ip = IPAddress();
+  IPAddress mem_server_ip = IPAddress();
   volatile uint16_t mem_port = 0;
   char mem_id[16];
-  volatile IPAddress mem_controller_ip = IPAddress();
-  volatile IPAddress mem_controller_gw = IPAddress();
-  volatile IPAddress mem_controller_id = IPAddress();
-  float reg_p = 0;  
-  float reg_d = 0;
-  float reg_i = 0;
-  float reg_alpha = 0;
-  uint16_t reg_delay = 0;
+  IPAddress mem_controller_ip = IPAddress();
+  IPAddress mem_controller_gw = IPAddress();
+  IPAddress mem_controller_mask = IPAddress();
+  volatile float reg_p = 0;  
+  volatile float reg_d = 0;
+  volatile float reg_i = 0;
+  volatile float reg_alpha = 0;
+  volatile uint16_t reg_delay = 0;
   
 
 public:
@@ -121,7 +121,7 @@ public:
 
   void getMASK(IPAddress &ipaddr);
   bool setMASK(IPAddress mask);
-  bool setMASKprefix(uint8_t mask);
+  // bool setMASKprefix(uint8_t mask);
 
   float getP();
   bool setP(float val);
