@@ -85,7 +85,7 @@ public class SocketHandler {
      * @param special if true, the message is from controller and has a fixed length
      * @return byte[] -> received message
      */
-    public synchronized byte[] readMessage(boolean special) throws IOException {
+    public byte[] readMessage(boolean special) throws IOException {
 //        System.out.println("[TCP] reading a message");
         int len;
         if (special) {
