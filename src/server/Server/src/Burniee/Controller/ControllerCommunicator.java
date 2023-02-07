@@ -141,6 +141,8 @@ public class ControllerCommunicator extends Thread {
                 ackData[i] = (i == MESSAGE_FLAGS_POSITION) ? (byte) (data[i] | ACK_BIT) : data[i];
             }
             sendPacket(ackData);
+            System.out.println("ID arrive:");
+            System.out.println(packet);
             myHandler.receiveNewID(packet);
         } else if ((flags&NEW_TEMPERATURE_ARRIVED_BIT) > 0) {
             receiveTemperature();

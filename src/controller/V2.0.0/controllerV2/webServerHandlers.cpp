@@ -78,7 +78,7 @@ public:
     }
     if(request->hasParam("serverIP",true)){
       String stringIP;
-      stringIP = request->getParam("controllerIP", true)->value();
+      stringIP = request->getParam("serverIP", true)->value();
       IPAddress serverIP = IPAddress();
       string2ip(serverIP, stringIP);
       memory->setSERVERIP(serverIP);

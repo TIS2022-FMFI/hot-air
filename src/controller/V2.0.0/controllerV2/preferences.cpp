@@ -109,6 +109,10 @@ bool Preferences::begin(uint16_t size) {
     this->getMASK(ip_addres);
     Serial.println(ip_addres);
 
+    Serial.print("server IP: ");
+    this->getSERVERIP(ip_addres);
+    Serial.println(ip_addres);
+
     Serial.println("PDI setup: ");
 
     Serial.print("P: ");
@@ -269,7 +273,6 @@ uint8_t Preferences::getID(char* id) {
   
   for (uint8_t i = 0; i < 15; i++) {
     id[i] = EEPROM.readByte(addresses::ID + i);
-    Serial.print(id[i]);
     len++;
     if (id[i] == 0 || id[i] == ' '){
       break;
