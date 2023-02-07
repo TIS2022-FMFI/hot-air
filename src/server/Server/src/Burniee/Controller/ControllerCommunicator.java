@@ -54,6 +54,9 @@ public class ControllerCommunicator extends Thread {
         GeneralLogger.writeMessage("[Controller] Lost connection to controller");
         Server.getInstance().sendExceptionToAllActiveGUIs(new ControllerException("Controller disconnected!"));
         connected = false;
+        synchronized (awaitingAck) {
+            awaitingAck.clear();
+        }
         try {
             if (myHandler.getProject() != null) {
                 myHandler.endProject();
@@ -84,7 +87,7 @@ public class ControllerCommunicator extends Thread {
         scheduler.schedule(() -> {
             synchronized (awaitingAck) {
                 for (AbstractMap.SimpleEntry<byte[], Boolean> msg : awaitingAck) {
-                    if (areMessagesEqual(msg.getKey(), data)) { //TODO check if data is copied right
+                    if (areMessagesEqual(msg.getKey(), data)) {
                         if (msg.getValue()) {
                             awaitingAck.remove(msg);
                             return;
