@@ -55,7 +55,9 @@ public class ControllerCommunicator extends Thread {
         Server.getInstance().sendExceptionToAllActiveGUIs(new ControllerException("Controller disconnected!"));
         connected = false;
         try {
-            myHandler.endProject();
+            if (myHandler.getProject() != null) {
+                myHandler.endProject();
+            }
         } catch (IOException e) {
             e.printStackTrace();
             GeneralLogger.writeExeption(e);
