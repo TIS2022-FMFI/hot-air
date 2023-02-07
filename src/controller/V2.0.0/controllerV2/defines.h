@@ -11,10 +11,10 @@
 
 // comment if you want to use static IP
 // uncomment if you want to get IP from DHCP
-#define _DHCP set
+//#define _DHCP set
 
 // simulation
-#define SIMULATION
+//#define SIMULATION
 
 // Select the IP address according to your local network, works only if _DHCP is commented
 // all info taks form memory
@@ -32,6 +32,7 @@
 
 #define TIMEOUT_SERVER_STOP 100000 //ms
 #define TIMEOUT_UDP_CONNECTION 10000 //ms
+#define TIMEOUT_UDP_ACK_TIME 5000 //ms
 
 //********************************************************
 //

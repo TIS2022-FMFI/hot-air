@@ -47,6 +47,7 @@ public:
   void sendTemperatureTimeout(unsigned long millis, int refresh);
 
   void refresh();
+  void handlePacket();
 
 };
 
