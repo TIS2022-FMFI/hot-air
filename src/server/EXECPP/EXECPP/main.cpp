@@ -48,7 +48,7 @@ int __cdecl main(int argc, char **argv) {
         }
         printf("[TCP] Successfully connected to server!\n");
         s.sendRecognizeMeMessage();
-        if (argv[1][0] == '¿') {
+        if (argv[1][0] == '^') {
             printf("[TCP] Sending end of segment message to server\n");
             const char message[2] {I_AM_EXE, I_BRING_END_OF_PHASE};
             s.sendMessage(message, 2);
@@ -76,7 +76,7 @@ int __cdecl main(int argc, char **argv) {
             return 1;
         }
     } else {
-        printf("Usage:\n.\\EXE.exe \"path_to_xml\" [port] -> to start a new project\n.\\EXE.exe \"¿path_to_xml\" [port] -> to tell server that a phase has come to an end\n");
+        printf("Usage:\n.\\EXE.exe \"path_to_xml\" [port] -> to start a new project\n.\\EXE.exe \"^path_to_xml\" [port] -> to tell server that a phase has come to an end\n");
     }
     return 0;
 }
