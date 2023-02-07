@@ -1,0 +1,8 @@
+﻿  main.cpp
+C:\Users\ivusk\Desktop\TIS-projekt\Cexe\EXECPP\EXECPP\main.cpp(22,29): warning C4244: 'initializing': conversion from 'int64_t' to 'unsigned int', possible loss of data
+  Generating code
+  1 of 217 functions ( 0.5%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  EXECPP.vcxproj -> C:\Users\ivusk\Desktop\TIS-projekt\Cexe\EXECPP\Release\EXECPP.exe
