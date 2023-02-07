@@ -56,11 +56,15 @@ public class ControllerHandler extends Thread {
 
     public synchronized void endProject() throws IOException {
         isActive = false;
+        Project p = null;
         if (controller.getProject() != null && !controller.getProject().isAtEnd()) {
-            controller.getProject().end();
+            p = controller.getProject();
         }
         controller.setTargetTemperature(0);
         controller.setProject(null);
+        if (p != null) {
+            p.end();
+        }
     }
 
 //    public void stopConnection() {

@@ -136,7 +136,7 @@ public class Project extends Thread {
         GeneralLogger.writeMessage("[Project] Project with ID = " + ID + ", name = " + name + " ended");
         Server.getInstance().removeProject(this);
         for (Map.Entry<String, ControllerHandler> ch : handlers.entrySet()) {
-            if (ch.getValue().getProject().equals(this)) {
+            if (ch.getValue().getProject() != null && ch.getValue().getProject().equals(this)) {
                 try {
                     ch.getValue().endProject();
                     ch.getValue().changeControllerParameters(Integer.MAX_VALUE, 0, (short) 100, 0);
