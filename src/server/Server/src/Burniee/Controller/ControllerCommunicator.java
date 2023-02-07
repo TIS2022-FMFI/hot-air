@@ -69,7 +69,6 @@ public class ControllerCommunicator extends Thread {
     public synchronized void reconnect() {
         System.out.println("[Controller] controller reconnected");
         GeneralLogger.writeMessage("[Controller] controller reconnected");
-        Server.getInstance().sendExceptionToAllActiveGUIs(new ControllerException("Controller reconnected!"));
         connected = true;
     }
 
