@@ -85,12 +85,12 @@ public class XMLAnalyzer {
                 time = waveforms.get(gen.getAttributes().getNamedItem("WAVE").getNodeValue());
             }
 
+            String temp = name[0].split("@")[1];
             for (int i = 1; i < name.length; i++){
-                String[] s = name[i].split("@");
                 try{
-                    Double.parseDouble(s[1]);
-                    res.add(new AbstractMap.SimpleEntry<>(s[0], s[1] + "$" + time));
-                    visited.add(s[0]);
+                    Double.parseDouble(temp);
+                    res.add(new AbstractMap.SimpleEntry<>(name[i], temp + "$" + time));
+                    visited.add(name[i]);
 
                 } catch (NumberFormatException e){
                     throw new NumberFormatException("Incorrect temperature value in block: "
@@ -103,7 +103,7 @@ public class XMLAnalyzer {
                 }
             }
 
-            return new AbstractMap.SimpleEntry<>(name[0], res);
+            return new AbstractMap.SimpleEntry<>(name[0].split("@")[0], res);
         } catch (NullPointerException e){
             return null;
         }
@@ -175,7 +175,12 @@ public class XMLAnalyzer {
             if (n.getNodeType() == Node.ELEMENT_NODE && n.getNodeName().equals("B")){
                 res.add(getBlockTimeAndTemp((Element) n, blowers, temps));
             } else if (n.getNodeType() == Node.ELEMENT_NODE && n.getNodeName().equals("CALL")){
-                res.addAll(subroutines.get(n.getAttributes().getNamedItem("BLK").getNodeValue()));
+                String callName = n.getAttributes().getNamedItem("BLK").getNodeValue();
+                try {
+                    res.addAll(subroutines.get(callName));
+                } catch (NullPointerException e){
+                    GeneralLogger.writeExeption(new NullPointerException("SUBRT with name " + callName + "not found"));
+                }
             } else if (n.getNodeType() == Node.ELEMENT_NODE && n.getNodeName().equals("SEQ")){
                 List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> seq = getSequenceTimeAndTemp((Element) n, blowers, temps);
                 res.addAll(seq);
@@ -223,12 +228,12 @@ public class XMLAnalyzer {
                     List<String> blowers = new ArrayList<>();
                     List<String> temps = new ArrayList<>();
                     String[] names = subrtName.split("#");
+                    String tmp = names[0].split("@")[1];
                     for (int j = 1; j < names.length; j++){
-                        String[] name = names[j].split("@");
-                        blowers.add(name[0]);
-                        temps.add(name[1]);
+                        blowers.add(names[j]);
+                        temps.add(tmp);
                     }
-                    subroutines.put(subrtName, getThreadTimeAndTemp(firstChild, blowers, temps));
+                    subroutines.put(subrtName, getThreadTimeAndTemp(firstChild, blowers, temps));;
                 } else {
                     subroutines.put(subrt.getAttributes().getNamedItem("NAME").getNodeValue(), getThreadTimeAndTemp(firstChild));
                 }
