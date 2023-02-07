@@ -35,7 +35,6 @@ public class ControllerCommunicator extends Thread {
         awaitingAck = new LinkedList<>();
         socket = new DatagramSocket();
         connected = true;
-//        myHandler = null;
         myHandler = new ControllerHandler(this, IP);
         receivedTemperature = false;
         scheduler = Executors.newScheduledThreadPool(20);
@@ -56,7 +55,9 @@ public class ControllerCommunicator extends Thread {
         Server.getInstance().sendExceptionToAllActiveGUIs(new ControllerException("Controller disconnected!"));
         connected = false;
         try {
-            myHandler.endProject();
+            if (myHandler.getProject() != null) {
+                myHandler.endProject();
+            }
         } catch (IOException e) {
             e.printStackTrace();
             GeneralLogger.writeExeption(e);

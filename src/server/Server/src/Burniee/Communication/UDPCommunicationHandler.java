@@ -61,6 +61,17 @@ public class UDPCommunicationHandler extends Thread {
         GeneralLogger.writeMessage("[UDP] Socket started successfully");
     }
 
+    private static long ipToLong(InetAddress ip) {
+        byte[] octets = ip.getAddress();
+        long result = 0;
+        for (byte octet : octets) {
+            result <<= 8;
+            result |= octet & 0xff;
+        }
+        return result;
+    }
+
+
     /**
      * We shall collect broadcast addresses from all interfaces of local network
      * @return list of broadcast addresses
@@ -76,11 +87,14 @@ public class UDPCommunicationHandler extends Thread {
                 for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
                     InetAddress broadcast = interfaceAddress.getBroadcast();
                     if (broadcast != null) {
-                        broadcastList.add(broadcast);
+                        long ip = ipToLong(broadcast), ipMin = ipToLong(InetAddress.getByName("10.2.0.0")), ipMax = ipToLong(InetAddress.getByName("10.3.0.0"));
+                        if (ip >= ipMin && ip < ipMax) {
+                            broadcastList.add(broadcast);
+                        }
                     }
                 }
             }
-        } catch (SocketException e) {
+        } catch (SocketException | UnknownHostException e) {
             GeneralLogger.writeExeption(e);
             e.printStackTrace();
         }

@@ -139,6 +139,7 @@ public class Project extends Thread {
             if (ch.getValue().getProject().equals(this)) {
                 try {
                     ch.getValue().endProject();
+                    ch.getValue().changeControllerParameters(Integer.MAX_VALUE, 0, (short) 100, 0);
                 } catch (IOException e) {
                     e.printStackTrace();
                     GeneralLogger.writeExeption(e);
