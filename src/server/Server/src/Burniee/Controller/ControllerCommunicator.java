@@ -42,7 +42,7 @@ public class ControllerCommunicator extends Thread {
             if (!hasReceivedTemperature() && isConnected()) {
                 disconnect();
             }
-        }, 0, 5, TimeUnit.SECONDS);
+        }, 5, 5, TimeUnit.SECONDS);
         UDPCommunicationHandler.getInstance().addNewController(this);
     }
 
@@ -128,6 +128,7 @@ public class ControllerCommunicator extends Thread {
             synchronized (awaitingAck) {
                 for (AbstractMap.SimpleEntry<byte[], Boolean> msg : awaitingAck) {
                     if (isThisMyAck(msg.getKey(), data)) {
+                        System.out.println("[Controller] packet accepted");
                         msg.setValue(true);
                         return;
                     }
@@ -156,7 +157,10 @@ public class ControllerCommunicator extends Thread {
     public void run() {
         while (socket.isBound()) {
             try {
-                socket.send(new DatagramPacket(new byte[]{CONTROLLER_PING_MESSAGE_VALUE}, 1, IP, Server.PORT));
+//                System.out.println("[Controller] Send ping");
+                if (connected) {
+                    socket.send(new DatagramPacket(new byte[]{CONTROLLER_PING_MESSAGE_VALUE}, 1, IP, Server.PORT));
+                }
                 sleep(1000);
             } catch (InterruptedException | IOException e) {
                 GeneralLogger.writeExeption(e);

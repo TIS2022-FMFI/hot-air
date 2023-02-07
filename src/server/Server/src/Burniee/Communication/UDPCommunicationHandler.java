@@ -87,8 +87,8 @@ public class UDPCommunicationHandler extends Thread {
                 for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
                     InetAddress broadcast = interfaceAddress.getBroadcast();
                     if (broadcast != null) {
-                        long ip = ipToLong(broadcast), ipMin = ipToLong(InetAddress.getByName("10.2.0.0")), ipMax = ipToLong(InetAddress.getByName("10.3.0.0"));
-                        if (ip >= ipMin && ip < ipMax) {
+                        long ip = ipToLong(broadcast), ipMin = ipToLong(InetAddress.getByName("10.1.0.0")), ipMax = ipToLong(InetAddress.getByName("10.1.255.255"));
+                        if (ip < ipMin || ip > ipMax) {
                             broadcastList.add(broadcast);
                         }
                     }
@@ -179,11 +179,11 @@ public class UDPCommunicationHandler extends Thread {
         }
         while (socket.isBound()) {
             try {
-                System.out.println("[UDP] awaiting arrival of a packet");
-                GeneralLogger.writeMessage("[UDP] awaiting arrival of a packet");
+//                System.out.println("[UDP] awaiting arrival of a packet");
+//                GeneralLogger.writeMessage("[UDP] awaiting arrival of a packet");
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
-                System.out.println("[UDP] packet arrived");
+//                System.out.println("[UDP] packet arrived " + packet.getData()[15]);
                 GeneralLogger.writeMessage("[UDP] packet arrived");
 
                 if (areMessagesEqual(packet.getData(), LOOKING_FOR_SERVER_MESSAGE)) {
@@ -196,7 +196,9 @@ public class UDPCommunicationHandler extends Thread {
                         if (controllers.containsKey(packet.getAddress())) {
                             controllers.get(packet.getAddress()).resolvePacket(packet);
                         } else {
-                            new ControllerCommunicator(packet.getAddress()).resolvePacket(packet);
+                            ControllerCommunicator cm = new ControllerCommunicator(packet.getAddress());
+                            cm.resolvePacket(packet);
+                            cm.start();
                         }
                     }
                 }
