@@ -38,7 +38,7 @@ public class XMLEditor {
 
         for (int i = 1; i < blocks.getLength(); i++){
             block = blocks.item(i);
-            updateBlock(block, doc, pathToExe, "~" + xmlPath);
+            updateBlock(block, doc, pathToExe, "~" + xmlPath, blowers);
         }
 
         NodeList calls = doc.getElementsByTagName("CALL");
