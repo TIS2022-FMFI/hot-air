@@ -1,5 +1,7 @@
 package Burniee.Controller;
 
+import Burniee.Project.Project;
+
 import java.net.InetAddress;
 
 public class Controller {
@@ -10,7 +12,7 @@ public class Controller {
     private int targetTemperature;
     private short airFlow;
     private long time;
-    private String projectName;
+    private Project project = null;
     private Error activeError = Error.NONE;
     private boolean stopped;
 
@@ -19,8 +21,8 @@ public class Controller {
     public synchronized Error getActiveError() {return activeError;}
     public synchronized void setActiveError(Error activeError) {this.activeError = activeError;}
 
-    public synchronized String getProjectName() {return projectName;}
-    public synchronized void setProjectName(String projectName) {this.projectName = projectName;}
+    public synchronized Project getProject() {return project;}
+    public synchronized void setProject(Project project) {this.project = project;}
 
     public synchronized short getAirFlow() {return airFlow;}
     public synchronized void setAirFlow(short airFlow) {this.airFlow = airFlow;}

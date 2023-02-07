@@ -62,12 +62,13 @@ bool Preferences::begin(uint16_t size) {
   // ---------------------------------
 
   #ifdef _DEBUG
-    IPAddress ip = IPAddress(10,1,1,105);
-    IPAddress GW = IPAddress(10,1,1,1);
-    // setMASK(24);
+    //IPAddress ip = IPAddress(10,1,1,100);
+    //IPAddress mask = IPAddress(255,0,0,0);
+    //IPAddress GW = IPAddress(10,1,1,1);
+   // setMASK(mask);
     // char idcko[] = "id05           ";
     // setID(idcko);
-    setCONTROLLERIP(ip, GW);
+    //setCONTROLLERIP(ip, GW);
     // setPORT(4002);
     // PID SETUP
     // setP(40/1000.0);
@@ -135,40 +136,40 @@ bool Preferences::loadEEPROM(){
   return false;
 }
 
-void Preferences::convertNetMask(uint8_t mm, IPAddress &addr){
-  uint8_t mask = mm;
-  uint8_t ip[4] = {0,0,0,0};
+// void Preferences::convertNetMask(uint8_t mm, IPAddress &addr){
+//   uint8_t mask = mm;
+//   uint8_t ip[4] = {0,0,0,0};
 
-  for (uint8_t i = 0; i < 4; i++){
-      uint8_t oneip = 0;
-      for (uint8_t m = 0; m < 8; m++){
-        oneip = oneip << 1;
-        if (mask > 0){
-          oneip++;
-          mask--;
-        }
-      }
-      ip[i] = oneip;
-  }
+//   for (uint8_t i = 0; i < 4; i++){
+//       uint8_t oneip = 0;
+//       for (uint8_t m = 0; m < 8; m++){
+//         oneip = oneip << 1;
+//         if (mask > 0){
+//           oneip++;
+//           mask--;
+//         }
+//       }
+//       ip[i] = oneip;
+//   }
 
-  addr = IPAddress(ip[0], ip[1], ip[2], ip[3]);
-}
+//   addr = IPAddress(ip[0], ip[1], ip[2], ip[3]);
+// }
 
-uint8_t Preferences::convertNetMask(IPAddress mm){
-uint8_t mask = 0;
-for (uint8_t i = 0; i < 4; i++){
-  uint8_t ip = mm[i];
-  for (uint8_t m = 0; m < 8; m++){
-    if ((ip & 128) != 128){
-      mask++;
-      ip = ip << 1;
-    } else {
-      return mask;
-    }
-  }
-}
-  return mask;    
-}
+// uint8_t Preferences::convertNetMask(IPAddress mm){
+// uint8_t mask = 0;
+// for (uint8_t i = 0; i < 4; i++){
+//   uint8_t ip = mm[i];
+//   for (uint8_t m = 0; m < 8; m++){
+//     if ((ip & 128) != 128){
+//       mask++;
+//       ip = ip << 1;
+//     } else {
+//       return mask;
+//     }
+//   }
+// }
+//   return mask;    
+// }
 
 bool Preferences::isServerIPset() {
   return (mem_flags & flag::serverip) == flag::serverip;
@@ -206,6 +207,10 @@ void Preferences::getCONTROLLERIP(IPAddress &ip){
 }
 
 void Preferences::getCONTROLLERGW(IPAddress &ip) {
+  if (isControllerIPset() == false) {
+    ip = IPAddress(10,1,1,1);
+    return;
+  }
   return getIP(addresses::CONTROLLER_GW, ip);
 }
 
@@ -224,7 +229,6 @@ uint16_t Preferences::getPORT() {
 
 bool Preferences::setID(const char *id_name) {
   char c = 0;
-  Serial.print("SAVEING TO EEPROM: ");
   for (uint8_t i = 0; i < 16; i++) {
     c = id_name[i];
     
@@ -235,7 +239,6 @@ bool Preferences::setID(const char *id_name) {
     EEPROM.writeChar(addresses::ID + i, c);
 
     if (c == 0 || c == ' '){
-      Serial.println("END OF STRING");
       break;
     }
   }
@@ -248,7 +251,6 @@ bool Preferences::setID(const char *id_name) {
 uint8_t Preferences::getID(char* id) {
   
   if (isIDset() == false) {
-    Serial.println("ID is not set");
     // id[0] = 'i';
     // id[1] = 'd';
     // IPAddress addr = IPAddress();
@@ -258,20 +260,18 @@ uint8_t Preferences::getID(char* id) {
     // for (uint8_t i = 3; i < 15; i++) {
     //   id[i] = ' ';
     // }
-    char idnotset[] = "idNOTset";
-    strncpy(id, idnotset, 8);
+    char idnotset[] = "idNOTset0";
+    strncpy(id, idnotset, 9);
     return 9;
   }
   
   uint8_t len = 0;
-  Serial.println("READING FORM EEPROM: ");
-
+  
   for (uint8_t i = 0; i < 15; i++) {
     id[i] = EEPROM.readByte(addresses::ID + i);
     Serial.print(id[i]);
     len++;
     if (id[i] == 0 || id[i] == ' '){
-      Serial.println("\nEND OF STRING");
       break;
     }
   }
@@ -288,81 +288,81 @@ void Preferences::getMASK(IPAddress &ipaddr) {
     ipaddr = IPAddress(255,255,255,0);
     return;
   }
-  ipaddr = IPAddress(255,255,255,0);
-
-  //convertNetMask(EEPROM.readByte(addresses::CONTROLLER_MASK), ipaddr);
+  getIP(addresses::CONTROLLER_MASK, ipaddr);
 }
 
 bool Preferences::setMASK(IPAddress mask) {
-uint8_t prefix = convertNetMask(mask);    
-EEPROM.writeByte(addresses::CONTROLLER_MASK, prefix);
-setFlag(flag::controllerip);
-return EEPROM.commit();
-}
-bool Preferences::setMASKprefix(uint8_t mask) {  
-EEPROM.writeByte(addresses::CONTROLLER_MASK, mask);
-setFlag(flag::controllerip);
-return EEPROM.commit();
+  if (isControllerIPset() == false) {
+    mask = IPAddress(10,1,1,255);
+    return true;
+  }
+  return setIP(addresses::CONTROLLER_MASK, mask);
 }
 
+// bool Preferences::setMASKprefix(uint8_t mask) {  
+//   EEPROM.writeByte(addresses::CONTROLLER_MASK, mask);
+//   setFlag(flag::controllerip);
+//   return EEPROM.commit();
+// }
+
 float Preferences::getP(){
-return getPID(addresses::P_reg);
+  return getPID(addresses::P_reg);
 }
 bool Preferences::setP(float val){
-setFlag(flag::pid);
-return setPID(addresses::P_reg, val);
+  setFlag(flag::pid);
+  return setPID(addresses::P_reg, val);
 }
 
 float Preferences::getI(){
-return getPID(addresses::I_reg);
+  return getPID(addresses::I_reg);
 }
 bool Preferences::setI(float val){
-return setPID(addresses::I_reg, val);
+  return setPID(addresses::I_reg, val);
 }
 
 float Preferences::getD(){
-return getPID(addresses::D_reg);
+  return getPID(addresses::D_reg);
 }
 bool Preferences::setD(float val){
-return setPID(addresses::D_reg, val);
+  return setPID(addresses::D_reg, val);
 }
 
 float Preferences::getA(){
 return getPID(addresses::ALPHA_reg);
 }
 bool Preferences::setA(float val){
-return setPID(addresses::ALPHA_reg, val);
+  return setPID(addresses::ALPHA_reg, val);
 }
 
 uint16_t Preferences::getDelay(){
-return EEPROM.readUShort(addresses::DELAY_reg);
+  return EEPROM.readUShort(addresses::DELAY_reg);
 }
 
 bool Preferences::setDelay(uint16_t val){
-EEPROM.writeUShort(addresses::DELAY_reg, val);
-return EEPROM.commit();
+  EEPROM.writeUShort(addresses::DELAY_reg, val);
+  return EEPROM.commit();
 }
 
 void Preferences::setFlag(flag mask) {
-mem_flags = mem_flags | mask;
-writeFlags();
+  mem_flags = mem_flags | mask;
+  writeFlags();
 }
 
 void Preferences::readFlags() {
-mem_flags = EEPROM.readByte(FLAGS);
+  mem_flags = EEPROM.readByte(FLAGS);
 }
 
 void Preferences::writeFlags() {
-EEPROM.writeByte(FLAGS, mem_flags);
+  EEPROM.writeByte(FLAGS, mem_flags);
 }
 
 void Preferences::erasureAll() {
-for (int i = 0; i < eeprom_size; i++) {
-  EEPROM.writeByte(i, 0x00);
-}
-EEPROM.commit();
+  for (int i = 0; i < eeprom_size; i++) {
+    EEPROM.writeByte(i, 0x00);
+  }
+  EEPROM.commit();
 
-readFlags();
+  readFlags();
 }
 
 void Preferences::getIP(addresses memory_address, IPAddress &ipaddr) {
