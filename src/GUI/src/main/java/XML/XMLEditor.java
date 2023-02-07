@@ -67,7 +67,7 @@ public class XMLEditor {
 
                 NodeList blocksInMeasurement = subrt.getElementsByTagName("B");
                 for (int j = 0; j < blocksInMeasurement.getLength(); j++){
-                    String[] bName = blocksInMeasurement.item(j).getAttributes().getNamedItem("NAME").getNodeValue().split("#");
+                    String[] bName = blocksInMeasurement.item(j).getAttributes().getNamedItem("NAME").getNodeValue().split("@");
                     blocksInMeasurement.item(j).getAttributes().getNamedItem("NAME").setNodeValue(bName[0]);
                 }
             }
