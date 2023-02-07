@@ -56,7 +56,6 @@ public class ControllerHandler extends Thread {
 
     public synchronized void endProject() throws IOException {
         isActive = false;
-        changeControllerParameters(Integer.MAX_VALUE, 0, (short) 100, 0);
         if (controller.getProject() != null && !controller.getProject().isAtEnd()) {
             controller.getProject().end();
         }
