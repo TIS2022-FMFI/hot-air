@@ -243,7 +243,7 @@ public class Client extends Thread {
                         Project[] res = new Project[numberOfProjects];
                         for (int i = 0; i < numberOfProjects; i++) {
                             String projectID = readStringMessage();
-                            long time = ByteBuffer.wrap(readMessage()).getLong();
+                            readMessage();
                             String phase = readStringMessage();
                             Project p = new Project(projectID, phase);
                             res[i] = p;
