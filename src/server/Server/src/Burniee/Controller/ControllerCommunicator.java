@@ -35,8 +35,7 @@ public class ControllerCommunicator extends Thread {
         awaitingAck = new LinkedList<>();
         socket = new DatagramSocket();
         connected = true;
-        myHandler = null;
-//        myHandler = new ControllerHandler();
+        myHandler = new ControllerHandler(this, IP);
         receivedTemperature = false;
         scheduler = Executors.newScheduledThreadPool(20);
         scheduler.scheduleAtFixedRate(() -> {
