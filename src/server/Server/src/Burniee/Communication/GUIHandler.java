@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -214,7 +215,7 @@ public class GUIHandler extends Thread {
                         throw new ProjectException("No project with name = " + name);
                     }
                 }
-            } catch (SocketException e) {
+            } catch (SocketException | SocketTimeoutException e) {
                 stopSocket();
             } catch (Exception e) {
                 GeneralLogger.writeExeption(e);

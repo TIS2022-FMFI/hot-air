@@ -31,7 +31,6 @@ public class SocketHandler {
      */
     public SocketHandler(Socket s) throws IOException {
         socket = s;
-        s.setTcpNoDelay(true);
         out = new BufferedOutputStream(socket.getOutputStream());
         in = new BufferedInputStream(socket.getInputStream());
         System.out.println("[TCP] New socket connected from IP = " + socket.getInetAddress().getHostAddress());
