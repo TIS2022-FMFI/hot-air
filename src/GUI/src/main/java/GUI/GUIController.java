@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -82,10 +83,11 @@ public class GUIController implements Initializable {
     @FXML TableView<Project> projectsView;
     @FXML TableColumn<Project, Hyperlink> projectName;
     @FXML TableColumn<Project,String> projectPhase;
+    @FXML TableColumn<Project,String> projectStatus;
     @FXML TableColumn<Project, Button> projectStop;
 
-    static final ObservableList<Blower> blowersList = FXCollections.observableArrayList();
-    ObservableList<Project> projectsList = FXCollections.observableArrayList();
+    public static final ObservableList<Blower> blowersList = FXCollections.observableArrayList();
+    public ObservableList<Project> projectsList = FXCollections.observableArrayList();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -206,6 +208,7 @@ public class GUIController implements Initializable {
             }
         });
         projectName.setComparator(Comparator.comparing(o -> Float.valueOf(o.getText())));
+        projectStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
         projectPhase.setCellValueFactory(new PropertyValueFactory<>("currentPhase"));
         projectStop.setCellValueFactory(new PropertyValueFactory<>("stopButton"));
     }
@@ -243,7 +246,6 @@ public class GUIController implements Initializable {
             GeneralLogger.writeExeption(e);
             System.err.println(e);
             e.printStackTrace();
-//            System.err.println("blowers were not loaded from server");
         }
 
         return blowers ;
@@ -253,7 +255,6 @@ public class GUIController implements Initializable {
         try {
             return GUI.client.getAllProjects();
         } catch (Exception e) {
-//            System.err.println("projects were not loaded from server");
             GeneralLogger.writeExeption(e);
             System.err.println(e);
             e.printStackTrace();
@@ -263,8 +264,8 @@ public class GUIController implements Initializable {
     }
 
     private void updateBlowers() {
-        List<Blower> blowers = new ArrayList<>();
         try {
+            List<Blower> blowers = new ArrayList<>();
             RequestResult.Controller[] controllers = GUI.client.getAllControllers();
             for (RequestResult.Controller c : controllers) {
                 String projectName = (c.getProjectName() == null) ? "" : c.getProjectName();
@@ -310,8 +311,6 @@ public class GUIController implements Initializable {
                 }
             }
             blowersToRemove.forEach(blowersList::remove);
-
-//            System.out.println("blowers were updated successfully from server");
         } catch (Exception e) {
             GeneralLogger.writeExeption(e);
             System.err.println(e);
@@ -336,6 +335,7 @@ public class GUIController implements Initializable {
                     boolean gut = false;
                     for (Project p : projectsList) {
                         if (p.equals(project)) {
+                            p.setStatus(project.getStatus());
                             p.setCurrentPhase(project.getCurrentPhase());
                             gut = true;
                         }
@@ -346,26 +346,23 @@ public class GUIController implements Initializable {
                 }
             }
 
-            List<Project> projectsToRemove = new ArrayList<>();
-            for (Project p : projectsList) {
-                boolean gut = false;
-                for (Project project : projects) {
-                    if (p.equals(project)) {
-                        gut = true;
-                    }
-                }
-                if (!gut) {
-                    projectsToRemove.add(p);
-                }
-            }
-            projectsToRemove.forEach(projectsList::remove);
-
-        }
-        catch (Exception e) {
+//            List<Project> projectsToRemove = new ArrayList<>();
+//            for (Project p : projectsList) {
+//                boolean gut = false;
+//                for (Project project : projects) {
+//                    if (p.equals(project)) {
+//                        gut = true;
+//                    }
+//                }
+//                if (!gut) {
+//                    projectsToRemove.add(p);
+//                }
+//            }
+//            projectsToRemove.forEach(projectsList::remove);
+        } catch (Exception e) {
             GeneralLogger.writeExeption(e);
             System.err.println(e);
             e.printStackTrace();
-//            System.err.println("projects were not updated from server");
         }
     }
 

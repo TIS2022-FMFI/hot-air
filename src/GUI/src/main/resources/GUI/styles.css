@@ -35,6 +35,8 @@
 
 .table-view {
     -fx-selection-bar: rgba(189, 189, 189, 0.7);
+    -fx-font-family: "Arial";
+    -fx-font-size: 12px;
 }
 
 .text-field {
