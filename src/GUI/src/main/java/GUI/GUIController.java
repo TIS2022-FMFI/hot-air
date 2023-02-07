@@ -424,7 +424,12 @@ public class GUIController implements Initializable {
             Path copiedFile = Paths.get(copiedPath);
             makeCopyOfXML(originalFile, copiedFile);
 
-            XMLEditor.addPath(copiedPath, pathToExe.getText());
+            List<String> blowers = new ArrayList<>();
+            blowersList.forEach(b -> {
+                if(b.getMarker().isSelected()) blowers.add(b.getId());
+            });
+
+            XMLEditor.addPath(copiedPath, pathToExe.getText(), blowers);
             GeneralLogger.writeMessage("XML file successfully loaded");
 
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
