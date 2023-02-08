@@ -11,7 +11,7 @@ public class Main {
                 if (System.getProperty("os.name").startsWith("Linux")) {
                     Runtime.getRuntime().exec("gnome-terminal -- java -jar Server.jar instance");
                 } else {
-                    Runtime.getRuntime().exec("cmd java -jar Server.jar instance");
+                    Runtime.getRuntime().exec("wt java -jar Server.jar instance");
                 }
             }
         } catch (IOException e) {
