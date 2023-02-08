@@ -24,7 +24,7 @@ public class UDPCommunicationHandler extends Thread {
     private final static Random rnd = new Random();
     private final Map<InetAddress, ControllerCommunicator> controllers;
 
-    private static final UDPCommunicationHandler INSTANCE = new UDPCommunicationHandler(); //TODO remove magical numbers
+    private static final UDPCommunicationHandler INSTANCE = new UDPCommunicationHandler();
     private UDPCommunicationHandler() {
         controllers = new HashMap<>();
         System.out.println("[UDP] Attempting to start UDP socket");
