@@ -121,7 +121,7 @@ public class XMLEditor {
         for (Node com : coms){
             Element e = (Element) com;
             Node atr = e.getAttributeNode("PARAMS");
-            if (Objects.equals(atr.getNodeValue(), xmlPath)){
+            if (atr.getNodeValue().contains("_temp_control.xml")){
                 e.setAttribute("APP", pathToExe);
                 return;
             }
