@@ -14,6 +14,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Handles all communication with controller
+ */
 public class ControllerCommunicator extends Thread {
     private final static int ACK_BIT = 0b00100000;
     private final static int NEW_ID_BIT = 0b0000010;
@@ -30,6 +33,10 @@ public class ControllerCommunicator extends Thread {
     private boolean receivedTemperature;
     private final ScheduledExecutorService scheduler;
 
+    /**
+     * initialize vars, create new handler, start checking if controller disconnected
+     * @param ip controller ip
+     */
     public ControllerCommunicator(InetAddress ip) throws IOException {
         IP = ip;
         awaitingAck = new LinkedList<>();
@@ -89,10 +96,11 @@ public class ControllerCommunicator extends Thread {
             synchronized (awaitingAck) {
                 for (AbstractMap.SimpleEntry<byte[], Boolean> msg : awaitingAck) {
                     if (areMessagesEqual(msg.getKey(), data)) {
+                        awaitingAck.remove(msg);
                         if (msg.getValue()) {
-                            awaitingAck.remove(msg);
                             return;
                         }
+                        break;
                     }
                 }
             }
