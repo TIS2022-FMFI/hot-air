@@ -79,6 +79,7 @@ public class ControllerCommunicator extends Thread {
         System.out.println("[Controller] controller reconnected");
         GeneralLogger.writeMessage("[Controller] controller reconnected");
         connected = true;
+        myHandler.getController().setStopped(false);
     }
 
     private synchronized boolean hasReceivedTemperature() {boolean tmp = receivedTemperature; receivedTemperature = false; return tmp;}

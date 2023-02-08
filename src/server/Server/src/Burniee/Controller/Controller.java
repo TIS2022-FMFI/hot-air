@@ -9,12 +9,12 @@ public class Controller {
     private final InetAddress IP;
     private String ID;
     private float currentTemperature;
-    private int targetTemperature;
+    private int targetTemperature = 0;
     private short airFlow;
     private long time;
     private Project project = null;
     private Error activeError = Error.NONE;
-    private boolean stopped;
+    private boolean stopped = false;
 
     public Controller(InetAddress ip) {IP = ip;}
 
