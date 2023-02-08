@@ -49,14 +49,16 @@ public class ControllerCommunicator extends Thread {
     public InetAddress getIP() {return IP;}
 
     public synchronized boolean isConnected() {return connected;}
-    public synchronized void disconnect() {
+    public void disconnect() {
         System.out.println("[Controller] Lost connection to controller");
         GeneralLogger.writeMessage("[Controller] Lost connection to controller");
-        Server.getInstance().sendExceptionToAllActiveGUIs(new ControllerException("Controller disconnected!"));
-        connected = false;
+        synchronized (this) {
+            connected = false;
+        }
         synchronized (awaitingAck) {
             awaitingAck.clear();
         }
+        Server.getInstance().sendExceptionToAllActiveGUIs(new ControllerException("Controller disconnected!"));
         try {
             if (myHandler.getProject() != null) {
                 myHandler.endProject();
