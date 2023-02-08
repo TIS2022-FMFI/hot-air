@@ -273,9 +273,7 @@ public class GUIController implements Initializable {
                 blowers.add(blower);
             }
 
-//            System.out.println("\nblowery v ObservableList= " + blowersList.size());
-//            blowersList.forEach(i -> System.out.println(i.toString()));
-            System.out.println("blowery zo servera= " + blowers.size());
+            System.out.println("\nblowery zo servera= " + blowers.size());
             blowers.forEach(a -> System.out.println(a.toString()));
             for (Blower blower : blowers) {
                 synchronized (blower) {
@@ -320,8 +318,6 @@ public class GUIController implements Initializable {
 
     private void updateProjects() {
         try {
-//            System.out.println("\n projects v ObservableList= " + projectsList.size());
-//            Arrays.asList(projectsList).forEach(i -> System.out.println(i.toString()));
             Project[] projects = GUI.client.getAllProjects();
             System.out.println("projects zo servera= " + projects.length);
             Arrays.asList(projects).forEach(a -> System.out.println(a.toString()));
@@ -346,19 +342,19 @@ public class GUIController implements Initializable {
                 }
             }
 
-//            List<Project> projectsToRemove = new ArrayList<>();
-//            for (Project p : projectsList) {
-//                boolean gut = false;
-//                for (Project project : projects) {
-//                    if (p.equals(project)) {
-//                        gut = true;
-//                    }
-//                }
-//                if (!gut) {
-//                    projectsToRemove.add(p);
-//                }
-//            }
-//            projectsToRemove.forEach(projectsList::remove);
+            List<Project> projectsToRemove = new ArrayList<>();
+            for (Project p : projectsList) {
+                boolean gut = false;
+                for (Project project : projects) {
+                    if (p.equals(project)) {
+                        gut = true;
+                    }
+                }
+                if (!gut) {
+                    projectsToRemove.add(p);
+                }
+            }
+            projectsToRemove.forEach(projectsList::remove);
         } catch (Exception e) {
             GeneralLogger.writeExeption(e);
             System.err.println(e);
