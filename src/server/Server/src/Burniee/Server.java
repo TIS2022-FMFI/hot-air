@@ -85,10 +85,10 @@ public class Server {
         GeneralLogger.deleteOldLogs();
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(() -> {
-                System.out.println("[UDP] Sending regular UDP discovery packet to broadcast");
+//                System.out.println("[UDP] Sending regular UDP discovery packet to broadcast");
                 GeneralLogger.writeMessage("[UDP] Sending regular UDP discovery packet to broadcast");
                 UDPCommunicationHandler.sendUDPPacket(UDPCommunicationHandler.LOOKING_FOR_CONTROLLERS_MESSAGE, UDPCommunicationHandler.getBroadcastAddresses());
-            }, 0, 3, TimeUnit.MINUTES);
+            }, 0, 30, TimeUnit.SECONDS);
         while (!serverSocket.isClosed()) {
             try {
                 new SocketHandler(serverSocket.accept());
