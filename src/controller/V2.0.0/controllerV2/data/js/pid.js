@@ -6,6 +6,8 @@
     getValueFromAPI("alpha", document.getElementById("alpha"), true);
     getValueFromAPI("delay", document.getElementById("delay"), true);
 
+    getValueFromAPI("deltat", document.getElementById("deltat"), true);
+
     const pidform = document.getElementById("pidsetup");
     pidform.addEventListener("submit", event => {
         event.preventDefault();

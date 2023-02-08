@@ -118,27 +118,34 @@ public:
       Serial.println(delay);
       memory->setDelay(delay.toInt());
     }
+    if(request->hasParam("deltat",true)){
+      String temp = request->getParam("deltat", true)->value();
+      memory->setDeltaT(temp.toInt());
+      Serial.print("Delta T: ");
+      Serial.println(memory->getDeltaT());
+    }
 
     //manualcontroll
-     if(request->hasParam("power",true)){
+    if(request->hasParam("power",true)){
       String powerstr = request->getParam("power", true)->value();
       status->set_power = powerstr.toInt();
       Serial.print("Get new POWER: ");
       Serial.println(status->set_temperature);
     }
-     if(request->hasParam("airflow",true)){
+    if(request->hasParam("airflow",true)){
       String airflowstr;
       airflowstr = request->getParam("airflow", true)->value();
       status->set_power = airflowstr.toInt() * 100;
       Serial.print("Get new AIRFLOW: ");
       Serial.println(status->set_temperature);
     }
-     if(request->hasParam("temp",true)){
+    if(request->hasParam("temp",true)){
       String temp = request->getParam("temp", true)->value();
       status->set_temperature = temp.toInt();
       Serial.print("Get new TEMPERATURE: ");
       Serial.println(status->set_temperature);
     }
+
     return false;
   };
 
@@ -215,30 +222,29 @@ public:
 
     // REQUESTS
     server.on("/t", HTTP_GET, [this](AsyncWebServerRequest *request) {
-      char str[10];
+      char str[20];
       sprintf(str, "%f", status->actual_temperature);
       request->send(200, "text/plain", str);
     });
 
     //PID
     server.on("/p", HTTP_GET, [this](AsyncWebServerRequest *request) {
-      char str[10];
+      char str[20];
       sprintf(str, "%f", memory->getP());
-      request->send(200, F("text/plain"), str);
+      request->send(200, "text/plain", str);
     });
 
     server.on("/i", HTTP_GET, [this](AsyncWebServerRequest *request) {
-      char str[10];
+      char str[20];
       sprintf(str, "%f", memory->getI());
-      request->send(200, F("text/plain"), str);
+      request->send(200, "text/plain", str);
     });
 
     server.on("/d", HTTP_GET, [this](AsyncWebServerRequest *request) {
-      char str[10];
+      char str[20];
       sprintf(str, "%f", memory->getD());
-      request->send(200, F("text/plain"), str);
+      request->send(200, "text/plain", str);
     });
-
 
     server.on("/alpha", HTTP_GET, [this](AsyncWebServerRequest *request) {
       char str[11];
@@ -247,8 +253,14 @@ public:
     });
 
     server.on("/delay", HTTP_GET, [this](AsyncWebServerRequest *request) {
-      char str[10];
+      char str[20];
       sprintf(str, "%d", memory->getDelay());
+      request->send(200, "text/plain", str);
+    });
+
+    server.on("/deltat", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      char str[11];
+      sprintf(str, "%10f", memory->getDeltaT());
       request->send(200, "text/plain", str);
     });
     // end PID
@@ -257,19 +269,19 @@ public:
     server.on("/controllerip", HTTP_GET, [this](AsyncWebServerRequest *request) {
       IPAddress controller_IP = IPAddress();
       memory->getCONTROLLERIP(controller_IP);
-      request->send(200, F("text/plain"), controller_IP.toString());
+      request->send(200, "text/plain", controller_IP.toString());
     });
 
     server.on("/controllergateway", HTTP_GET, [this](AsyncWebServerRequest *request) {
       IPAddress controller_GW = IPAddress();
       memory->getCONTROLLERGW(controller_GW);
-      request->send(200, F("text/plain"), controller_GW.toString());
+      request->send(200, "text/plain", controller_GW.toString());
     });
 
     server.on("/controllernwtmask", HTTP_GET, [this](AsyncWebServerRequest *request) {
       IPAddress controller_MASK = IPAddress();
       memory->getMASK(controller_MASK);
-      request->send(200, F("text/plain"), controller_MASK.toString());
+      request->send(200, "text/plain", controller_MASK.toString());
     });
 
     server.on("/serverip", HTTP_GET, [this](AsyncWebServerRequest *request) {
@@ -284,12 +296,13 @@ public:
       char idsend[len];
       memcpy(idsend, id, len);
       request->send(200, "text/plain", idsend);
+      
     });
 
     server.on("/controllerport", HTTP_GET, [this](AsyncWebServerRequest *request) {
       char str[10];
       sprintf(str, "%d", memory->getPORT());
-      request->send(200, F("text/plain"), str);
+      request->send(200, "text/plain", str);
     });
 
     //Status
@@ -297,39 +310,39 @@ public:
       if (status->eeprom_begin) {
         request->send(200, "text/plain", OK_RESPONSE);
       } else {
-        request->send(200, F("text/plain"), ERROR_RESPONSE);
+        request->send(200, "text/plain", ERROR_RESPONSE);
       }
     });
 
     server.on("/dacstat", HTTP_GET, [this](AsyncWebServerRequest *request) {
       if (status->dac_connected) {
-        request->send(200, F("text/plain"), OK_RESPONSE);
+        request->send(200, "text/plain", OK_RESPONSE);
       } else {
-        request->send(200, F("text/plain"), ERROR_RESPONSE);
+        request->send(200, "text/plain", ERROR_RESPONSE);
       }
     });
 
     server.on("/thermometerstat", HTTP_GET, [this](AsyncWebServerRequest *request) {
       if (status->thermometer_connected) {
-        request->send(200, F("text/plain"), OK_RESPONSE);
+        request->send(200, "text/plain", OK_RESPONSE);
       } else {
-        request->send(200, F("text/plain"), ERROR_RESPONSE);
+        request->send(200, "text/plain", ERROR_RESPONSE);
       }
     });
 
     server.on("/serverstat", HTTP_GET, [this](AsyncWebServerRequest *request) {
       if (status->connected_server) {
-        request->send(200, F("text/plain"), "connected");
+        request->send(200, "text/plain", "connected");
       } else if (status->searching_server) {
-        request->send(200, F("text/plain"), "searching for server");
+        request->send(200, "text/plain", "searching for server");
       } else if (status->connection_error) {
-        request->send(200, F("text/plain"), "connection error");
+        request->send(200, "text/plain", "connection error");
       } else if (status->lost_connection) {
-        request->send(200, F("text/plain"), "connection lost");
+        request->send(200, "text/plain", "connection lost");
       } else if (status->connecting_server) {
-        request->send(200, F("text/plain"), "connecting to server");
+        request->send(200, "text/plain", "connecting to server");
       }
-      request->send(200, F("text/plain"), "ERROR");
+      request->send(200, "text/plain", "ERROR");
     });
 
     server.on("/air", HTTP_GET, [this](AsyncWebServerRequest *request) {

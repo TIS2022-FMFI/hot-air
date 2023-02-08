@@ -14,7 +14,7 @@
 //#define _DHCP set
 
 // simulation
-//#define SIMULATION
+// #define SIMULATION
 
 // Select the IP address according to your local network, works only if _DHCP is commented
 // all info taks form memory
@@ -30,9 +30,9 @@
 //
 //********************************************************
 
-#define TIMEOUT_SERVER_STOP 100000 //ms
-#define TIMEOUT_UDP_CONNECTION 10000 //ms
-#define TIMEOUT_UDP_ACK_TIME 5000 //ms
+#define TIMEOUT_SERVER_STOP 2000 //ms // cas za ktory sa vypne ohrev duchadla po prepnuti do stavu Odpojene
+#define TIMEOUT_UDP_CONNECTION 10000 //ms //za aky cas sa prepnem do stavu Odpojene
+#define TIMEOUT_UDP_ACK_TIME 5000 //ms // po akom case controller vyhlasi error ze sa nevie pripojit na server.
 
 //********************************************************
 //

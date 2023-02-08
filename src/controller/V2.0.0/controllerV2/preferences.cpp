@@ -33,8 +33,6 @@ bool Preferences::begin(uint16_t size) {
   eeprom_size = size;
   mem_flags = 0;
 
-
-
   if (EEPROM.begin(size) == false) {
     Serial.println("EEPROM load error.\n Rebooting...");
     //ESP.restart();
@@ -62,7 +60,7 @@ bool Preferences::begin(uint16_t size) {
   // ---------------------------------
 
   #ifdef _DEBUG
-    //IPAddress ip = IPAddress(10,1,1,100);
+    // IPAddress ip = IPAddress(10,1,1,100);
     //IPAddress mask = IPAddress(255,0,0,0);
     //IPAddress GW = IPAddress(10,1,1,1);
    // setMASK(mask);
@@ -191,6 +189,9 @@ bool Preferences::isControllerIPset() {
   return (mem_flags & flag::controllerip) == flag::controllerip;
 }
 
+bool Preferences::isDeltaTset(){
+  return (mem_flags & flag::deltaT) == flag::deltaT;
+}
 
 bool Preferences::setSERVERIP(IPAddress address) {
   return setIP(addresses::SERVER_IP, address);
@@ -264,7 +265,7 @@ uint8_t Preferences::getID(char* id) {
     // for (uint8_t i = 3; i < 15; i++) {
     //   id[i] = ' ';
     // }
-    char idnotset[] = "idNOTset0";
+    char idnotset[] = {'i','d','N','O','T','s','e','t','\0'};
     strncpy(id, idnotset, 9);
     return 9;
   }
@@ -346,6 +347,19 @@ bool Preferences::setDelay(uint16_t val){
   return EEPROM.commit();
 }
 
+bool Preferences::setDeltaT(float deltat){
+  setFlag(flag::deltaT);
+  EEPROM.writeFloat(addresses::DELTA_t, deltat);
+  return EEPROM.commit();
+}
+
+float Preferences::getDeltaT(){
+  if (isDeltaTset() == false){
+    return 0;
+  }
+  return EEPROM.readFloat(addresses::DELTA_t);
+  }
+
 void Preferences::setFlag(flag mask) {
   mem_flags = mem_flags | mask;
   writeFlags();
@@ -366,17 +380,31 @@ void Preferences::erasureAll() {
   EEPROM.commit();
 
   readFlags();
+
+  IPAddress controllerip = IPAddress(10,2,1,100);
+  IPAddress controllergw = IPAddress(10,2,1,1);
+  IPAddress controllermask = IPAddress(255,0,0,0);
+
+  setP(0.04);
+  setD(0.005);
+  setI(0.0006);
+  setA(1.0);
+  setDelay(250);
+
+  setDeltaT(0);
+  
+  setCONTROLLERIP(controllerip, controllergw);
+  setMASK(controllermask);
+
 }
 
 void Preferences::getIP(addresses memory_address, IPAddress &ipaddr) {
   uint8_t ip[4] = {0,0,0,0};
   if (memory_address == addresses::SERVER_IP && isServerIPset() == false){
-    //IPAddress returnIP(0, 0, 0, 0);
     ipaddr = IPAddress(ip);
     return;
   } else if ((memory_address == addresses::CONTROLLER_IP || memory_address == addresses::CONTROLLER_GW) && isControllerIPset() == false){
-    //IPAddress returnIP(0, 0, 0, 0);
-    ipaddr = IPAddress(ip);
+    ipaddr = IPAddress(10,2,1,100);
     return;
   }
 

@@ -83,6 +83,7 @@ void dacAir(uint8_t air_power){
 
 void setup() {
   Serial.begin(115200);
+  delay(1000);
   Serial.println("Booting up...");
   
   status.begin();
@@ -143,6 +144,13 @@ void setup() {
 
   webserver.begin(server, &memory, &status);
   
+  // do not change!
+  for (uint8_t i = 0; i < 5; i++){
+    Serial.print("*");
+    delay(1050);
+  }
+  Serial.println();
+
   serverComm.begin(&udp, &tcp, &status, &memory);
 
   Serial.print("\nChecking hardware\n");
@@ -161,12 +169,13 @@ void setup() {
     for (uint8_t i = 0; i < 5; i++) {
       Serial.print(".");
       status.actual_temperature = thermocouple.readCelsius();
+      Serial.println(status.actual_temperature);
       delay(250);
     }
-    //isnan(status.actual_temperature) ? status.thermometer_connected = false : status.thermometer_connected = true;
-    status.thermometer_connected = true;
+    (status.actual_temperature != status.actual_temperature) ? status.thermometer_connected = false : status.thermometer_connected = true;
+    //status.thermometer_connected = true;
   #else
-    status.thermometer_connected = false ;
+    status.thermometer_connected = true;
   #endif 
 
   // info output to serial.
@@ -180,27 +189,6 @@ void setup() {
     dac.begin();
     dac.setDACOutRange(dac.eOutputRange10V);
   }
-
-  // do not change!
-  for (uint8_t i = 0; i < 5; i++){
-    Serial.print("*");
-    delay(1000);
-  }
-  Serial.println();
-  // status.connection_error = true; // VYMAZAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // VYMAZAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // VYMAZAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // VYMAZAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // VYMAZAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // VYMAZAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // VYMAZAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // VYMAZAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // VYMAZAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // VYMAZAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // VYMAZAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // VYMAZAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // VYMAZAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 }
   
 
@@ -280,7 +268,7 @@ if (millis() - millis_temperature > update_time){
       status.actual_temperature = 0;
     }
   #else
-    status.actual_temperature = thermocouple.readCelsius();
+    status.actual_temperature = thermocouple.readCelsius() + memory.getDeltaT();
   #endif
 
   millis_temperature = millis();
@@ -326,10 +314,10 @@ void pd_step()
   //printf("%-6s%-6s%-6s%-13s%-5s\n", "temp", "t-err", "d-err", "required-power", "" , "delta");
   //printf("%-6s%-6s%-6s%-13s%-5s\n", "temp", "t-err", "d-err", "required-power", "" , "delta");
 
-  Serial.print(p_err);
-  Serial.print(" ");
-  Serial.print(d_err);
-  Serial.print(" ");
+  // Serial.print(p_err);
+  // Serial.print(" ");
+  // Serial.print(d_err);
+  // Serial.print(" ");
 
   suma += p_err * memory.getI();
   float delta_amount = 1000 * (suma + memory.getP() * p_err + memory.getD() * d_err);
@@ -339,14 +327,13 @@ void pd_step()
 
   status.actual_power = ((1 - memory.getA()) * status.actual_power + memory.getA() * current_power);
   
-  Serial.print((int)current_power);
-  Serial.print(" ");
-  Serial.print((int)delta_amount);
-  Serial.print(" ");
-  Serial.println((int)status.actual_power);
+  // Serial.print((int)current_power);
+  // Serial.print(" ");
+  // Serial.print((int)delta_amount);
+  // Serial.print(" ");
+  // Serial.println((int)status.actual_power);
 
   //dac.outputSquare((int)status.actual_power, 10000, 0, 100, 0);
-  
   
 }
 
@@ -354,7 +341,6 @@ void loop() {
   if (status.pid_delay_millis > millis()){
     status.pid_delay_millis = 0;
   }
-
 
   handleTemperature(THERMOMETER_UPDATING_TIME);
   serverComm.refresh();

@@ -43,6 +43,7 @@ private:
   // CONTROLLER_MASK = 1Byte
   // P/D/I/ALPHA_reg = 8Byte (float)
   // DELAY = 4Byte (uint16)
+  // DELTA T = 8Byte (float)
 
   enum addresses { FLAGS = MEMORY_START + 0,
                    SERVER_IP = MEMORY_START + 1,
@@ -53,15 +54,17 @@ private:
                    CONTROLLER_MASK = MEMORY_START + 33,
                    P_reg = MEMORY_START + 38,
                    D_reg = MEMORY_START + 47,
-                   I_reg = MEMORY_START + 50,
-                   ALPHA_reg = MEMORY_START + 59,
-                   DELAY_reg = MEMORY_START + 68,};
+                   I_reg = MEMORY_START + 56,
+                   ALPHA_reg = MEMORY_START + 65,
+                   DELAY_reg = MEMORY_START + 74,
+                   DELTA_t = MEMORY_START + 79};
 
   enum flag { serverip = 0x01,
               port = 0x02,
               id = 0x04,
               controllerip = 0x10,
-              pid = 0x20};
+              pid = 0x20,
+              deltaT = 0x40};
   
   uint16_t eeprom_size;
   volatile uint8_t mem_flags;
@@ -98,6 +101,8 @@ public:
   bool isIDset();
 
   bool isControllerIPset();
+  
+  bool isDeltaTset();
 
   bool setSERVERIP(IPAddress address);
 
@@ -136,8 +141,10 @@ public:
   bool setA(float val);
 
   uint16_t getDelay();
-
   bool setDelay(uint16_t val);
+
+  float getDeltaT();
+  bool setDeltaT(float deltat);
 
 private:
   void setFlag(flag mask);
