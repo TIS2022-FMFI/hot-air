@@ -3,19 +3,13 @@ package GUI;
 import Communication.RequestResult;
 import Logs.GeneralLogger;
 import XML.XMLEditor;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleFloatProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -258,8 +252,7 @@ public class GUIController implements Initializable {
             GeneralLogger.writeExeption(e);
             System.err.println(e);
             e.printStackTrace();
-            Project[] projects = {};
-            return projects;
+            return new Project[]{};
         }
     }
 
@@ -568,7 +561,4 @@ public class GUIController implements Initializable {
         return blowersList;
     }
 
-    public ObservableList<Project> getProjectsList() {
-        return projectsList;
-    }
 }

@@ -33,8 +33,8 @@ import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 public class Project {
     private String name;
 //    private SimpleStringProperty status;
-    private SimpleStringProperty currentPhase;
-    private Hyperlink graph;
+    private final SimpleStringProperty currentPhase;
+    private final Hyperlink graph;
     private HashMap<String, List<Pair<String, String>>> tempLogFile;
 
     private final Button stopButton;
