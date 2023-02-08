@@ -18,7 +18,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<TabPane minHeight="310.0" minWidth="900.0" prefHeight="510.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.GUIController">
+<TabPane minHeight="310.0" minWidth="-Infinity" prefHeight="510.0" prefWidth="910.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.GUIController">
    <Tab text="BLOWERS">
       <BorderPane fx:id="blowers" prefHeight="481.0" prefWidth="900.0">
          <top>
@@ -113,14 +113,14 @@
             </VBox>
          </top>
          <center>
-            <TableView fx:id="blowersView" prefHeight="361.0" prefWidth="890.0" BorderPane.alignment="CENTER">
+            <TableView fx:id="blowersView" minWidth="890.0" prefHeight="361.0" prefWidth="890.0" BorderPane.alignment="CENTER">
               <columns>
                <TableColumn fx:id="blowerMark" maxWidth="-1.0" minWidth="30.0" prefWidth="-1.0" resizable="false" sortable="false" style="-fx-alignment: CENTER; -fx-padding: 0 0 0 5;" />
                <TableColumn fx:id="blowerID" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" resizable="false" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="ID " />
                <TableColumn fx:id="blowerIP" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" resizable="false" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="IP Address" />
                <TableColumn fx:id="blowerCurrentTmp" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" resizable="false" style="-fx-padding: 0 0 0 3; -fx-alignment: CENTER-LEFT;" text="Current TMP" />
                <TableColumn fx:id="blowerTargetTmp" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" resizable="false" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="Target TMP" />
-               <TableColumn fx:id="blowerProject" maxWidth="1.7976931348623157E308" minWidth="300.0" prefWidth="-1.0" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="Project" />
+               <TableColumn fx:id="blowerProject" maxWidth="1.7976931348623157E308" minWidth="315.0" prefWidth="-1.0" style="-fx-padding: 0 0 0 5; -fx-alignment: CENTER-LEFT" text="Project" />
                <TableColumn fx:id="blowerStop" maxWidth="-1.0" minWidth="95.0" prefWidth="-1.0" resizable="false" sortable="false" style="-fx-alignment: CENTER; -fx-cell-size: 30;" text="STOP" />
                   <TableColumn fx:id="blowerCaution" maxWidth="-1.0" minWidth="40.0" prefWidth="-1.0" resizable="false" sortable="false" style="-fx-alignment: CENTER; -fx-padding: 0 0 0 5;" />
               </columns>
@@ -157,11 +157,10 @@
    <Tab text="PROJECTS">
       <BorderPane fx:id="projects" prefHeight="481.0" prefWidth="900.0">
          <center>
-            <TableView fx:id="projectsView" prefHeight="404.0" prefWidth="890.0" BorderPane.alignment="CENTER">
+            <TableView fx:id="projectsView" minWidth="890.0" prefHeight="404.0" prefWidth="890.0" BorderPane.alignment="CENTER">
                <columns>
-                  <TableColumn fx:id="projectName" minWidth="100.0" prefWidth="25.0" style="-fx-padding: 0 0 0 5; -fx-cell-size: 30; -fx-alignment: CENTER-LEFT;" text="Name   📈" />
-                  <TableColumn fx:id="projectStatus" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" style="-fx-padding: 0 0 0 5; -fx-cell-size: 30; -fx-alignment: CENTER-LEFT;" text="Status" />
-                  <TableColumn fx:id="projectPhase" minWidth="100.0" prefWidth="207.0" style="-fx-padding: 0 0 0 5; -fx-cell-size: 30; -fx-alignment: CENTER-LEFT;" text="Current phase" />
+                  <TableColumn fx:id="projectName" maxWidth="1.7976931348623157E308" minWidth="397.0" prefWidth="-1.0" style="-fx-padding: 0 0 0 5; -fx-cell-size: 30; -fx-alignment: CENTER-LEFT;" text="Name   📈" />
+                  <TableColumn fx:id="projectPhase" maxWidth="1.7976931348623157E308" minWidth="397.0" prefWidth="-1.0" style="-fx-padding: 0 0 0 5; -fx-cell-size: 30; -fx-alignment: CENTER-LEFT;" text="Current phase" />
                   <TableColumn fx:id="projectStop" maxWidth="-1.0" minWidth="95.0" prefWidth="-1.0" resizable="false" sortable="false" style="-fx-alignment: CENTER; -fx-cell-size: 30;" text="STOP" />
                </columns>
                <columnResizePolicy>
