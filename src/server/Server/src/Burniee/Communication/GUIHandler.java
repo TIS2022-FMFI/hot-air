@@ -35,15 +35,7 @@ public class GUIHandler extends Thread {
         Server.getInstance().removeGUI(this);
     }
 
-//    private byte[] getObjectBytes(Object o) throws IOException {
-//        ByteArrayOutputStream bao = new ByteArrayOutputStream();
-//        ObjectOutputStream oo = new ObjectOutputStream(bao);
-//        oo.writeObject(o);
-//        return bao.toByteArray();
-//    }
-
     private void sendController(Controller c) throws IOException {
-//        System.out.println("[GUI] sending info about controller with id = " + c.getID() + " and current temperature = " + c.getCurrentTemperature());
         socket.writeMessage(new Message(c.getIP().getAddress()));
         socket.writeMessage(new Message(c.getID().getBytes()));
         socket.writeMessage(new Message(ByteBuffer.allocate(4).putFloat(c.getCurrentTemperature()).array()));
@@ -110,24 +102,6 @@ public class GUIHandler extends Thread {
                         socket.writeMessage(new Message(MessageBuilder.GUI.Request.NumberOfProjects.build()));
                         socket.writeMessage(new Message(ByteBuffer.allocate(4).putInt(Server.getInstance().getActiveProjects().size()).array()));
                     }
-//                } else if (MessageBuilder.GUI.Request.ChangeControllerID.equals(msg)) { //TODO -> check if new id is unique
-//                    String oldID, newID;
-//                    synchronized (socket) {
-//                        oldID = socket.readStringMessage();
-//                        newID = socket.readStringMessage();
-//                    }
-//                    System.out.println("[GUI] request for new id = " + newID + " for controller with id = " + oldID);
-//                    GeneralLogger.writeMessage("[GUI] request for new id = " + newID + " for controller with id = " + oldID);
-//                    boolean gut = false;
-//                    for (ControllerHandler i : Server.getInstance().getControllers()) {
-//                        if (i.getControllerID().equals(oldID)) {
-//                            i.changeId(newID);
-//                            gut = true;
-//                        }
-//                    }
-//                    if (!gut) {
-//                        throw new ControllerException("No controller with id = " + oldID + " found!");
-//                    }
                 } else if (MessageBuilder.GUI.Request.SearchForNewControllers.equals(msg)) {
 //                    System.out.println("[GUI] request to search for new controllers");
                     UDPCommunicationHandler.sendUDPPacket(UDPCommunicationHandler.LOOKING_FOR_CONTROLLERS_MESSAGE, UDPCommunicationHandler.getBroadcastAddresses());
@@ -162,7 +136,6 @@ public class GUIHandler extends Thread {
                         for (ControllerHandler ch : Server.getInstance().getControllers()) {
                             Controller c = ch.getController();
                             sendController(c);
-//                        socket.writeMessage(new Message(getObjectBytes(c)));
                         }
                     }
                 } else if (MessageBuilder.GUI.Request.GetInfoAboutProjects.equals(msg)) {

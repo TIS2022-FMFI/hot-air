@@ -135,26 +135,6 @@ public class Server {
     public void addController(ControllerHandler ch) {
         synchronized (controllers) {
             controllers.add(ch);
-//            List<ControllerHandler> toRemove = new LinkedList<>();
-//            for (ControllerHandler i : controllers) {
-//                if (i.getController().getIP().equals(ch.getController().getIP())) {
-//                    toRemove.add(i);
-//                }
-//            }
-//            for (ControllerHandler i : toRemove) {
-//                if (i.isActive()) {
-////                    ch.startUsing(i.getProject());
-//                    i.setProject(null);
-//                    try {
-//                        ch.changeControllerParameters(i.getController().getTargetTemperature(), i.getController().getAirFlow(), i.getController().getTime());
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//                System.out.println("[Controller] found duplicate");
-//                i.stopConnection();
-//            }
-//            controllers.add(ch);
         }
     }
 
@@ -228,16 +208,6 @@ public class Server {
         }
         return res;
     }
-
-//    public void isAnyoneMissingMe(ControllerHandler ch) {
-//        synchronized (activeProjects) {
-//            for (Project p : activeProjects) {
-//                if (p.beYouMyLostChild(ch)) {
-//                    return;
-//                }
-//            }
-//        }
-//    }
 
     public void sendRequestForDeletingOldLogFiles() {
         synchronized (activeGUIs) {
