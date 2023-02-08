@@ -82,7 +82,7 @@ public class Blower {
         imageView.setFitWidth(25);
         imageView.setFitHeight(20);
         hiddenButton.setId("cautionBtn");
-        hiddenButton.setVisible(false);
+        hiddenButton.setVisible(isStopped());
         hiddenButton.setGraphic(imageView);
         hiddenButton.setStyle("-fx-background-color: transparent;");
         hiddenButton.setPrefWidth(25);
@@ -130,7 +130,7 @@ public class Blower {
             if (result.get() == ButtonType.OK){
                 try {
                     GUI.client.stopAController(getId());
-                    hiddenButton.setVisible(true);
+                    hiddenButton.setVisible(isStopped());
                     System.out.println("blower " + getId() + " stopped");
                 } catch (Exception e) {
                     GeneralLogger.writeExeption(e);
@@ -362,6 +362,7 @@ public class Blower {
                 ", currentTemp=" + currentTemp.getValue() +
                 ", targetTemp=" + targetTemp.getValue() +
                 ", projectName=" + projectName.getValue() +
+                ", stopped=" + stopped.getValue() +
                 '}';
     }
 
