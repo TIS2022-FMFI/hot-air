@@ -99,7 +99,7 @@ public class Blower {
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == ButtonType.OK){
                 try {
-                    GUI.gui.client.unlockController(getId());
+                    GUI.client.unlockController(getId());
                     hiddenButton.setVisible(false);
                     System.out.println("blower " + getId() + " was resumed");
                 } catch (Exception e) {
@@ -129,7 +129,7 @@ public class Blower {
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == ButtonType.OK){
                 try {
-                    gui.client.stopAController(getId());
+                    GUI.client.stopAController(getId());
                     hiddenButton.setVisible(true);
                     System.out.println("blower " + getId() + " stopped");
                 } catch (Exception e) {
@@ -357,11 +357,11 @@ public class Blower {
     @Override
     public String toString() {
         return "Blower{" +
-                "id=" + id +
+                "id=" + id.getValue() +
                 ", IPAddress='" + IPAddress + '\'' +
-                ", currentTemp=" + currentTemp +
-                ", targetTemp=" + targetTemp +
-                ", projectName=" + projectName +
+                ", currentTemp=" + currentTemp.getValue() +
+                ", targetTemp=" + targetTemp.getValue() +
+                ", projectName=" + projectName.getValue() +
                 '}';
     }
 

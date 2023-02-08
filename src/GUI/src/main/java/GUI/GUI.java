@@ -54,12 +54,9 @@ public class GUI extends Application {
             Scene scene = new Scene(root, 910, 510);
             String css = Objects.requireNonNull(this.getClass().getResource("styles.css")).toExternalForm();
             scene.getStylesheets().add(css);
-            stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-                @Override
-                public void handle(WindowEvent t) {
-                    Platform.exit();
-                    System.exit(0);
-                }
+            stage.setOnCloseRequest(t -> {
+                Platform.exit();
+                System.exit(0);
             });
             stage.setScene(scene);
             stage.setTitle("BURNIEE");
