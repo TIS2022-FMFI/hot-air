@@ -83,7 +83,7 @@ public class GUIController implements Initializable {
     @FXML TableView<Project> projectsView;
     @FXML TableColumn<Project, Hyperlink> projectName;
     @FXML TableColumn<Project,String> projectPhase;
-    @FXML TableColumn<Project,String> projectStatus;
+//    @FXML TableColumn<Project,String> projectStatus;
     @FXML TableColumn<Project, Button> projectStop;
 
     public static final ObservableList<Blower> blowersList = FXCollections.observableArrayList();
@@ -208,7 +208,7 @@ public class GUIController implements Initializable {
             }
         });
         projectName.setComparator(Comparator.comparing(o -> Float.valueOf(o.getText())));
-        projectStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+//        projectStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
         projectPhase.setCellValueFactory(new PropertyValueFactory<>("currentPhase"));
         projectStop.setCellValueFactory(new PropertyValueFactory<>("stopButton"));
     }
@@ -335,7 +335,7 @@ public class GUIController implements Initializable {
                     boolean gut = false;
                     for (Project p : projectsList) {
                         if (p.equals(project)) {
-                            p.setStatus(project.getStatus());
+//                            p.setStatus(project.getStatus());
                             p.setCurrentPhase(project.getCurrentPhase());
                             gut = true;
                         }

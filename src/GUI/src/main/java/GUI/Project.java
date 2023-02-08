@@ -32,7 +32,7 @@ import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
  */
 public class Project {
     private String name;
-    private SimpleStringProperty status;
+//    private SimpleStringProperty status;
     private SimpleStringProperty currentPhase;
     private Hyperlink graph;
     private HashMap<String, List<Pair<String, String>>> tempLogFile;
@@ -50,7 +50,7 @@ public class Project {
      */
     public Project(String name, String currentPhase) {
         this.name = name;
-        this.status = new SimpleStringProperty("running");
+//        this.status = new SimpleStringProperty("running");
         this.currentPhase = new SimpleStringProperty(currentPhase);
         this.graph = new Hyperlink(this.name);
         this.graph.setOnAction(event -> openGraph());
@@ -75,7 +75,7 @@ public class Project {
             if (result.get() == ButtonType.OK){
                 try {
                     GUI.client.stopAProject(name);
-                    setStatus("stopped");
+//                    setStatus("stopped");
                     GeneralLogger.writeMessage("project " + name + " stopped");
                     System.out.println("project " + name + " stopped");
                 } catch (Exception e) {
@@ -255,23 +255,23 @@ public class Project {
         this.name = name;
     }
 
-    /**
-     * Gets status of project.
-     *
-     * @return the status
-     */
-    public String getStatus() {
-        return status.get();
-    }
-
-    /**
-     * Sets status of project.
-     *
-     * @param status the status
-     */
-    public void setStatus(String status) {
-        this.status.set(status);
-    }
+//    /**
+//     * Gets status of project.
+//     *
+//     * @return the status
+//     */
+//    public String getStatus() {
+//        return status.get();
+//    }
+//
+//    /**
+//     * Sets status of project.
+//     *
+//     * @param status the status
+//     */
+//    public void setStatus(String status) {
+//        this.status.set(status);
+//    }
 
     /**
      * Gets current phase.

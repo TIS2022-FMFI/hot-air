@@ -160,7 +160,6 @@
             <TableView fx:id="projectsView" prefHeight="404.0" prefWidth="890.0" BorderPane.alignment="CENTER">
                <columns>
                   <TableColumn fx:id="projectName" minWidth="100.0" prefWidth="25.0" style="-fx-padding: 0 0 0 5; -fx-cell-size: 30; -fx-alignment: CENTER-LEFT;" text="Name   📈" />
-                  <TableColumn fx:id="projectStatus" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" style="-fx-padding: 0 0 0 5; -fx-cell-size: 30; -fx-alignment: CENTER-LEFT;" text="Status" />
                   <TableColumn fx:id="projectPhase" minWidth="100.0" prefWidth="207.0" style="-fx-padding: 0 0 0 5; -fx-cell-size: 30; -fx-alignment: CENTER-LEFT;" text="Current phase" />
                   <TableColumn fx:id="projectStop" maxWidth="-1.0" minWidth="95.0" prefWidth="-1.0" resizable="false" sortable="false" style="-fx-alignment: CENTER; -fx-cell-size: 30;" text="STOP" />
                </columns>
