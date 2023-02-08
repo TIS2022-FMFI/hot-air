@@ -109,8 +109,8 @@ void ServerCommunication::sendTemperature() {
   IPAddress serverip = IPAddress();
   memory->getSERVERIP(serverip);
   
-  //udp->writeTo()(data, 16, serverip, memory->getPORT());
-  udp->write(data, 16);
+  udp->writeTo(data, 16, serverip, memory->getPORT());
+  // udp->write(data, 16);
 
 };
 
@@ -134,11 +134,16 @@ void ServerCommunication::handleTemperature(uint8_t *buffer) {
   uint8_t air_flow = buffer[6];
 
   // during development it was decided that time would not be needed for the controller
-  // long time = 0;
-  //     for (int i = 0; i < 8; i++){
-  //       auto byteVal = ((buffer[14 - i]) << (8 * i));
-  //       time |= byteVal;
-  //     }
+  int phaseid = 0;
+      for (int i = 0; i < 8; i++){
+        auto byteVal = ((buffer[3 - i]) << (8 * i));
+        phaseid |= byteVal;
+      }
+
+  if (status->phsaeID >= phaseid){
+    Serial.print("\nPhase Ignored\nThe ID phase is less than or equal to the previous phase");
+    return;
+  }
 
   if (temp >= 0 && temp <= 1000) {
     status->set_temperature = temp;
@@ -148,7 +153,7 @@ void ServerCommunication::handleTemperature(uint8_t *buffer) {
     status->set_airflow = air_flow;
   }
   
-  Serial.printf("New settings:\nTemperature: %u\nAirFlow: %u\n", status->set_temperature, status->set_airflow);
+  Serial.printf("\nNew settings:\nTemperature: %u\nAirFlow: %u\n", status->set_temperature, status->set_airflow);
   sendAck(buffer);
 }
 
@@ -172,11 +177,11 @@ void ServerCommunication::sendID() {
   memory->getID((char *)controller_id);
   controller_id[15] = communication_flags::NEW_ID;
   
-  IPAddress serverIP = IPAddress();
-  memory->getCONTROLLERGW(serverIP);
+  IPAddress serverip = IPAddress();
+  memory->getSERVERIP(serverip);
 
-  //udp->writeTo(controller_id, 16, serverIP, memory->getPORT());
-  udp->write(controller_id, 16);
+  udp->writeTo(controller_id, 16, serverip, memory->getPORT());
+  //udp->write(controller_id, 16);
 }
 
 void ServerCommunication::handleConnection() {
@@ -212,31 +217,30 @@ void ServerCommunication::handleError() {
 void ServerCommunication::sendAck(uint8_t *buffer) {
   buffer[15] |= communication_flags::ACK;
 
-  udp->write(buffer, 16);
+  IPAddress serverip = IPAddress();
+  memory->getSERVERIP(serverip);
+  udp->writeTo(buffer, 16, serverip, memory->getPORT());
 }
+
 void ServerCommunication::handlePacket(){
   udp->onPacket([this](AsyncUDPPacket packet) {
-    Serial.println("New Data.");
-
     if (status->searching_server == true) {
       Serial.println("UDP discovery handler.");
       udpHandler(packet);
-      //return;
+      return;
     }
 
     // todo zbavit sa pointera na b, a prekopirovavanie dat.
     uint16_t len = packet.length();
     uint8_t buffer[len + 1];
     uint8_t *b = (uint8_t *)packet.data();
-    Serial.print("dlzka Buffer-a ");
-    Serial.println(len);
-
+   
     for (int i = 0; i < len; i++) {
       buffer[i] = *((uint8_t *)(b + i));
     }
 
     #ifdef _DEBUG
-        printRawData(buffer, len);
+        // printRawData(buffer, len);
     #endif
 
     if (status->connecting_server == true && buffer[15] == (communication_flags::NEW_ID | communication_flags::ACK)) {
@@ -248,20 +252,19 @@ void ServerCommunication::handlePacket(){
     }
 
 
-    if (len < 16) {
-      Serial.print("Dostal som data, dlzka: ");
-      Serial.println(len);
-      return;
-    }
+    // if (len < 16) {
+    //   Serial.print("Dostal som data, dlzka: ");
+    //   Serial.println(len);
+    //   return;
+    // }
 
     if (buffer[15] == communication_flags::EMERGENCY_STOP) {
-      //Serial.println("EMERGENCY STOP");
       handleEmergency_stop(buffer);
+
     } else if (buffer[15] == communication_flags::SET_TEMPERATURE) {
-      //Serial.println("NEW TEMPERATURE");
       handleTemperature(buffer);
+
     } else if (buffer[15] == communication_flags::EMERGENCY_STOP_RELEASE) {
-      //Serial.println("EMERGENCY STOP RELEASE");
       handleEmergency_release(buffer);
     }
   });
@@ -281,13 +284,12 @@ void ServerCommunication::refresh() {
     if (status->searching_server == false && status->connection_error == false) {
 
       //status->request_udp_listening = 0;
-      Serial.println("UDP-stop");
+      //Serial.println("UDP-stop");
       // stopUdp();
-
-      IPAddress serverip = IPAddress();
-      memory->getCONTROLLERIP(serverip);
-
       status->searching_server = false;
+
+      IPAddress controllerip = IPAddress();
+      memory->getCONTROLLERIP(controllerip);
 
       IPAddress server_IP = IPAddress();
       memory->getSERVERIP(server_IP);
@@ -299,30 +301,23 @@ void ServerCommunication::refresh() {
       if (udp->connect(server_IP, memory->getPORT())) {
         handlePacket();
         status->connecting_server = true;
-        status->ack_server_time_out = millis();
         sendID();
+        status->ack_server_time_out = millis();
         status->connection_time_out_millis = millis();
-        Serial.println("Connecting");
 
-        if (udp->listen(serverip, memory->getPORT())) {
+        if (udp->listen(controllerip, memory->getPORT())) {
           Serial.print("Listening on IP ");
-          Serial.print(serverip);
+          Serial.print(controllerip);
           Serial.print(":");
           Serial.println(memory->getPORT());
           handlePacket();
         }
 
-      } else {
-        Serial.println("Connecting Error");
       }
 
-      status->connecting_server = true;
-      status->searching_server = false;
 
     } else if (status->searching_server == false && status->connection_error == true) {
       Serial.println("Start searching for a server");
-      //status->request_udp_listening = 1;
-      // startUdp();
 
       if (udp->listen(memory->getPORT())) {
         Serial.print("Listening on port: ");
@@ -335,7 +330,7 @@ void ServerCommunication::refresh() {
 
     if (status->id_has_change == true) {
       sendID();
-      status->id_has_change = true;
+      status->id_has_change = false;
     }
 
 

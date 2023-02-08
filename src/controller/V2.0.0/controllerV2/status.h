@@ -31,12 +31,14 @@ class Status{
 
     volatile float actual_temperature = 0;
     volatile float last_temperature = 0;
+    volatile int phsaeID = 0;
 
     volatile bool emergency_stop = false;
     volatile uint16_t set_temperature = 0;
     volatile uint8_t set_airflow = 0;
     volatile uint8_t set_power = 0;
     volatile uint16_t actual_power = 0;
+
 
 
     // UDP server password
