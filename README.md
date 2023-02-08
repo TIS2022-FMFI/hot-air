@@ -11,3 +11,15 @@ Ak
 - neobsahujú `@...` doplnia sa o template `@temperature` a následne ID dúchadiel. V tomto prípade treba `temperature` prepísať na želanú teplotu. 
 
 # Flashovanie arduina
+- todo 
+
+# Prvotné spustenie Controllera.
+- Do controllera zapojíme teplomer, konektor z dćuhdala a napájanie, od 15V do 24V
+- Controller po prvotnom spustení má prednastavenú IP adresu `10.2.1.100` s id `idNOTset`.
+- V GUI sa controller zobrazí do 30 sek, ak nie stlačíme tlačidlo `SCAN`
+- Klikneme na `idNOTset`, aby sa nám otovrilo web rozhranie controllera.
+- Na stránke controllera si v pravej lište zvolíme `Settings`
+- V `Settings` nastavíme novú IP adresu a ID controllera.
+- Stlačíme Save.
+- Reštartujeme Controller.
+- Controller je pripravený na spustenie projektu.
