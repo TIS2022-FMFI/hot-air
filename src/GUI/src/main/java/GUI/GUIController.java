@@ -488,6 +488,7 @@ public class GUIController implements Initializable {
             GUI.client.stopAllControllers();
             for (Blower b: blowersList) {
                 b.getHiddenButton().setVisible(true);
+                b.setStopped(true);
             }
             GeneralLogger.writeMessage("all blowers were stopped successfully (by GUI)");
         } catch (Exception e) {
