@@ -130,6 +130,7 @@ public class Blower {
             if (result.get() == ButtonType.OK){
                 try {
                     GUI.client.stopAController(getId());
+                    setStopped(true);
                     hiddenButton.setVisible(isStopped());
                     System.out.println("blower " + getId() + " stopped");
                 } catch (Exception e) {
