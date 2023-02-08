@@ -178,21 +178,28 @@ public class Project {
         ObservableList<Blower> blowers = GUIController.getBlowersList();
 
         System.out.println("addTemperaturesFromLog");
+        boolean first = true;
         for (String key : tempLogFile.keySet()) {
             Blower blower = blowers.filtered(b -> b.getId().equals(key)).get(0);
+            XYChart.Series<Number, Number> currentSerie;
+            XYChart.Series<Number, Number> targetSerie = null;
             synchronized (blower) {
-                XYChart.Series<Number, Number> currentSerie = new XYChart.Series<>("Blower " + key, blower.getCurrentData());
-                XYChart.Series<Number, Number> targetSerie = new XYChart.Series<>("Target " + key, blower.getTargetData());
+                if (first) {
+                    targetSerie = new XYChart.Series<>("Target", blower.getTargetData());
+                    lineChart.getData().add(targetSerie);
+                    blower.getTargetData().clear();
+                }
+                currentSerie = new XYChart.Series<>("Blower " + key, blower.getCurrentData());
                 lineChart.getData().add(currentSerie);
-                lineChart.getData().add(targetSerie);
-
                 blower.getCurrentData().clear();
-                blower.getTargetData().clear();
+
                 List<Pair<String, String>> values = tempLogFile.get(key);
                 for (int i = 0; i < values.size(); i++) {
                     try {
                         blower.getCurrentData().add(new XYChart.Data<>(i + 1, Float.parseFloat(values.get(i).getKey())));
-                        blower.getTargetData().add(new XYChart.Data<>(i + 1, Float.parseFloat(values.get(i).getValue())));
+                        if (first) {
+                            blower.getTargetData().add(new XYChart.Data<>(i + 1, Float.parseFloat(values.get(i).getValue())));
+                        }
                     } catch (NumberFormatException e) {
                         GeneralLogger.writeExeption(e);
                         System.err.println(values.get(i));
@@ -201,13 +208,16 @@ public class Project {
                     }
                 }
                 currentSerie.getNode().setStyle("-fx-stroke-width: 3px;");
-                targetSerie.getNode().setStyle("-fx-stroke-width: 2px;");
-                targetSerie.getNode().setStyle("-fx-opacity: 0.5");
+                if (first) {
+                    targetSerie.getNode().setStyle("-fx-stroke-width: 2px;");
+                    targetSerie.getNode().setStyle("-fx-opacity: 0.5");
+                }
 
                 NumberAxis xAxisLocal = ((NumberAxis) lineChart.getXAxis());
                 xAxisLocal.setUpperBound(values.size()+70);
                 xAxisLocal.setLowerBound(values.size()-30);
             }
+            first = false;
         }
     }
 
