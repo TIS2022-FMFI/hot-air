@@ -1,5 +1,4 @@
 package Burniee.Logs;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -54,7 +53,7 @@ public class TemperatureLogger {
         }
     }
 
-    public void logTemeperature(String phase, List<String> blowerIds, List<String> temps,  List<String> target)
+    public void logTemperature(String phase, List<String> blowerIds, List<String> temps, List<String> target)
             throws IOException {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         FileWriter writer = new FileWriter(fileName, true);

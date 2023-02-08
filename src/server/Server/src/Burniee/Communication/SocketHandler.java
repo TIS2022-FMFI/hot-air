@@ -45,10 +45,6 @@ public class SocketHandler {
             System.out.println("[TCP] EXE connected");
             GeneralLogger.writeMessage("[TCP] EXE connected");
             new EXEHandler(this).start();
-//        } else if (MessageBuilder.Controller.is(type)) {
-//            System.out.println("[TCP] Controller connected");
-//            GeneralLogger.writeMessage("[TCP] Controller connected");
-//            new ControllerHandler(this, s.getInetAddress()).start();
         } else {
             stopSocket();
             throw new ConnectException("Unknown type of connection");
@@ -133,6 +129,5 @@ public class SocketHandler {
     public String receiveAFile() throws IOException {
         String filename = readStringMessage();
         return FileReceiver.acceptFile(readMessage(), filename);
-//        return FileReceiver.acceptFile(in, readStringMessage());
     }
 }

@@ -11,7 +11,6 @@ import Burniee.xml.XMLAnalyzer;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.net.SocketException;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -26,10 +25,7 @@ public class Project extends Thread {
     private int phaseIndex = 0;
     private boolean phaseEnded = false;
     private boolean projectAtEnd = false;
-//    private boolean controllerReconnected = false;
-//    private String disconnectedController = null;
     private final List<String> handlerIDs;
-//    private final List<ControllerHandler> handlers;
     private final ScheduledExecutorService logger;
     private final TemperatureLogger temperatureLogger;
     private final Map<String, ControllerHandler> handlers;
@@ -104,7 +100,7 @@ public class Project extends Thread {
                 }
             }
             try {
-                temperatureLogger.logTemeperature(phaseName, handlerIDs, Arrays.asList(temps),Arrays.asList(targetTemps));
+                temperatureLogger.logTemperature(phaseName, handlerIDs, Arrays.asList(temps),Arrays.asList(targetTemps));
             } catch (IOException e) {
                 GeneralLogger.writeExeption(e);
                 Server.getInstance().sendExceptionToAllActiveGUIs(e);
@@ -114,21 +110,6 @@ public class Project extends Thread {
     }
 
     public TemperatureLogger getLogger() {return temperatureLogger;}
-
-//    public void startDoomsDayCycle(String controllerID) {
-//        try {
-//            disconnectedController = controllerID;
-//            System.out.println("[Project] controller with id = " + controllerID + " disconnected, starting 100s countdown until project shutdown");
-//            sleep(100000);
-//            end();
-//        } catch (InterruptedException ignored) {
-//            System.out.println("[Project] Lost controller reconnected");
-//            disconnectedController = null;
-//        }
-//        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-//        scheduler.schedule(() -> {
-//        }, 100, TimeUnit.SECONDS);
-//    }
 
     public synchronized void end() {
         projectAtEnd = true;
@@ -174,41 +155,6 @@ public class Project extends Thread {
             }
         }
     }
-
-//    private String getReadableTime(Long nanos){
-//        long tempSec    = nanos/(1000*1000*1000);
-//        long sec        = tempSec % 60;
-//        long min        = (tempSec /60) % 60;
-//        long hour       = (tempSec /(60*60)) % 24;
-//        long day        = (tempSec / (24*60*60)) % 24;
-//
-//        return String.format("%dd %dh %dm %ds (day, hour, min, sec)", day,hour,min,sec);
-//    }
-
-//    private void coolAllControllers() {
-//        for (String i : handlerIDs) {
-//            ControllerHandler ch = findControllerByID(i);
-//            if (ch != null) {
-//                try {
-//                    ch.changeControllerParameters(0, (short) 100, 0);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//    }
-
-//    public boolean beYouMyLostChild(ControllerHandler controller) {
-//        if (controller.getControllerID().equals(disconnectedController)) {
-//            interrupt();
-//            if (controller.getProject() == null) {
-//                controller.override(this);
-//            }
-//            controller.getController().setProjectName(name);
-//            return true;
-//        }
-//        return false;
-//    }
 
     @Override
     public void run() {
