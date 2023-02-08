@@ -279,6 +279,7 @@ public class GUIController implements Initializable {
                             b.setTargetTemp(blower.getTargetTemp());
                             b.setProjectName(blower.getProjectName());
                             b.setStopped(blower.isStopped());
+                            b.getHiddenButton().setVisible(b.isStopped());
                             b.setMarkedForProject(blower.isMarkedForProject());
                             gut = true;
                         }
@@ -487,8 +488,8 @@ public class GUIController implements Initializable {
         try {
             GUI.client.stopAllControllers();
             for (Blower b: blowersList) {
-                b.getHiddenButton().setVisible(true);
                 b.setStopped(true);
+                b.getHiddenButton().setVisible(b.isStopped());
             }
             GeneralLogger.writeMessage("all blowers were stopped successfully (by GUI)");
         } catch (Exception e) {
