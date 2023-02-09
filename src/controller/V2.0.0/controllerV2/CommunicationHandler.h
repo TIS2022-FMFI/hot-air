@@ -2,9 +2,6 @@
 #define COMMUNICATIONHANDLER_h
 
 #include <AsyncUDP.h>
-#ifndef ASYNCTCP_H_
-#include <AsyncTCP.h>
-#endif
 #include "status.h"
 #include "preferences.h"
 #include "defines.h"
@@ -12,7 +9,6 @@
 class ServerCommunication{
 private:
   AsyncUDP* udp;
-  AsyncClient* tcp;
   Status* status;
   Preferences* memory;
   unsigned long millis_send_temperature = 0;
@@ -36,7 +32,7 @@ private:
   uint8_t sendTemperatureFlag();
 
 public:
-  bool begin(AsyncUDP *_udp, AsyncClient *_tcp, Status *_status, Preferences *_memory);
+  bool begin(AsyncUDP *_udp, Status *_status, Preferences *_memory);
 
   void sendID();
   void udpHandler(AsyncUDPPacket packet);

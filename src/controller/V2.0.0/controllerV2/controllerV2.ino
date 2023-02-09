@@ -62,7 +62,6 @@ DFRobot_GP8403 dac(&Wire, DAC_address);
 // global variable.
 unsigned long millis_temperature = 0;
 
-
 void dacPower(uint16_t power){
   if (power > 10000){
   power = 10000;
@@ -80,6 +79,154 @@ void dacAir(uint8_t air_power){
   }
   dac.outputSquare(air_power * 100, 10000, 0, 100, DAC_AIRFLOW_PORT);
 }
+  
+void handleDac(){
+  if ((status.dac_connected == false) || status.thermometer_connected == false){
+    return;
+  }
+
+  if (status.emergency_stop == true){
+    dacPower(0);
+    dacAir(100);
+    status.set_power = 0;
+    status.actual_power = 0;
+    status.set_airflow = 100;    
+    return;
+  }
+
+  if (status.connected_server == false && status.disconnected_time_out == false){
+    status.disconnected_time_out_millis = millis();
+    status.disconnected_time_out = true;
+    // return;
+  }
+
+  if (status.disconnected_time_out == true && status.connected_server == false && millis() - status.disconnected_time_out_millis > TIMEOUT_SERVER_STOP){ // #55 Ak vypadne sieť tak vypnúť testovanie po 100 sekund
+    dacPower(0);
+    dacAir(100);
+    status.actual_power = 0;
+    status.set_airflow = 100;
+    status.set_temperature = 0;
+
+    status.disconnected_time_out = false;
+    return;
+  }
+
+  if (status.set_temperature > 0){
+    status.set_airflow = 100;
+    dacAir(100);
+  } else {
+    status.actual_power = 0;
+    dacPower(0);
+  }
+
+  if (status.actual_power >= 0 && status.actual_power <= 10000){
+    dacPower(status.actual_power);
+  }
+
+  if (status.set_temperature == 0 && status.actual_temperature < 30){
+    status.set_airflow = 50;
+    dacAir(50);
+    return;
+  }
+
+  if (status.set_temperature == 0 && status.actual_temperature >= 40){
+    status.set_airflow = 100;
+    dacAir(100);
+    return;
+  }
+
+  if (status.set_airflow >= 0 && status.set_airflow <= 100){
+    dacAir(status.set_airflow);
+  }
+}
+
+void handleTemperature(int update_time){
+  if (millis_temperature > millis()){
+    millis_temperature = 0;
+  }
+
+  if (millis() - millis_temperature > update_time){
+
+    #ifdef SIMULATION
+      if (status.set_temperature > 0 && status.actual_temperature < status.set_temperature){
+        status.actual_temperature += 0.25;
+      } else if (status.set_temperature >= 0 && status.actual_temperature > status.set_temperature){
+        status.actual_temperature -= 0.25;
+      }
+      if (status.emergency_stop == true){
+        status.actual_temperature = 0;
+      }
+    #else
+      status.actual_temperature = thermocouple.readCelsius() + memory.getDeltaT();
+    #endif
+
+    millis_temperature = millis();
+  }
+
+  if (status.actual_temperature != status.last_temperature){
+    //serverComm.sendTemperature();//todo kazdu sec
+    status.last_temperature = status.actual_temperature;
+  } 
+
+  #ifndef SIMULATION
+    if (status.pid_delay_millis > millis()){
+      status.pid_delay_millis = 0;
+    }
+
+
+    if (millis() - status.pid_delay_millis > memory.getDelay()){
+      pd_step();
+      status.pid_delay_millis = millis();
+    }
+  #endif
+  }
+
+// PDI reg
+
+void pd_step(){   
+      
+  if (status.set_temperature == 0 || status.emergency_stop == true) {
+    return;
+  }
+  
+  // status.last_err
+  // status.suma
+
+  // static float last_err = 0;
+  // static float suma = 0;
+  
+  float p_err = status.set_temperature - status.actual_temperature;
+  float d_err = p_err - status.last_err;
+  status.last_err = p_err;
+
+  //Serial.print("t:");
+  //Serial.println(status.actual_temperature);
+
+  //printf("%-6s%-6s%-6s%-13s%-5s\n", "temp", "t-err", "d-err", "required-power", "" , "delta");
+  //printf("%-6s%-6s%-6s%-13s%-5s\n", "temp", "t-err", "d-err", "required-power", "" , "delta");
+
+  // Serial.print(p_err);
+  // Serial.print(" ");
+  // Serial.print(d_err);
+  // Serial.print(" ");
+
+  status.suma += p_err * memory.getI();
+  float delta_amount = 1000 * (status.suma + memory.getP() * p_err + memory.getD() * d_err);
+  float current_power = delta_amount;
+  if (current_power > 10000) current_power = 10000;
+  if (current_power < 0) current_power = 0;
+
+  status.actual_power = ((1 - memory.getA()) * status.actual_power + memory.getA() * current_power);
+  
+  // Serial.print((int)current_power);
+  // Serial.print(" ");
+  // Serial.print((int)delta_amount);
+  // Serial.print(" ");
+  // Serial.println((int)status.actual_power);
+
+  //dac.outputSquare((int)status.actual_power, 10000, 0, 100, 0);
+  
+}
 
 void setup() {
   Serial.begin(115200);
@@ -88,10 +235,54 @@ void setup() {
   
   status.begin();
 
+  Serial.print("\nChecking hardware\n");
+
   Wire.begin(PIN_SDA, PIN_SCL) ? Serial.println("Wire: OK") : Serial.println("Wire: ERROR");
 
   memory.begin(EEPROM_SIZE) ? status.eeprom_begin = true : status.eeprom_begin = false;
   status.eeprom_begin ? Serial.println("Preferences: OK") : Serial.println("Preferences: ERROR");
+
+  pixels.begin();
+  
+  Wire.beginTransmission(DAC_address);
+  Wire.endTransmission() == 0 ? status.dac_connected = true : status.dac_connected = false;
+
+  #ifndef SIMULATION  
+    Serial.print("Thermometer booting up");
+
+    for (uint8_t i = 0; i < 5; i++) {
+      Serial.print(".");
+      status.actual_temperature = thermocouple.readCelsius();
+      delay(250);
+    }
+    (status.actual_temperature != status.actual_temperature) ? status.thermometer_connected = false : status.thermometer_connected = true;
+
+
+    if (status.dac_connected == true){
+      dacPower(0);
+      dacAir(50);
+      status.set_airflow = 50;
+    }
+    if (status.actual_temperature >= 40){
+      dacAir(100);
+      status.set_airflow = 100;
+    }
+
+  #else
+    status.thermometer_connected = true;
+  #endif 
+
+  // info output to serial.
+  Serial.println();
+  Serial.print("DAC: ");
+  status.dac_connected ? Serial.println("OK") : Serial.println("ERROR");
+  Serial.print("Thermometer: ");
+  status.thermometer_connected ? Serial.println("OK") : Serial.println("ERROR");
+
+  if (status.dac_connected == true){
+    dac.begin();
+    dac.setDACOutRange(dac.eOutputRange10V);
+  }
 
   Serial.println("\n\nStarting ethernet");
   WT32_ETH01_onEvent();
@@ -151,189 +342,8 @@ void setup() {
   }
   Serial.println();
 
-  serverComm.begin(&udp, &tcp, &status, &memory);
+  serverComm.begin(&udp, &status, &memory);
 
-  Serial.print("\nChecking hardware\n");
-  pixels.begin();
-  
-  Wire.beginTransmission(DAC_address);
-  Wire.endTransmission() == 0 ? status.dac_connected = true : status.dac_connected = false;
-
-  // if (status.dac_connected = true){
-  //   dacAir(50);
-  // }
-
-  #ifndef SIMULATION
-    Serial.print("Thermometer booting up");
-
-    for (uint8_t i = 0; i < 5; i++) {
-      Serial.print(".");
-      status.actual_temperature = thermocouple.readCelsius();
-      Serial.println(status.actual_temperature);
-      delay(250);
-    }
-    (status.actual_temperature != status.actual_temperature) ? status.thermometer_connected = false : status.thermometer_connected = true;
-    //status.thermometer_connected = true;
-  #else
-    status.thermometer_connected = true;
-  #endif 
-
-  // info output to serial.
-  Serial.println();
-  Serial.print("DAC: ");
-  status.dac_connected ? Serial.println("OK") : Serial.println("ERROR");
-  Serial.print("Thermometer: ");
-  status.thermometer_connected ? Serial.println("OK") : Serial.println("ERROR");
-
-  if (status.dac_connected == true){
-    dac.begin();
-    dac.setDACOutRange(dac.eOutputRange10V);
-  }
-}
-  
-
-void handleDac(){
-if ((status.dac_connected == false) || status.thermometer_connected == false){
-  return;
-}
-
-if (status.emergency_stop == true){
-  dacPower(0);
-  dacAir(100);
-  status.set_power = 0;
-  status.actual_power = 0;
-  status.set_airflow = 100;    
-  return;
-}
-
-if (status.connected_server == false && status.disconnected_time_out == false){
-  status.disconnected_time_out_millis = millis();
-  status.disconnected_time_out = true;
-  // return;
-}
-
-if (status.disconnected_time_out == true && status.connected_server == false && millis() - status.disconnected_time_out_millis > TIMEOUT_SERVER_STOP){ // #55 Ak vypadne sieť tak vypnúť testovanie po 100 sekund
-  dacPower(0);
-  dacAir(100);
-  status.actual_power = 0;
-  status.set_airflow = 100;
-  
-  status.set_temperature = 0;
-  return;
-}
-
-if (status.set_temperature > 0){
-  status.set_airflow = 100;
-  dacAir(100);
-} else {
-  status.actual_power = 0;
-  dacPower(0);
-}
-
-if (status.actual_power >= 0 && status.actual_power <= 10000){
-  dacPower(status.actual_power);
-}
-
-if (status.set_temperature == 0 && status.actual_temperature < 30){
-  status.set_airflow = 50;
-  dacAir(50);
-  return;
-}
-
-  if (status.set_temperature == 0 && status.actual_temperature > 50){
-  status.set_airflow = 100;
-  dacAir(100);
-  return;
-}
-
-if (status.set_airflow >= 0 && status.set_airflow <= 100){
-  dacAir(status.set_airflow);
-}
-}
-
-void handleTemperature(int update_time){
-if (millis_temperature > millis()){
-  millis_temperature = 0;
-}
-
-if (millis() - millis_temperature > update_time){
-
-  #ifdef SIMULATION
-    if (status.set_temperature > 0 && status.actual_temperature < status.set_temperature){
-      status.actual_temperature += 0.25;
-    } else if (status.set_temperature >= 0 && status.actual_temperature > status.set_temperature){
-      status.actual_temperature -= 0.25;
-    }
-    if (status.emergency_stop == true){
-      status.actual_temperature = 0;
-    }
-  #else
-    status.actual_temperature = thermocouple.readCelsius() + memory.getDeltaT();
-  #endif
-
-  millis_temperature = millis();
-}
-
-if (status.actual_temperature != status.last_temperature){
-  //serverComm.sendTemperature();//todo kazdu sec
-  status.last_temperature = status.actual_temperature;
-} 
-
-#ifndef SIMULATION
-  if (status.pid_delay_millis > millis()){
-    status.pid_delay_millis = 0;
-  }
-
-
-  if (millis() - status.pid_delay_millis > memory.getDelay()){
-    pd_step();
-    status.pid_delay_millis = millis();
-  }
-#endif
-}
-
-// PDI reg
-
-void pd_step()
-{   
-      
-  if (status.set_temperature == 0 || status.emergency_stop == true) {
-    return;
-  }
-
-  static float last_err = 0;
-  static float suma = 0;
-  
-  float p_err = status.set_temperature - status.actual_temperature;
-  float d_err = p_err - last_err;
-  last_err = p_err;
-
-  Serial.print("t:");
-  Serial.println(status.actual_temperature);
-
-  //printf("%-6s%-6s%-6s%-13s%-5s\n", "temp", "t-err", "d-err", "required-power", "" , "delta");
-  //printf("%-6s%-6s%-6s%-13s%-5s\n", "temp", "t-err", "d-err", "required-power", "" , "delta");
-
-  // Serial.print(p_err);
-  // Serial.print(" ");
-  // Serial.print(d_err);
-  // Serial.print(" ");
-
-  suma += p_err * memory.getI();
-  float delta_amount = 1000 * (suma + memory.getP() * p_err + memory.getD() * d_err);
-  float current_power = delta_amount;
-  if (current_power > 10000) current_power = 10000;
-  if (current_power < 0) current_power = 0;
-
-  status.actual_power = ((1 - memory.getA()) * status.actual_power + memory.getA() * current_power);
-  
-  // Serial.print((int)current_power);
-  // Serial.print(" ");
-  // Serial.print((int)delta_amount);
-  // Serial.print(" ");
-  // Serial.println((int)status.actual_power);
-
-  //dac.outputSquare((int)status.actual_power, 10000, 0, 100, 0);
   
 }
 

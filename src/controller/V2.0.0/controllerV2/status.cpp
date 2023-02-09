@@ -28,3 +28,7 @@ Status::Status() {
 bool Status::begin(){
   return true;
 }
+
+void Status::clearPID(){
+  
+}

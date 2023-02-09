@@ -441,9 +441,8 @@ bool Preferences::setPID(addresses reg, float val){
 if (reg < addresses::P_reg || reg > addresses::ALPHA_reg){
     return false;
   }
-Serial.print("sedPID ");
-Serial.println(val);
-EEPROM.writeFloat(reg, val);
-return EEPROM.commit();
+
+  EEPROM.writeFloat(reg, val);
+  return EEPROM.commit();
 }
 
