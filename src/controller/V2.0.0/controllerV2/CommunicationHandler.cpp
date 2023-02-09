@@ -5,9 +5,12 @@
 #include "CommunicationHandler.h"
 #include <IPAddress.h>
 
-bool ServerCommunication::begin(AsyncUDP *_udp, AsyncClient *_tcp, Status *_status, Preferences *_memory) {
+#ifndef INT_MAX
+  #define INT_MAX 2147483647
+#endif
+
+bool ServerCommunication::begin(AsyncUDP *_udp, Status *_status, Preferences *_memory) {
   udp = _udp;
-  tcp = _tcp;
   status = _status;
   memory = _memory;
   tcpInit();
@@ -135,14 +138,27 @@ void ServerCommunication::handleTemperature(uint8_t *buffer) {
 
   // during development it was decided that time would not be needed for the controller
   int phaseid = 0;
-      for (int i = 0; i < 8; i++){
+      for (int i = 0; i < 4; i++){
         auto byteVal = ((buffer[3 - i]) << (8 * i));
         phaseid |= byteVal;
       }
 
-  if (status->phsaeID >= phaseid){
-    Serial.print("\nPhase Ignored\nThe ID phase is less than or equal to the previous phase");
+  if (phaseid == INT_MAX){
+    status->last_err = 0;
+    status->suma = 0;    
+  } else if (status->phsaeID >= phaseid){
+    Serial.print("\nPhase Ignored\nThe ID ");
+    Serial.print(phaseid);
+    Serial.print(" phase is less than or equal to the previous phase");
+    sendAck(buffer);
     return;
+  }
+  
+  status->phsaeID = phaseid;
+  
+  if(temp == 0){
+    status->last_err = 0;
+    status->suma = 0;    
   }
 
   if (temp >= 0 && temp <= 1000) {
@@ -152,8 +168,10 @@ void ServerCommunication::handleTemperature(uint8_t *buffer) {
   if (air_flow >= 0 && air_flow <= 100) {
     status->set_airflow = air_flow;
   }
+
   
-  Serial.printf("\nNew settings:\nTemperature: %u\nAirFlow: %u\n", status->set_temperature, status->set_airflow);
+  Serial.printf("\nNew settings:\nTemperature: %u\nAirFlow: %u\nPhase ID: %d\n", status->set_temperature, status->set_airflow, status->phsaeID);
+
   sendAck(buffer);
 }
 
@@ -189,7 +207,8 @@ void ServerCommunication::handleConnection() {
   status->connecting_server = false;
   status->connection_error = false;
   status->disconnected_time_out = false;
-
+  status->emergency_stop = false;
+  
 #ifdef _DEBUG
   Serial.println("\nUDP connected to server!");
 #endif
