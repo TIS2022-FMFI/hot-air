@@ -127,9 +127,9 @@ public class XMLEditor {
             }
         }
         Element e = doc.createElement("COM");
-        e.setAttribute("APP", pathToExe);
+        e.setAttribute("APP",   pathToExe);
         e.setAttribute("CMD", "RUNAPP");
-        e.setAttribute("PARAMS", xmlPath);
+        e.setAttribute("PARAMS", "'" + xmlPath + "'");
         actions.appendChild(e);
     }
 
