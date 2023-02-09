@@ -22,7 +22,7 @@ public class TemperatureLogger {
 
         } catch (FileAlreadyExistsException ignored){
         }
-        fileName = "temperature_logs\\" + projectName
+        fileName = projectPath + "temperature_logs\\" + projectName
                 + "_temperatures_" + sdf.format(timestamp) + ".csv";
         File newLogFile = new File(fileName);
         newLogFile.createNewFile();
