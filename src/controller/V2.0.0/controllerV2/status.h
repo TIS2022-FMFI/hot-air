@@ -10,6 +10,7 @@ class Status{
     bool eeprom_begin = false;
     bool dac_connected = false;
     bool thermometer_connected = false;
+    bool spiffs_begin = false;
 
     volatile bool searching_server = false; // listening for UDP
     volatile bool server_find = false;
@@ -39,6 +40,9 @@ class Status{
     volatile uint8_t set_power = 0;
     volatile uint16_t actual_power = 0;
 
+    volatile float last_err = 0;
+    volatile float suma = 0;
+
 
 
     // UDP server password
@@ -52,6 +56,7 @@ class Status{
 
     bool begin();
 
+    void clearPID();
 
 };
 

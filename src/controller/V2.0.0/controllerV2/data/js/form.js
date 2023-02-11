@@ -68,6 +68,13 @@
         fetchData(serverform, "/data");
     });
 
+    const rebooting = getElement("reboot");
+    rebooting.addEventListener("submit", event => {
+        event.preventDefault();
+        console.log("Rebooting controller");
+        getTextFromAPI("reboot",getElement("rebootingtxt"));
+    });
+
 }(this, this.document));
 
 function checkIP(elementip, elementwrong, regex, errormsg = "Wrong IP format\r\n"){
