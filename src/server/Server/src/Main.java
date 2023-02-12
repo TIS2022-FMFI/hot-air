@@ -15,7 +15,11 @@ public class Main {
                 }
             }
         } catch (IOException e) {
-            System.exit(-1);
+            try {
+                Runtime.getRuntime().exec("start-process PowerShell java -jar Server.jar instance");
+            } catch (IOException ignored) {
+                System.exit(-1);
+            }
         }
     }
 }

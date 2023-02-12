@@ -15,11 +15,13 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.util.Pair;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static GUI.GUIController.setAlertIcons;
 
@@ -32,6 +34,7 @@ public class GUI extends Application {
     public static GUI gui;
     private Stage stage;
     public static ClientHandler client;
+    private File configFile;
 
     /**
      * The entry point of application.
@@ -48,9 +51,19 @@ public class GUI extends Application {
         try {
             createGUIConfigFile();
 
-            client = new ClientHandler();
+            int port = 4002;
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(configFile.getPath()));
+                br.readLine();
+                port = Integer.parseInt(br.readLine());
+            } catch (IOException | NumberFormatException e) {
+                System.err.println("GUI config load error");
+            }
+
+            client = new ClientHandler(port);
 
             Parent root = FXMLLoader.load(Objects.requireNonNull(GUI.class.getResource("gui.fxml")));
+
             Scene scene = new Scene(root, 910, 510);
             String css = Objects.requireNonNull(this.getClass().getResource("styles.css")).toExternalForm();
             scene.getStylesheets().add(css);
@@ -105,8 +118,8 @@ public class GUI extends Application {
 
     public void createGUIConfigFile() {
         try {
-            File config = new File("GUIconfig.txt");
-            if (config.createNewFile()) {
+            configFile = new File("GUIconfig.txt");
+            if (configFile.createNewFile()) {
                 System.out.println("Config file created");
             }
         } catch (IOException e) {
