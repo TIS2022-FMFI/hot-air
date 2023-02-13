@@ -144,25 +144,6 @@ public class Blower {
         });
     }
 
-//    TODO delete co netreba
-
-    /**
-     * Gets ip address of blower.
-     *
-     * @return ip address
-     */
-    public String getIPAddress() {
-        return IPAddress;
-    }
-
-    /**
-     * Sets ip address of blower.
-     *
-     * @param IPAddress the ip address
-     */
-    public void setIPAddress(String IPAddress) {
-        this.IPAddress = IPAddress;
-    }
 
     /**
      * Gets blower id.
@@ -180,15 +161,6 @@ public class Blower {
      */
     public void setId(String id) {
         this.id.set(id);
-    }
-
-    /**
-     * Gets link to blower's website.
-     *
-     * @return the link to blower's website
-     */
-    public Hyperlink getLink() {
-        return link;
     }
 
     /**
@@ -308,29 +280,22 @@ public class Blower {
         return marker;
     }
 
+    /**
+     * Gets observable list of current temperatures.
+     *
+     * @return the list of current temperatures
+     */
     public ObservableList<XYChart.Data<Number, Number>> getCurrentData() {
         return currentData;
     }
 
-    public void setCurrentData(ObservableList<XYChart.Data<Number, Number>> currentData) {
-        this.currentData = currentData;
-    }
-
+    /**
+     * Gets observable list of target temperatures.
+     *
+     * @return the list of target temperatures
+     */
     public ObservableList<XYChart.Data<Number, Number>> getTargetData() {
         return targetData;
-    }
-
-    public void setTargetData(ObservableList<XYChart.Data<Number, Number>> targetData) {
-        this.targetData = targetData;
-    }
-
-    /**
-     * Gets stop button.
-     *
-     * @return the stop button
-     */
-    public Button getStopButton() {
-        return stopButton;
     }
 
     /**

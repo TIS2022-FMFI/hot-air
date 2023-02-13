@@ -259,10 +259,6 @@ public class Client extends Thread {
                         rr.setByteData(readMessage());
                         rr.notifyAll();
                     }
-                } else if (MessageBuilder.GUI.Request.RequestCheckForOldLogFiles.equals(msg)) {
-                    if (GUI.gui.deleteLogFiles()) {
-                        writeMessage(new Message(MessageBuilder.GUI.Request.RequestCheckForOldLogFiles.build()));
-                    }
                 }
             } catch (SocketException e) {
                 System.err.println("Disconnected, stopping connection");

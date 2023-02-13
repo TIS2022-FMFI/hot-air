@@ -2,28 +2,20 @@ package GUI;
 
 import Communication.ClientHandler;
 import Logs.GeneralLogger;
-import Logs.TemperatureLogsDeleter;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
-import javafx.util.Pair;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-
-import static GUI.GUIController.setAlertIcons;
 
 
 /**
@@ -97,6 +89,11 @@ public class GUI extends Application {
         return this.stage;
     }
 
+    /**
+     * Show exception in GUI.
+     *
+     * @param e exception that occurred
+     */
     public void alert(Exception e) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setResizable(true);
@@ -113,10 +110,12 @@ public class GUI extends Application {
 
         GeneralLogger.writeExeption(e);
         System.err.println(e.getMessage());
-        e.printStackTrace();
     }
 
-    public void createGUIConfigFile() {
+    /**
+     * Create config file for GUI.
+     */
+    private void createGUIConfigFile() {
         try {
             configFile = new File("GUIconfig.txt");
             if (configFile.createNewFile()) {
@@ -130,37 +129,15 @@ public class GUI extends Application {
         }
     }
 
+    /**
+     * Refresh GUI.
+     */
     public void refresh() {
         if (GUIController.guiController != null){
             System.out.println("refresh was successful");
             GUIController.guiController.updateTable();
         } else {
             System.err.println("refresh was not successful");
-        }
-    }
-
-    public boolean deleteLogFiles() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setResizable(true);
-        alert.setTitle("DELETE TEMPERATURE LOG FILES");
-        alert.setHeaderText("Do you want to delete old temperature log files?");
-
-        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(Objects.requireNonNull(GUIController.class.getResource("boge_icon.jpg")).toString()));
-        ImageView icon = new ImageView(String.valueOf(GUI.class.getResource("question.png")));
-        icon.setFitHeight(48);
-        icon.setFitWidth(48);
-        alert.getDialogPane().setGraphic(icon);
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK){
-            System.out.println("temperature log files will be deleted");
-            GeneralLogger.writeMessage("temperature log files will be deleted");
-            TemperatureLogsDeleter.deleteFiles();
-            return true;
-        } else {
-            System.out.println("temperature log files will not be deleted");
-            return false;
         }
     }
 
