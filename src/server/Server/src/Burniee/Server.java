@@ -47,6 +47,7 @@ public class Server {
                 GeneralLogger.writeMessage("New PORT = " + PORT);
             } catch (IOException ignored) {}
         } else {
+            PORT = 4002;
             try (FileOutputStream fos = new FileOutputStream(f.getName())) {
                 prop.setProperty("PORT", "4002");
                 prop.store(fos, null);
@@ -207,19 +208,6 @@ public class Server {
             res = activeProjects;
         }
         return res;
-    }
-
-    public void sendRequestForDeletingOldLogFiles() {
-        synchronized (activeGUIs) {
-            for (GUIHandler gui : activeGUIs) {
-                try {
-                    gui.sendRequestForDeletingOldFiles();
-                } catch (IOException e) {
-                    GeneralLogger.writeExeption(e);
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
     /**

@@ -13,6 +13,9 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+/**
+ * Class for handling all actions related to controller
+ */
 public class ControllerHandler extends Thread {
     private final static int CHANGE_TEMPERATURE_ACK_WAIT_DELAY_IN_MILLIS = 1000;
     private final static int BIG_RED_BUTTON_ACK_WAIT_DELAY_IN_MILLIS = 500;
@@ -36,6 +39,9 @@ public class ControllerHandler extends Thread {
     public boolean isConnected() {return communicator.isConnected();}
     public Project getProject() {return controller.getProject();}
 
+    /**
+     * @return if controller is part of a project
+     */
     public boolean isActive() {
         if (isActive && (controller.getProject() == null || controller.getProject().isAtEnd())) {
             isActive = false;
@@ -43,11 +49,17 @@ public class ControllerHandler extends Thread {
         return isActive;
     }
 
+    /**
+     * tell this controller that a new project has started, and he is part of it
+     */
     public synchronized void startProject(Project p) {
         isActive = true;
         controller.setProject(p);
     }
 
+    /**
+     * tell this controller that a project he is part of ended
+     */
     public synchronized void endProject() throws IOException {
         isActive = false;
         Project p = null;
@@ -75,6 +87,9 @@ public class ControllerHandler extends Thread {
     public String getControllerID() {return controller.getID();}
     public Controller getController() {return controller;}
 
+    /**
+     * send new parameters to controller
+     */
     public synchronized void changeControllerParameters(int phaseIndex, int temperature, short airFlow, long time) throws IOException {
         System.out.println("[Controller] Sending new parameters");
         GeneralLogger.writeMessage("[Controller] Sending new parameters");
@@ -105,6 +120,9 @@ public class ControllerHandler extends Thread {
         communicator.sendPacketAndAwaitAck(new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) BIG_RED_BUTTON_FLAGS}, BIG_RED_BUTTON_ACK_WAIT_DELAY_IN_MILLIS);
     }
 
+    /**
+     * release controller from being stopped
+     */
     public synchronized void unlock() throws IOException {
         System.out.println("[Controller] Unlocking controller with id = " + controller.getID());
         GeneralLogger.writeMessage("[Controller] Unlocking controller with id = " + controller.getID());
@@ -112,6 +130,9 @@ public class ControllerHandler extends Thread {
         communicator.sendPacketAndAwaitAck(new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) UNLOCK_FLAGS}, UNLOCK_ACK_WAIT_DELAY_IN_MILLIS);
     }
 
+    /**
+     * get new id from controller
+     */
     public void receiveNewID(DatagramPacket packet) {
         byte[] data = packet.getData();
         controller.setID(resolveId(data));
@@ -119,6 +140,9 @@ public class ControllerHandler extends Thread {
         GeneralLogger.writeMessage("[Controller] New ID arrived = " + controller.getID());
     }
 
+    /**
+     * get new temperature from controller
+     */
     public void receiveTemperature(DatagramPacket packet) {
         byte[] data = packet.getData();
         byte flags = data[15];
