@@ -40,6 +40,7 @@ public class Project extends Thread {
      */
     public Project(String pathToXML, String id) throws ParserConfigurationException, IOException, SAXException {
         ID = id;
+        phaseIndex = 0;
         name = XMLAnalyzer.getProjectName(pathToXML);
         handlers = new HashMap<>();
         handlerIDs = new ArrayList<>(XMLAnalyzer.getAllBlowers(pathToXML));
@@ -49,7 +50,7 @@ public class Project extends Thread {
 
         try {
             List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> script = XMLAnalyzer.XMLtoCommands(pathToXML);
-            notFinalTemperatureLogger = new TemperatureLogger(name);
+            notFinalTemperatureLogger = new TemperatureLogger(name, pathToXML);
             System.out.println("[Project] starting project " + name);
             GeneralLogger.writeMessage("[Project] starting project " + name);
             for (String i : handlerIDs) {

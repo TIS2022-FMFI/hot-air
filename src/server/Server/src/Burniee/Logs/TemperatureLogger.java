@@ -13,44 +13,47 @@ public class TemperatureLogger {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
     private String fileName = "";
 
-    public TemperatureLogger(String projectName) throws IOException {
+    public TemperatureLogger(String projectName, String projectPath) throws IOException {
+        projectPath = new File(projectPath).getParent();
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         sdf.format(timestamp);
         try {
-            Files.createDirectory(Paths.get("temperature_logs"));
+            Files.createDirectory(Paths.get(projectPath + "temperature_logs"));
 
         } catch (FileAlreadyExistsException ignored){
         }
-        fileName = "temperature_logs\\" + projectName
+        fileName = projectPath + "temperature_logs\\" + projectName
                 + "_temperatures_" + sdf.format(timestamp) + ".csv";
         File newLogFile = new File(fileName);
         newLogFile.createNewFile();
     }
 
     public static int numFilesToDelete(){
-        int counter = 0;
-        File dir = new File("temperature_logs");
-        Date date = new Date();
-        if (dir.isDirectory()){
-            for (File f: Objects.requireNonNull(dir.listFiles())){
-                if (date.getTime() - f.lastModified() > 30L * 24 * 60 * 60 * 1000){
-                    counter++;
-                }
-            }
-        }
-        return counter;
+        return 0;
+//        int counter = 0;
+//        File dir = new File( "temperature_logs");
+//        Date date = new Date();
+//        if (dir.isDirectory()){
+//            for (File f: Objects.requireNonNull(dir.listFiles())){
+//                if (date.getTime() - f.lastModified() > 30L * 24 * 60 * 60 * 1000){
+//                    counter++;
+//                }
+//            }
+//        }
+//        return counter;
     }
 
     public static void deleteFiles(){
-        File dir = new File("temperature_logs");
-        Date date = new Date();
-        if (dir.isDirectory()){
-            for (File f: Objects.requireNonNull(dir.listFiles())){
-                if (date.getTime() - f.lastModified() > 30L * 24 * 60 * 60 * 1000){
-                    f.delete();
-                }
-            }
-        }
+        return;
+//        File dir = new File("temperature_logs");
+//        Date date = new Date();
+//        if (dir.isDirectory()){
+//            for (File f: Objects.requireNonNull(dir.listFiles())){
+//                if (date.getTime() - f.lastModified() > 30L * 24 * 60 * 60 * 1000){
+//                    f.delete();
+//                }
+//            }
+//        }
     }
 
     public void logTemperature(String phase, List<String> blowerIds, List<String> temps, List<String> target)
