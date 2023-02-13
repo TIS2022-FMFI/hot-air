@@ -210,19 +210,6 @@ public class Server {
         return res;
     }
 
-    public void sendRequestForDeletingOldLogFiles() {
-        synchronized (activeGUIs) {
-            for (GUIHandler gui : activeGUIs) {
-                try {
-                    gui.sendRequestForDeletingOldFiles();
-                } catch (IOException e) {
-                    GeneralLogger.writeExeption(e);
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
     /**
      * An exception has arrisen in server or other parts, and we will attempt to send it to any active GUI
      * @param th the exception

@@ -36,6 +36,9 @@ public class UDPCommunicationHandler extends Thread {
     public static UDPCommunicationHandler getInstance() {return INSTANCE;}
     public void addNewController(ControllerCommunicator controller) {synchronized (controllers) {controllers.put(controller.getIP(), controller);}}
 
+    /**
+     * try to start listening for UDP packets
+     */
     private void createConnection() {
         for (int i = 0; i < 5; i++) {
             try {
@@ -73,7 +76,7 @@ public class UDPCommunicationHandler extends Thread {
 
 
     /**
-     * We shall collect broadcast addresses from all interfaces of local network
+     * We shall collect broadcast addresses from all interfaces of local network (except for those in range 10.1.x.x, because we have been forbidden those)
      * @return list of broadcast addresses
      */
     public static List<InetAddress> getBroadcastAddresses() {
@@ -159,8 +162,10 @@ public class UDPCommunicationHandler extends Thread {
     }
 
     /**
-     * Thread run method, await arrival of a UDP packet and respond to it, currently supported:
+     * Thread run method, await arrival of a UDP packet and resolve it, currently supported:
      * LOOKING_FOR_SERVER_MESSAGE -> client is looking on broadcast for server, server will send him its ip
+     * other discovery messages -> ignore them (I_AM_THE_SERVER_MESSAGE and LOOKING_FOR_CONTROLLERS_MESSAGE)
+     * controller packets -> always have message length of 16, send them to ControllerCommunicator according to the packets ip
      */
     @Override
     public void run() {

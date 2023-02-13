@@ -6,6 +6,9 @@ import Burniee.Server;
 
 import java.net.SocketException;
 
+/**
+ * handles all communication with EXE (it is launched at the start of project and at the end of each phase by test control program to tell us that a phase has ended or start a new project)
+ */
 public class EXEHandler extends Thread {
     private final SocketHandler socket;
 

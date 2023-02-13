@@ -14,8 +14,6 @@ public class FileReceiver {
         try (FileOutputStream fos = new FileOutputStream(DIR_NAME + "\\" + fileName)) {
             fos.write(bytes);
         }
-//        BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(Paths.get(fileName)));
-//        out.write(bytes);
         return file.getAbsolutePath();
     }
 }

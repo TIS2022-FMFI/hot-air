@@ -15,7 +15,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Handles all communication with controller
+ * Handles all communication with controller (UDP)
  */
 public class ControllerCommunicator extends Thread {
     private final static int ACK_BIT = 0b00100000;
@@ -88,7 +88,7 @@ public class ControllerCommunicator extends Thread {
     public void sendPacket(byte[] data) throws IOException {
         socket.send(new DatagramPacket(data, data.length, IP, Server.PORT));
     }
-    public void sendPacketAndAwaitAck(byte[] data, int waitForInMillis) throws IOException { //TODO debug this
+    public void sendPacketAndAwaitAck(byte[] data, int waitForInMillis) throws IOException {
         sendPacket(data);
         synchronized (awaitingAck) {
             awaitingAck.add(new AbstractMap.SimpleEntry<>(data, false));
@@ -164,6 +164,9 @@ public class ControllerCommunicator extends Thread {
         }
     }
 
+    /**
+     * send a ping to controller on a regular basis so that it can tell if we are still connected
+     */
     @Override
     public void run() {
         while (socket.isBound()) {

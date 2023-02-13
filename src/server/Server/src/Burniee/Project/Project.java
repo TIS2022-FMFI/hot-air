@@ -16,6 +16,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A project class -> project will come from EXE as xml with instructions on temperatures which need to be applied to each controller
+ */
 public class Project extends Thread {
     private final String ID;
     private long startedAt;
@@ -32,6 +35,9 @@ public class Project extends Thread {
     private final List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<Integer, Long>>>>> jobs;
     //           ^Queue<Pair<PhaseName, List<Pair<ControllerID, Pair<Temperature, Time>>>>>
 
+    /**
+     * prepare for project
+     */
     public Project(String pathToXML, String id) throws ParserConfigurationException, IOException, SAXException {
         ID = id;
         name = XMLAnalyzer.getProjectName(pathToXML);
@@ -44,9 +50,6 @@ public class Project extends Thread {
         try {
             List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> script = XMLAnalyzer.XMLtoCommands(pathToXML);
             notFinalTemperatureLogger = new TemperatureLogger(name);
-            if (TemperatureLogger.numFilesToDelete() > 0) {
-                Server.getInstance().sendRequestForDeletingOldLogFiles();
-            }
             System.out.println("[Project] starting project " + name);
             GeneralLogger.writeMessage("[Project] starting project " + name);
             for (String i : handlerIDs) {
@@ -156,6 +159,9 @@ public class Project extends Thread {
         }
     }
 
+    /**
+     * start reading project phases as gathered from xml and sending temperatures to each controller actively participating on this project
+     */
     @Override
     public void run() {
         try {

@@ -20,6 +20,9 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 
+/**
+ * Handle all communication with GUI
+ */
 public class GUIHandler extends Thread {
     private final SocketHandler socket;
 
@@ -63,10 +66,6 @@ public class GUIHandler extends Thread {
         }
     }
 
-    public void updateTemperature() throws IOException {
-        socket.writeMessage(new Message(MessageBuilder.GUI.Request.TemperatureChanged.build()));
-    }
-
     public void sendFile(String pathToFile) throws IOException {
         socket.writeMessage(new Message(MessageBuilder.GUI.Request.RequestTemperatureLog.build()));
         if (!Files.exists(Paths.get(pathToFile), LinkOption.NOFOLLOW_LINKS)) {
@@ -77,10 +76,6 @@ public class GUIHandler extends Thread {
         socket.writeMessage(new Message(file.getName().getBytes()));
         byte[] bytes = Files.readAllBytes(file.toPath());
         socket.writeMessage(new Message(bytes));
-    }
-
-    public void sendRequestForDeletingOldFiles() throws IOException {
-        socket.writeMessage(new Message(MessageBuilder.GUI.Request.RequestCheckForOldLogFiles.build()));
     }
 
     @Override
@@ -171,8 +166,6 @@ public class GUIHandler extends Thread {
                         Project p = Server.getInstance().findProjectByName(projectName);
                         sendFile(p.getLogger().getFileName());
                     }
-                } else if (MessageBuilder.GUI.Request.RequestCheckForOldLogFiles.equals(msg)) {
-                    TemperatureLogger.deleteFiles();
                 } else if (MessageBuilder.GUI.Request.RequestStopThisProject.equals(msg)) {
                     String name = socket.readStringMessage();
                     System.out.println("[GUI] request to stop project with name = " + name);

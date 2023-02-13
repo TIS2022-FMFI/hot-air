@@ -82,7 +82,6 @@ public class SocketHandler {
      * @return byte[] -> received message
      */
     public byte[] readMessage(boolean special) throws IOException {
-//        System.out.println("[TCP] reading a message");
         int len;
         if (special) {
             len = 16;
@@ -96,7 +95,6 @@ public class SocketHandler {
             }
             len = ByteBuffer.wrap(msgLength).getInt();
         }
-//        System.out.println("[TCP] Receiving a message of size = " + len);
         byte[] res = new byte[len];
         for (int i = 0; i < len; i++) {
             res[i] = (byte) in.read(); // this is required because in.read(res) ignores part of xml file for some wild reason
@@ -104,7 +102,6 @@ public class SocketHandler {
                 throw new SocketException("Stream has been closed");
             }
         }
-//        System.out.println("[TCP] message received");
         return res;
     }
 
