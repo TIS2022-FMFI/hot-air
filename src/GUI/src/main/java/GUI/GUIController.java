@@ -20,7 +20,6 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.xml.sax.SAXException;
 
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.*;
@@ -35,7 +34,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- *  Gui controller.
+ *  JavaFX controller class
  */
 public class GUIController implements Initializable {
 
@@ -77,12 +76,14 @@ public class GUIController implements Initializable {
     @FXML TableView<Project> projectsView;
     @FXML TableColumn<Project, Hyperlink> projectName;
     @FXML TableColumn<Project,String> projectPhase;
-//    @FXML TableColumn<Project,String> projectStatus;
     @FXML TableColumn<Project, Button> projectStop;
 
     public static final ObservableList<Blower> blowersList = FXCollections.observableArrayList();
     public ObservableList<Project> projectsList = FXCollections.observableArrayList();
 
+    /**
+     *  Initialize all JavaFX components
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         guiController = this;
@@ -202,7 +203,6 @@ public class GUIController implements Initializable {
             }
         });
         projectName.setComparator(Comparator.comparing(o -> Float.valueOf(o.getText())));
-//        projectStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
         projectPhase.setCellValueFactory(new PropertyValueFactory<>("currentPhase"));
         projectStop.setCellValueFactory(new PropertyValueFactory<>("stopButton"));
     }
@@ -266,8 +266,8 @@ public class GUIController implements Initializable {
                 blowers.add(blower);
             }
 
-            System.out.println("\nblowery zo servera= " + blowers.size());
-            blowers.forEach(a -> System.out.println(a.toString()));
+//            System.out.println("\nblowery zo servera= " + blowers.size());
+//            blowers.forEach(a -> System.out.println(a.toString()));
             for (Blower blower : blowers) {
                 synchronized (blower) {
                     boolean gut = false;
@@ -313,8 +313,8 @@ public class GUIController implements Initializable {
     private void updateProjects() {
         try {
             Project[] projects = GUI.client.getAllProjects();
-            System.out.println("projects zo servera= " + projects.length);
-            Arrays.asList(projects).forEach(a -> System.out.println(a.toString()));
+//            System.out.println("projects zo servera= " + projects.length);
+//            Arrays.asList(projects).forEach(a -> System.out.println(a.toString()));
             if (projects.length == 0) {
                 projectsList.clear();
                 return;
@@ -325,7 +325,6 @@ public class GUIController implements Initializable {
                     boolean gut = false;
                     for (Project p : projectsList) {
                         if (p.equals(project)) {
-//                            p.setStatus(project.getStatus());
                             p.setCurrentPhase(project.getCurrentPhase());
                             gut = true;
                         }
@@ -358,7 +357,6 @@ public class GUIController implements Initializable {
 
     /**
      * Search XML file.
-     *
      */
     public void searchXML() {
         blowersInfo.setText("");
@@ -373,6 +371,9 @@ public class GUIController implements Initializable {
         }
     }
 
+    /**
+     * Check if the type of chosen file is correct.
+     */
     public void checkTypeOfFile() {
         String path = filePath.getText();
         checkType(path);
@@ -388,8 +389,7 @@ public class GUIController implements Initializable {
     }
 
     /**
-     * Search / Select directory for EXE.
-     *
+     * Search / Select EXE file.
      */
     public void searchEXE() {
         File file = fileChooser.showOpenDialog(gui.getStage());
@@ -399,13 +399,15 @@ public class GUIController implements Initializable {
     }
 
     /**
-     * Submit file.
-     *
+     * Submit chosen file.
      */
     public void submitFile() {
         try {
             if (pathToExe.getText().isEmpty()) {
                 throw new XMLLoadException("File can't be loaded. Set path to EXE in settings first!");
+            }
+            if (filePath.getText().isEmpty()) {
+                throw new XMLLoadException("Set path first!");
             }
 
             String originalPath = filePath.getText();
@@ -472,6 +474,9 @@ public class GUIController implements Initializable {
         }
     }
 
+    /**
+     * Search for new blowers.
+     */
     public void scanBlowers() {
         try {
             GUI.client.searchForNewControllers();
@@ -484,6 +489,9 @@ public class GUIController implements Initializable {
         }
     }
 
+    /**
+     * Stop all blowers.
+     */
     public void stopAllBlowers() {
         try {
             GUI.client.stopAllControllers();
@@ -499,6 +507,9 @@ public class GUIController implements Initializable {
         }
     }
 
+    /**
+     * Save GUI settings.
+     */
     public void saveSettings() {
         try {
             FileWriter writer = new FileWriter("GUIconfig.txt");
@@ -527,34 +538,58 @@ public class GUIController implements Initializable {
         }
     }
 
+    /**
+     * Show / Hide ID column.
+     */
     public void showId() {
         blowerID.setVisible(showID.isSelected());
     }
 
+    /**
+     * Show / Hide IP Address column.
+     */
     public void showIp() {
         blowerIP.setVisible(showIP.isSelected());
     }
 
+    /**
+     * Show / Hide Current TMP column.
+     */
     public void showCurrentTmp() {
         blowerCurrentTmp.setVisible(showCurrentTmp.isSelected());
     }
 
+    /**
+     * Show / Hide Target TMP column.
+     */
     public void showTargetTmp() {
         blowerTargetTmp.setVisible(showTargetTmp.isSelected());
     }
 
+    /**
+     * Show / Hide Project column.
+     */
     public void showProject() {
         blowerProject.setVisible(showProject.isSelected());
     }
 
+    /**
+     * Show / Hide STOP column.
+     */
     public void showBlowerStop() {
         blowerStop.setVisible(showBlowerStop.isSelected());
     }
 
+    /**
+     * Show / Hide Name column.
+     */
     public void showName() {
         projectName.setVisible(showName.isSelected());
     }
 
+    /**
+     * Show / Hide Current phase column.
+     */
     public void showCurrentPhase() {
         projectPhase.setVisible(showCurrentPhase.isSelected());
     }

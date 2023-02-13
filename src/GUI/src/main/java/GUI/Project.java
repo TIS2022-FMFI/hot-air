@@ -32,7 +32,6 @@ import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
  */
 public class Project {
     private String name;
-//    private SimpleStringProperty status;
     private final SimpleStringProperty currentPhase;
     private final Hyperlink graph;
     private HashMap<String, List<Pair<String, String>>> tempLogFile;
@@ -50,7 +49,6 @@ public class Project {
      */
     public Project(String name, String currentPhase) {
         this.name = name;
-//        this.status = new SimpleStringProperty("running");
         this.currentPhase = new SimpleStringProperty(currentPhase);
         this.graph = new Hyperlink(this.name);
         this.graph.setOnAction(event -> openGraph());
@@ -75,7 +73,6 @@ public class Project {
             if (result.get() == ButtonType.OK){
                 try {
                     GUI.client.stopAProject(name);
-//                    setStatus("stopped");
                     GeneralLogger.writeMessage("project " + name + " stopped");
                     System.out.println("project " + name + " stopped");
                 } catch (Exception e) {
@@ -246,7 +243,6 @@ public class Project {
         }
     }
 
-//    TODO delete co netreba
     /**
      * Gets project name.
      *
@@ -264,24 +260,6 @@ public class Project {
     public void setName(String name) {
         this.name = name;
     }
-
-//    /**
-//     * Gets status of project.
-//     *
-//     * @return the status
-//     */
-//    public String getStatus() {
-//        return status.get();
-//    }
-//
-//    /**
-//     * Sets status of project.
-//     *
-//     * @param status the status
-//     */
-//    public void setStatus(String status) {
-//        this.status.set(status);
-//    }
 
     /**
      * Gets current phase.
@@ -301,65 +279,6 @@ public class Project {
         this.currentPhase.set(currentPhase);
     }
 
-//    TODO delete ak netreba
-    public HashMap<String, List<Pair<String, String>>> getTempLogFile() {
-        return tempLogFile;
-    }
-
-    public void setTempLogFile(HashMap<String, List<Pair<String, String>>> tempLogFile) {
-        this.tempLogFile = tempLogFile;
-    }
-
-    public NumberAxis getxAxis() {
-        return xAxis;
-    }
-
-    public void setxAxis(NumberAxis xAxis) {
-        this.xAxis = xAxis;
-    }
-
-    public NumberAxis getyAxis() {
-        return yAxis;
-    }
-
-    public void setyAxis(NumberAxis yAxis) {
-        this.yAxis = yAxis;
-    }
-
-    public LineChart<Number, Number> getLineChart() {
-        return lineChart;
-    }
-
-    public void setLineChart(LineChart<Number, Number> lineChart) {
-        this.lineChart = lineChart;
-    }
-
-    /**
-     * Gets current link to graph.
-     *
-     * @return the link to graph
-     */
-    public Hyperlink getGraph() {
-        return graph;
-    }
-
-    /**
-     * Sets link to open the graph.
-     *
-     */
-    public void setGraph(Hyperlink graph) {
-        this.graph.setText(graph.getText());
-    }
-
-    /**
-     * Gets stop button.
-     *
-     * @return the stop button
-     */
-    public Button getStopButton() {
-        return stopButton;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -377,7 +296,7 @@ public class Project {
     public String toString() {
         return "Project{" +
                 "name='" + name + '\'' +
-                ", currentPhase=" + currentPhase +
+                ", currentPhase=" + currentPhase.getValue() +
                 '}';
     }
 }
