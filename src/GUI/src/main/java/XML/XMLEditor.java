@@ -24,6 +24,17 @@ import java.util.List;
 import java.util.Objects;
 
 public class XMLEditor {
+    /**
+     * Modifies the specified xml file. Adds new <COM> tag with path to exe file. Edits names of <B>
+     * (and possibly <SUBRT> and <CALL>) tags to includeIDs of blowers and temperature
+     * @param xmlPath Path to xml file
+     * @param pathToExe Path to exe file to be written to xml
+     * @param blowers List of blower IDs to be written to xml
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
+     * @throws TransformerException
+     */
     public static void addPath(String xmlPath, String pathToExe, List<String> blowers)
             throws ParserConfigurationException, IOException, SAXException, TransformerException {
         File file = new File(xmlPath);
