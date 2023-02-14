@@ -11,6 +11,10 @@ import java.util.Arrays;
 public class GeneralLogger {
     private static BufferedWriter bufferedWriter;
 
+    /**
+     * Writes exception and stack trace to log file
+     * @param e Exception to write
+     */
     public static synchronized void writeExeption(Exception e) {
         try {
             BufferedWriter writer = getWriter();
@@ -29,6 +33,10 @@ public class GeneralLogger {
         }
     }
 
+    /**
+     * Writes message to log file
+     * @param s Message to write
+     */
     public static synchronized void writeMessage(String s) {
         try {
             BufferedWriter writer = getWriter();
@@ -45,6 +53,10 @@ public class GeneralLogger {
         }
     }
 
+    /**
+     * Checks if log file is over 1000kB in size. If yes, renames it to logOld (and removes previous logOld if exists)
+     * and creates new log.txt
+     */
     public static void deleteOldLogs(){
         try {
             File log = new File("log.txt");
@@ -58,7 +70,7 @@ public class GeneralLogger {
             }
         } catch (IOException e){
             System.out.println("Errror");
-            GeneralLogger.writeMessage("Errror");
+            GeneralLogger.writeMessage("Error wen deleting old logs");
         }
     }
 
