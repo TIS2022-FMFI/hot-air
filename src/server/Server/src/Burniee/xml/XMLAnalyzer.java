@@ -15,10 +15,18 @@ import java.io.IOException;
 import java.util.*;
 
 public class XMLAnalyzer {
-    private static HashMap<String, String> waveforms = new HashMap<>();
-    private static HashMap<String, List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>>> subroutines = new HashMap<>();
+    private static final HashMap<String, String> waveforms = new HashMap<>();
+    private static final HashMap<String, List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>>> subroutines = new HashMap<>();
     private static Set<String> blowers = new HashSet<>();
 
+    /**
+     * Parses xml file and returns sequence of phases (blocks) in order in which they are executed.
+     * @param xmlPath Path to xml file
+     * @return the return value is in format: List<SimpleEntry<phaseName, List<SimpleEntry<BlowerID, temperature$time>>>>
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
+     */
     public static List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> XMLtoCommands(String xmlPath)
             throws ParserConfigurationException, IOException, SAXException {
         File file = new File(xmlPath);
@@ -36,6 +44,14 @@ public class XMLAnalyzer {
         return new ArrayList<>();
     }
 
+    /**
+     * Returns IDs of all blowers used in this xml file
+     * @param xmlPath Path to xml file
+     * @return Set of IDs of blowers used in this xml
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
+     */
     public static Set<String> getAllBlowers(String xmlPath)
             throws ParserConfigurationException, IOException, SAXException {
         File file = new File(xmlPath);
@@ -45,6 +61,14 @@ public class XMLAnalyzer {
         return allBlowers(doc);
     }
 
+    /**
+     * Returns name of the project from NAME attribute of <PROGRAM> tag
+     * @param xmlPath Path to xml file
+     * @return Name of the project
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
+     */
     public static String getProjectName(String xmlPath)
             throws ParserConfigurationException, IOException, SAXException {
         File file = new File(xmlPath);
