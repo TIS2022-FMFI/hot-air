@@ -26,15 +26,17 @@ public class XMLAnalyzer {
      * @throws ParserConfigurationException
      * @throws IOException
      * @throws SAXException
+     * @throws NoBlowersException throws this, when no blower ID is found in any name of block in xml
      */
     public static List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> XMLtoCommands(String xmlPath)
-            throws ParserConfigurationException, IOException, SAXException {
+            throws ParserConfigurationException, IOException, SAXException, NoBlowersException {
         File file = new File(xmlPath);
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc = db.parse(file);
 
         blowers = allBlowers(doc);
+        if (blowers.isEmpty()) throw new NoBlowersException("No blowers mentioned in xml with path: " + xmlPath);
         setWaveforms(doc);
         setSubroutines(doc);
 
@@ -108,18 +110,20 @@ public class XMLAnalyzer {
             } else if (Objects.equals(type, "WAVE")) {
                 time = waveforms.get(gen.getAttributes().getNamedItem("WAVE").getNodeValue());
             }
-
-            String temp = name[0].split("@")[1];
+            String temp;
+            try {
+                temp = name[0].split("@")[1];
+                Double.parseDouble(temp);
+            } catch (NumberFormatException e){
+                throw new NumberFormatException("Incorrect temperature value in block: "
+                        + block.getAttributes().getNamedItem("NAME"));
+            } catch (IndexOutOfBoundsException e){
+                throw new IndexOutOfBoundsException("No temperature value in block: "
+                        + block.getAttributes().getNamedItem("NAME"));
+            }
             for (int i = 1; i < name.length; i++){
-                try{
-                    Double.parseDouble(temp);
-                    res.add(new AbstractMap.SimpleEntry<>(name[i], temp + "$" + time));
-                    visited.add(name[i]);
-
-                } catch (NumberFormatException e){
-                    throw new NumberFormatException("Incorrect temperature value in block: "
-                            + block.getAttributes().getNamedItem("NAME"));
-                }
+                res.add(new AbstractMap.SimpleEntry<>(name[i], temp + "$" + time));
+                visited.add(name[i]);
             }
             for (String blower : blowers){
                 if (!visited.contains(blower)){
@@ -257,7 +261,7 @@ public class XMLAnalyzer {
                         blowers.add(names[j]);
                         temps.add(tmp);
                     }
-                    subroutines.put(subrtName, getThreadTimeAndTemp(firstChild, blowers, temps));;
+                    subroutines.put(subrtName, getThreadTimeAndTemp(firstChild, blowers, temps));
                 } else {
                     subroutines.put(subrt.getAttributes().getNamedItem("NAME").getNodeValue(), getThreadTimeAndTemp(firstChild));
                 }
@@ -277,8 +281,8 @@ public class XMLAnalyzer {
 
     private static Set<String> allBlowers(Document doc){
         Set<String> blowers = new HashSet<>();
-        NodeList blocks = doc.getElementsByTagName("B");
 
+        NodeList blocks = doc.getElementsByTagName("B");
         for (int i = 0; i < blocks.getLength(); i++){
             Node block = blocks.item(i);
             String[] name = block.getAttributes().getNamedItem("NAME").getNodeValue().split("#");
@@ -287,6 +291,19 @@ public class XMLAnalyzer {
                 blowers.add(s[0]);
             }
         }
+
+        NodeList subrts = doc.getElementsByTagName("SUBRT");
+        for (int i = 0; i < subrts.getLength(); i++){
+            Node subrt = subrts.item(i);
+            String subrtName = ((Element) subrt).getAttribute("NAME");
+            if (subrtName.contains("Measurement") || subrtName.contains("measurement") || subrtName.contains("MEASUREMENT")){
+                String[] names = subrtName.split("#");
+                for (int j = 1; j < names.length; j++){
+                    blowers.add(names[j]);
+                }
+            }
+        }
+
         return blowers;
     }
 }
