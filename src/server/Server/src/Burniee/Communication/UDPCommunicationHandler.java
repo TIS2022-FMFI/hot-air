@@ -184,11 +184,8 @@ public class UDPCommunicationHandler extends Thread {
         }
         while (socket.isBound()) {
             try {
-//                System.out.println("[UDP] awaiting arrival of a packet");
-//                GeneralLogger.writeMessage("[UDP] awaiting arrival of a packet");
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
-//                System.out.println("[UDP] packet arrived " + packet.getData()[15]);
 
                 if (areMessagesEqual(packet.getData(), LOOKING_FOR_SERVER_MESSAGE)) {
                     sendUDPPacket(I_AM_THE_SERVER_MESSAGE, Collections.singletonList(packet.getAddress()));
