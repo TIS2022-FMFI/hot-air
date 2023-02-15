@@ -1,4 +1,5 @@
 **/.idea
+**/JavaDoc
 **/out
 *.xml
 *.txt

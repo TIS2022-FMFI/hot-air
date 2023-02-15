@@ -49,6 +49,7 @@ public class GUI extends Application {
                 br.readLine();
                 port = Integer.parseInt(br.readLine());
             } catch (IOException | NumberFormatException e) {
+                GeneralLogger.writeExeption(e);
                 System.err.println("GUI config load error");
             }
 
@@ -71,7 +72,6 @@ public class GUI extends Application {
             stage.show();
             this.stage = stage;
 
-            System.out.println("GUI successfully started");
         } catch (Exception e) {
             GeneralLogger.writeExeption(e);
             System.err.println(e.getMessage());
@@ -119,13 +119,12 @@ public class GUI extends Application {
         try {
             configFile = new File("GUIconfig.txt");
             if (configFile.createNewFile()) {
-                System.out.println("Config file created");
+                GeneralLogger.writeMessage("Config file created");
             }
         } catch (IOException e) {
-            System.err.println("An error occurred.");
-            System.err.println(e);
-            e.printStackTrace();
             GeneralLogger.writeExeption(e);
+            System.err.println("An error occurred when creating GUI config file.");
+            System.err.println(e);
         }
     }
 
@@ -134,10 +133,7 @@ public class GUI extends Application {
      */
     public void refresh() {
         if (GUIController.guiController != null){
-            System.out.println("refresh was successful");
             GUIController.guiController.updateTable();
-        } else {
-            System.err.println("refresh was not successful");
         }
     }
 
