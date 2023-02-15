@@ -141,7 +141,6 @@ public class GUIController implements Initializable {
         } catch (IOException e) {
             GeneralLogger.writeExeption(e);
             System.err.println("An error occurred when loading settings.");
-            System.err.println(e);
         }
     }
 
@@ -239,7 +238,6 @@ public class GUIController implements Initializable {
         } catch (Exception e) {
             GeneralLogger.writeExeption(e);
             System.err.println(e);
-            e.printStackTrace();
         }
 
         return blowers ;
@@ -251,7 +249,6 @@ public class GUIController implements Initializable {
         } catch (Exception e) {
             GeneralLogger.writeExeption(e);
             System.err.println(e);
-            e.printStackTrace();
             return new Project[]{};
         }
     }
@@ -306,7 +303,6 @@ public class GUIController implements Initializable {
         } catch (Exception e) {
             GeneralLogger.writeExeption(e);
             System.err.println(e);
-            e.printStackTrace();
         }
     }
 
@@ -351,7 +347,6 @@ public class GUIController implements Initializable {
         } catch (Exception e) {
             GeneralLogger.writeExeption(e);
             System.err.println(e);
-            e.printStackTrace();
         }
     }
 
@@ -446,8 +441,6 @@ public class GUIController implements Initializable {
         } catch (IllegalArgumentException | ParserConfigurationException | IOException | SAXException | TransformerException | XMLLoadException e) {
             GeneralLogger.writeExeption(e);
             System.err.println("Error loading file");
-            System.err.println(e);
-            e.printStackTrace();
 
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setResizable(true);
@@ -484,7 +477,6 @@ public class GUIController implements Initializable {
             GeneralLogger.writeMessage("Search for new blowers was successful");
         } catch (Exception e) {
             System.err.println(e);
-            e.printStackTrace();
             gui.alert(e);
         }
     }
@@ -502,7 +494,6 @@ public class GUIController implements Initializable {
             GeneralLogger.writeMessage("all blowers were stopped successfully (by GUI)");
         } catch (Exception e) {
             System.err.println(e);
-            e.printStackTrace();
             gui.alert(e);
         }
     }
@@ -518,7 +509,7 @@ public class GUIController implements Initializable {
             writer.write(portToServer.getText());
             writer.close();
 
-            System.out.println("settings were successfully saved");
+            GeneralLogger.writeMessage("settings were successfully saved");
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("SUCCESSFULLY SAVED");
             alert.setHeaderText("Settings were successfully saved");
@@ -533,7 +524,6 @@ public class GUIController implements Initializable {
             alert.show();
         } catch (IOException e) {
             System.err.println("settings were not saved");
-            e.printStackTrace();
             gui.alert(e);
         }
     }

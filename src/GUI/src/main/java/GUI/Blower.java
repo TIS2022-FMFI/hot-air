@@ -101,14 +101,12 @@ public class Blower {
                 try {
                     GUI.client.unlockController(getId());
                     hiddenButton.setVisible(false);
-                    System.out.println("blower " + getId() + " was resumed");
+                    GeneralLogger.writeMessage("blower " + getId() + " was resumed");
                 } catch (Exception e) {
                     GeneralLogger.writeExeption(e);
                     System.err.println("blower " + getId() + " could not be resumed");
                     gui.alert(e);
                 }
-            } else {
-                System.out.println("blower " + getId() + " will not be resumed");
             }
         });
     }
@@ -132,18 +130,33 @@ public class Blower {
                     GUI.client.stopAController(getId());
                     setStopped(true);
                     hiddenButton.setVisible(isStopped());
-                    System.out.println("blower " + getId() + " stopped");
+                    GeneralLogger.writeMessage("blower " + getId() + " stopped");
                 } catch (Exception e) {
                     GeneralLogger.writeExeption(e);
                     System.err.println("blower " + getId() + " could not be stopped");
                     gui.alert(e);
                 }
-            } else {
-                System.out.println("blower " + getId()+ " will not be stopped");
             }
         });
     }
 
+    /**
+     * Gets ip address of blower.
+     *
+     * @return ip address
+     */
+    public String getIPAddress() {
+        return IPAddress;
+    }
+
+    /**
+     * Sets ip address of blower.
+     *
+     * @param IPAddress the ip address
+     */
+    public void setIPAddress(String IPAddress) {
+        this.IPAddress = IPAddress;
+    }
 
     /**
      * Gets blower id.
@@ -161,6 +174,15 @@ public class Blower {
      */
     public void setId(String id) {
         this.id.set(id);
+    }
+
+    /**
+     * Gets link to blower's website.
+     *
+     * @return the link to blower's website
+     */
+    public Hyperlink getLink() {
+        return link;
     }
 
     /**
@@ -296,6 +318,15 @@ public class Blower {
      */
     public ObservableList<XYChart.Data<Number, Number>> getTargetData() {
         return targetData;
+    }
+
+    /**
+     * Gets stop button.
+     *
+     * @return the stop button
+     */
+    public Button getStopButton() {
+        return stopButton;
     }
 
     /**

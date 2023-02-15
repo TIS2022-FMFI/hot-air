@@ -74,22 +74,17 @@ public class Project {
                 try {
                     GUI.client.stopAProject(name);
                     GeneralLogger.writeMessage("project " + name + " stopped");
-                    System.out.println("project " + name + " stopped");
                 } catch (Exception e) {
                     GeneralLogger.writeExeption(e);
                     System.err.println("project " + name + " could not be stopped");
                     gui.alert(e);
                 }
-            } else {
-                System.out.println("project " + name + " will not be stopped");
             }
         });
     }
 
     private void openGraph() {
         try {
-            System.out.println("openGraph");
-
             xAxis = new NumberAxis();
             xAxis.setLabel("time (s)");
             xAxis.setAutoRanging(false);
@@ -100,7 +95,6 @@ public class Project {
             lineChart.setCreateSymbols(false);
 
             String pathToTempLog = GUI.client.getTempLogFile(name);
-            System.out.println(pathToTempLog);
 
             tempLogFile = new HashMap<>();
 
@@ -147,10 +141,8 @@ public class Project {
 
     private void loadTemperaturesFromLog(String pathToTempLog) throws IOException {
         try (BufferedReader br = new BufferedReader(new FileReader(pathToTempLog))) {
-            System.out.println("loadTemperaturesFromLog");
             String line;
             while ((line = br.readLine()) != null) {
-                System.out.println(line);
                 List<String> values = Arrays.asList(line.split(","));
                 for (int i = 2; i<values.size()-1; i++) {
                     String key = values.get(i).trim();
@@ -174,7 +166,6 @@ public class Project {
     private void addTemperaturesFromLog() {
         ObservableList<Blower> blowers = GUIController.getBlowersList();
 
-        System.out.println("addTemperaturesFromLog");
         boolean first = true;
         for (String key : tempLogFile.keySet()) {
             Blower blower = blowers.filtered(b -> b.getId().equals(key)).get(0);
@@ -219,7 +210,6 @@ public class Project {
     }
 
     private void updateGraph() {
-        System.out.println("updateGraph");
         ObservableList<Blower> blowers = GUIController.getBlowersList();
         for (String key : tempLogFile.keySet()) {
             Blower blower = blowers.filtered(b -> b.getId().equals(key)).get(0);
@@ -277,6 +267,69 @@ public class Project {
      */
     public void setCurrentPhase(String currentPhase) {
         this.currentPhase.set(currentPhase);
+    }
+
+    /**
+     * Gets temperature logs file.
+     *
+     * @return temperature logs file
+     */
+    public HashMap<String, List<Pair<String, String>>> getTempLogFile() {
+        return tempLogFile;
+    }
+
+    /**
+     * Sets temperature logs file.
+     *
+     * @param  tempLogFile temperature logs file
+     */
+    public void setTempLogFile(HashMap<String, List<Pair<String, String>>> tempLogFile) {
+        this.tempLogFile = tempLogFile;
+    }
+
+    /**
+     * Gets linechart.
+     *
+     * @return linechart
+     */
+    public LineChart<Number, Number> getLineChart() {
+        return lineChart;
+    }
+
+    /**
+     * Sets linechart.
+     *
+     * @param  lineChart linechart
+     */
+    public void setLineChart(LineChart<Number, Number> lineChart) {
+        this.lineChart = lineChart;
+    }
+
+    /**
+     * Gets current link to graph.
+     *
+     * @return the link to graph
+     */
+    public Hyperlink getGraph() {
+        return graph;
+    }
+
+    /**
+     * Sets link to open the graph.
+     *
+     * @param graph hyperlink text to open graph
+     */
+    public void setGraph(Hyperlink graph) {
+        this.graph.setText(graph.getText());
+    }
+
+    /**
+     * Gets stop button.
+     *
+     * @return the stop button
+     */
+    public Button getStopButton() {
+        return stopButton;
     }
 
     @Override
