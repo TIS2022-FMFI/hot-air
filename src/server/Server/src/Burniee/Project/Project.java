@@ -50,7 +50,7 @@ public class Project extends Thread {
 
         try {
             List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> script = XMLAnalyzer.XMLtoCommands(pathToXML);
-            notFinalTemperatureLogger = new TemperatureLogger(name, pathToXML);
+            notFinalTemperatureLogger = new TemperatureLogger(name, id);
             System.out.println("[Project] starting project " + name);
             GeneralLogger.writeMessage("[Project] starting project " + name);
             for (String i : handlerIDs) {
