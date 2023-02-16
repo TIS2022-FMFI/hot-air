@@ -27,9 +27,10 @@ public class XMLAnalyzer {
      * @throws IOException
      * @throws SAXException
      * @throws NoBlowersException throws this, when no blower ID is found in any name of block in xml
+     * @throws UnrecognizedBlockException throws this, when one of the blocks didn't have axpected structure
      */
     public static List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> XMLtoCommands(String xmlPath)
-            throws ParserConfigurationException, IOException, SAXException, NoBlowersException {
+            throws ParserConfigurationException, IOException, SAXException, NoBlowersException, UnrecognizedBlockException {
         File file = new File(xmlPath);
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
@@ -40,7 +41,7 @@ public class XMLAnalyzer {
         setWaveforms(doc);
         setSubroutines(doc);
 
-        Element firstChild = getFirstElemChild(doc.getDocumentElement());
+        Element firstChild = getFirstElemChild(doc.getDocumentElement(), "THREAD");
         if (firstChild != null) return getThreadTimeAndTemp(firstChild);
 
         return new ArrayList<>();
@@ -91,13 +92,14 @@ public class XMLAnalyzer {
         }
     }
 
-    private static AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>> getBlockTimeAndTemp(Element block){
+    private static AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>> getBlockTimeAndTemp(Element block)
+            throws UnrecognizedBlockException {
         List<AbstractMap.SimpleEntry<String, String>> res = new ArrayList<>();
         String[] name = block.getAttributes().getNamedItem("NAME").getNodeValue().split("#");
         List<String> visited = new ArrayList<>();
 
         try {
-            Element gen = getFirstElemChild(Objects.requireNonNull(getFirstElemChild(block)));
+            Element gen = getFirstElemChild(Objects.requireNonNull(getFirstElemChild(block, "CH")), "GEN");
             String type = Objects.requireNonNull(gen).getAttributes().getNamedItem("TYPE").getNodeValue();
             String time = "";
 
@@ -133,17 +135,17 @@ public class XMLAnalyzer {
 
             return new AbstractMap.SimpleEntry<>(name[0].split("@")[0], res);
         } catch (NullPointerException e){
-            return null;
+            throw new UnrecognizedBlockException("Something wrong in block named: " + name[0]);
         }
     }
 
     private static AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>> getBlockTimeAndTemp(
-            Element block, List<String> blowers, List<String> temps){
+            Element block, List<String> blowers, List<String> temps) throws UnrecognizedBlockException {
         List<AbstractMap.SimpleEntry<String, String>> res = new ArrayList<>();
         String name = block.getAttributes().getNamedItem("NAME").getNodeValue();
 
         try {
-            Element gen = getFirstElemChild(Objects.requireNonNull(getFirstElemChild(block)));
+            Element gen = getFirstElemChild(Objects.requireNonNull(getFirstElemChild(block, "CH")), "GEN");
             String type = Objects.requireNonNull(gen).getAttributes().getNamedItem("TYPE").getNodeValue();
             String time = "";
 
@@ -170,11 +172,11 @@ public class XMLAnalyzer {
 
             return new AbstractMap.SimpleEntry<>(name, res);
         } catch (NullPointerException e){
-            return null;
+            throw new UnrecognizedBlockException("Something wrong in block named: " + name);
         }
     }
 
-    private static List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> getThreadTimeAndTemp(Element thread){
+    private static List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> getThreadTimeAndTemp(Element thread) throws UnrecognizedBlockException {
         List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> res = new ArrayList<>();
         NodeList children = thread.getChildNodes();
         for (int i = 0; i < children.getLength(); i++){
@@ -194,7 +196,7 @@ public class XMLAnalyzer {
     }
 
     private static List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> getThreadTimeAndTemp(
-            Element thread, List<String> blowers, List<String> temps){
+            Element thread, List<String> blowers, List<String> temps) throws UnrecognizedBlockException {
         List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> res = new ArrayList<>();
         NodeList children = thread.getChildNodes();
         for (int i = 0; i < children.getLength(); i++){
@@ -218,9 +220,9 @@ public class XMLAnalyzer {
         return res;
     }
 
-    private static List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> getSequenceTimeAndTemp(Element seq) {
+    private static List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> getSequenceTimeAndTemp(Element seq) throws UnrecognizedBlockException {
         List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> result = new ArrayList<>();
-        Element firstChild = getFirstElemChild(seq);
+        Element firstChild = getFirstElemChild(seq, "THREAD");
         if (firstChild != null && firstChild.getNodeName().equals("THREAD")) {
             List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> one_iteration = getThreadTimeAndTemp(firstChild);
             int repetitions = (int) Double.parseDouble(seq.getAttributes().getNamedItem("REP").getNodeValue());
@@ -232,9 +234,9 @@ public class XMLAnalyzer {
     }
 
     private static List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> getSequenceTimeAndTemp(
-            Element seq, List<String> blowers, List<String> temps) {
+            Element seq, List<String> blowers, List<String> temps) throws UnrecognizedBlockException {
         List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> result = new ArrayList<>();
-        Element firstChild = getFirstElemChild(seq);
+        Element firstChild = getFirstElemChild(seq, "THREAD");
         if (firstChild != null && firstChild.getNodeName().equals("THREAD")) {
             List<AbstractMap.SimpleEntry<String, List<AbstractMap.SimpleEntry<String, String>>>> one_iteration = getThreadTimeAndTemp(firstChild, blowers, temps);
             int repetitions = (int) Double.parseDouble(seq.getAttributes().getNamedItem("REP").getNodeValue());
@@ -245,11 +247,11 @@ public class XMLAnalyzer {
         return result;
     }
 
-    private static void setSubroutines(Document doc){
+    private static void setSubroutines(Document doc) throws UnrecognizedBlockException {
         NodeList subrts = doc.getElementsByTagName("SUBRT");
         for (int i = 0; i < subrts.getLength(); i++){
             Node subrt = subrts.item(i);
-            Element firstChild = getFirstElemChild((Element) subrt);
+            Element firstChild = getFirstElemChild((Element) subrt, "THREAD");
             String subrtName = ((Element) subrt).getAttribute("NAME");
             if (firstChild != null && firstChild.getNodeName().equals("THREAD")){
                 if (subrtName.contains("Measurement") || subrtName.contains("measurement") || subrtName.contains("MEASUREMENT")){
@@ -269,10 +271,10 @@ public class XMLAnalyzer {
         }
     }
 
-    private static Element getFirstElemChild(Element e){
+    private static Element getFirstElemChild(Element e, String type){
         NodeList eChildren = e.getChildNodes();
         for (int i = 0; i < eChildren.getLength(); i++){
-            if (eChildren.item(i).getNodeType() == Node.ELEMENT_NODE){
+            if (eChildren.item(i).getNodeType() == Node.ELEMENT_NODE && eChildren.item(i).getNodeName().equals(type)){
                 return (Element) eChildren.item(i);
             }
         }
