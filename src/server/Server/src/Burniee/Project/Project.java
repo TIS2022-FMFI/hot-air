@@ -10,7 +10,9 @@ import Burniee.Server;
 import Burniee.xml.XMLAnalyzer;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -23,6 +25,7 @@ public class Project extends Thread {
     private final String ID;
     private long startedAt;
     private final String name;
+    private final String pathToXML;
     private static final byte AIR_FLOW = 100;
     private String phaseName = "";
     private int phaseIndex = 0;
@@ -41,6 +44,7 @@ public class Project extends Thread {
     public Project(String pathToXML, String id) throws ParserConfigurationException, IOException, SAXException {
         ID = id;
         phaseIndex = 0;
+        this.pathToXML = pathToXML;
         name = XMLAnalyzer.getProjectName(pathToXML);
         handlers = new HashMap<>();
         handlerIDs = new ArrayList<>(XMLAnalyzer.getAllBlowers(pathToXML));
@@ -120,6 +124,9 @@ public class Project extends Thread {
         System.out.println("[Project] Project with ID = " + ID + ", name = " + name + " ended");
         GeneralLogger.writeMessage("[Project] Project with ID = " + ID + ", name = " + name + " ended");
         Server.getInstance().removeProject(this);
+        try {
+            new File(pathToXML).delete();
+        } catch (Exception ignored) {}
         for (Map.Entry<String, ControllerHandler> ch : handlers.entrySet()) {
             if (ch.getValue().getProject() != null && ch.getValue().getProject().equals(this)) {
                 try {
