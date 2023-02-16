@@ -35,6 +35,7 @@ public class Project {
     private final SimpleStringProperty currentPhase;
     private final Hyperlink graph;
     private HashMap<String, List<Pair<String, String>>> tempLogFile;
+    public String pathToTempLog;
 
     private final Button stopButton;
     private NumberAxis xAxis;
@@ -94,7 +95,7 @@ public class Project {
             lineChart.setPrefSize(500, 200);
             lineChart.setCreateSymbols(false);
 
-            String pathToTempLog = GUI.client.getTempLogFile(name);
+            pathToTempLog = GUI.client.getTempLogFile(name);
 
             tempLogFile = new HashMap<>();
 

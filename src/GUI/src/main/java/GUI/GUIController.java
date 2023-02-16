@@ -344,6 +344,20 @@ public class GUIController implements Initializable {
                 }
             }
             projectsToRemove.forEach(projectsList::remove);
+            for (Project p : projectsToRemove) {
+                projectsList.remove(p);
+                System.out.println(p.pathToTempLog);
+                try {
+                    File tempLogFile = new File(p.pathToTempLog);
+                    if (tempLogFile.delete()) {
+                        GeneralLogger.writeMessage("Deleted the file: " + p.pathToTempLog);
+                    } else {
+                        GeneralLogger.writeMessage("Failed to delete the file: " + p.pathToTempLog);
+                    }
+                } catch (Exception e) {
+                    GeneralLogger.writeExeption(e);
+                }
+            }
         } catch (Exception e) {
             GeneralLogger.writeExeption(e);
             System.err.println(e);
