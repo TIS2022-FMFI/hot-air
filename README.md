@@ -58,3 +58,7 @@ b) neobsahujú `@...` doplnia sa o template `@temperature` a následne ID dúcha
 
 # Flashovanie arduina
 - todo 
+
+# Javadoc
+[Server](https://tis2022-fmfi.github.io/hot-air/server_javadoc/) <br>
+[GUI](https://tis2022-fmfi.github.io/hot-air/gui_javadoc/)
