@@ -1,7 +1,8 @@
 # hot-air
 Control, monitoring, and scheduling of hot-air fans
 
-[![Watch the video](https://user-images.githubusercontent.com/47124922/219516582-7ca52e90-04f6-4f93-b50a-c1dfa2da7368.jpg)](https://youtu.be/fHxo8fL1Tt0)
+## Video
+[![Watch the video](https://user-images.githubusercontent.com/47124922/219518256-f6252a67-e456-4643-a2d6-0c340ed4e1df.gif)](https://youtu.be/fHxo8fL1Tt0)
 
 # Spustenie
 ### Server.jar
