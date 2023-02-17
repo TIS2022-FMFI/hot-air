@@ -1,6 +1,8 @@
 # hot-air
 Control, monitoring, and scheduling of hot-air fans
 
+[![Watch the video](https://user-images.githubusercontent.com/47124922/219516582-7ca52e90-04f6-4f93-b50a-c1dfa2da7368.jpg)](https://youtu.be/fHxo8fL1Tt0)
+
 # Spustenie
 ### Server.jar
 Aby fungovala komunikácia s dúchadlami je potrebné <u>spustiť server</u> dvojklikom na `Server.jar` (hot-air/src/server/Server/[Server.jar](https://github.com/TIS2022-FMFI/hot-air/blob/main/src/server/Server/Server.jar)).  <br>
