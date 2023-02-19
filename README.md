@@ -12,7 +12,7 @@ Ak chceme server zastaviť, stačí toto okno zavrieť, prípadne vypnúť `Ctrl
 
 ### GUI.jar
 
-Dvojklikom na `GUI.jar` spustíme GUI. To pozostáva z troch tabov:
+Dvojklikom na `GUI.jar` spustíme GUI. GUI môže byť spustené viackrát, ale na správny beh projektu nemusí byť spustené. To pozostáva z troch tabov:
 
  **1. BLOWERS** <br>
  Tu sa zobrazujú aktuálne pripojené dúchadlá.<br>
