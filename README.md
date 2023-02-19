@@ -7,7 +7,7 @@ Control, monitoring, and scheduling of hot-air fans
 # Spustenie
 ### Server.jar
 Aby fungovala komunikácia s dúchadlami je potrebné <u>spustiť server</u> dvojklikom na `Server.jar` (hot-air/src/server/Server/[Server.jar](https://github.com/TIS2022-FMFI/hot-air/blob/main/src/server/Server/Server.jar)).  <br>
-Po spustení sa otvorí Windows PowerShell konzola. <br>
+Po spustení sa otvorí [Windows Terminal](https://apps.microsoft.com/store/detail/windows-terminal/9N0DX20HK701?hl=sk-sk&gl=sk&rtc=1).<br>
 Ak chceme server zastaviť, stačí toto okno zavrieť, prípadne vypnúť `Ctrl + C` príkazom do konzoly.
 
 ### GUI.jar
