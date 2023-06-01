@@ -27,7 +27,6 @@
 #include "defines.h"
 #include "preferences.h"
 #include "status.h"
-#include "statusled.h"
 #include "CommunicationHandler.h"
 #include "webServerHandlers.cpp"
 
@@ -53,7 +52,6 @@ Preferences memory;
 Status status;
 WebHandler webserver;
 ServerCommunication serverComm;
-StatusLed pixels;
 IPAddress CONTROLLER_DNS(1, 1, 1, 10);
 
 //hardwer
@@ -166,7 +164,9 @@ void handleTemperature(int update_time){
     millis_temperature = millis();
   }
 
-  if (status.actual_temperature != status.last_temperature){
+  if ((status.actual_temperature != status.last_temperature)
+    && (!isnan(status.actual_temperature)) 
+    && (status.actual_temperature > 0)){
     //serverComm.sendTemperature(); //todo kazdu sec
     status.last_temperature = status.actual_temperature;
   } 
@@ -244,8 +244,6 @@ void setup() {
 
   memory.begin(EEPROM_SIZE) ? status.eeprom_begin = true : status.eeprom_begin = false;
   status.eeprom_begin ? Serial.println("Preferences: OK") : Serial.println("Preferences: ERROR");
-
-  pixels.begin();
   
   Wire.beginTransmission(DAC_address);
   Wire.endTransmission() == 0 ? status.dac_connected = true : status.dac_connected = false;

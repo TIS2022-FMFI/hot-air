@@ -106,6 +106,13 @@ void ServerCommunication::sendTemperature() {
   } u;
 
   u.float_variable = status->actual_temperature;
+  if (isnan(u.float_variable)){
+    u.float_variable = status->last_temperature;
+  } else if (u.float_variable < 0){
+    u.float_variable = status->last_temperature;
+  }
+  
+  
   memcpy(&data[11], u.temp_array, 4);
   data[15] = sendTemperatureFlag();
 
@@ -361,5 +368,3 @@ void ServerCommunication::refresh() {
     }
   }
 }
-
-
