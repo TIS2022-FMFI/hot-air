@@ -83,7 +83,12 @@ b) neobsahujú `@...` doplnia sa o template `@temperature` a následne ID dúcha
  - Arduino prepneme do nahravacieho módu pripojením `IO0` na `GND`
  - Vyberieme si správnu dosku: Tool > ESP32 Arduino > ESP32 Dev Module
  - Zvolíme si vymazanie pamäte: Tool > Erase All Flash Before Sketch Upload > Enable
-
+ - Odpojíme DFRobot_GP8403 a dáme nahrať program (šipka v pravo hore)
+ - Reštarutujeme Arduino (odpojíme úplne z elektriky)
+ - Vypneme Tool > Erase All Flash Before Sketch Upload > Disable
+ - Nahráme Web stránku: Tool > ESP32 Sketch Data Upload
+ - Arduino prepneme do RunTime módu odpojením `IO0` od `GND`
+ - Reštartujeme Arduino
  
 # Javadoc
 [Server](https://tis2022-fmfi.github.io/hot-air/server_javadoc/) <br>
