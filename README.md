@@ -71,7 +71,7 @@ b) neobsahujú `@...` doplnia sa o template `@temperature` a následne ID dúcha
  1. [AsyncWebServer_WT32_ETH01](https://github.com/khoih-prog/AsyncWebServer_WT32_ETH01)
  2. [Adafruit-MAX31855-library](https://github.com/adafruit/Adafruit-MAX31855-library)
  3. [DFRobot_GP8403](https://github.com/DFRobot/DFRobot_GP8403)
- 4. 
+ 4. [AsyncTCP](https://github.com/me-no-dev/AsyncTCP)
  
  - Na stránke GitHub-u si stiahneme knižnice pomocou tlačidla "Code" > "Download ZIP"
  - Následne tento ZIP vložíme do Arduina: Sketch > Include Library > Add .Zip Library. Vyberieme si knižnice.
