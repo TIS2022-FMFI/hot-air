@@ -72,6 +72,7 @@ b) neobsahujú `@...` doplnia sa o template `@temperature` a následne ID dúcha
  2. [Adafruit-MAX31855-library](https://github.com/adafruit/Adafruit-MAX31855-library)
  3. [DFRobot_GP8403](https://github.com/DFRobot/DFRobot_GP8403)
  4. [AsyncTCP](https://github.com/me-no-dev/AsyncTCP)
+ 5. [Adafruit_BusIO](https://github.com/adafruit/Adafruit_BusIO)
  
  - Na stránke GitHub-u si stiahneme knižnice pomocou tlačidla "Code" > "Download ZIP"
  - Následne tento ZIP vložíme do Arduina: Sketch > Include Library > Add .Zip Library. Vyberieme si knižnice.
