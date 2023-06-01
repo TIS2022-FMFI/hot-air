@@ -60,8 +60,30 @@ a) názvy blokov v XML už obsahujú `@...` doplnia sa iba o zvolené ID dúchad
 b) neobsahujú `@...` doplnia sa o template `@temperature` a následne ID dúchadiel. V tomto prípade treba všetky výskyty `temperature` prepísať na želanú teplotu.<br>
 
 # Flashovanie arduina
-- todo 
+ - Otovríme si IDLE Arduino V1.
+ - Otvoríme si "Preferences": File > Preferences.
+ - Do ridku "Additional Boards Manager URLs:" pridáme tento odkaz "https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json, https://arduino.esp8266.com/stable/package_esp8266com_index.json, https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json"
+ - Tool > Board > Boards Manager...
+   - Vyhľadáme si ESP32
+   - Dáme inštlaovať verziu 2.0.9+
+ - Nainštalujeme si plugin [arduino-esp32fs-plugin](https://github.com/me-no-dev/arduino-esp32fs-plugin) do arduina.
+ ## Inštalácia Knižníc
+ 1. [AsyncWebServer_WT32_ETH01](https://github.com/khoih-prog/AsyncWebServer_WT32_ETH01)
+ 2. [Adafruit-MAX31855-library](https://github.com/adafruit/Adafruit-MAX31855-library)
+ 3. [DFRobot_GP8403](https://github.com/DFRobot/DFRobot_GP8403)
+ 4. 
+ 
+ - Na stránke GitHub-u si stiahneme knižnice pomocou tlačidla "Code" > "Download ZIP"
+ - Následne tento ZIP vložíme do Arduina: Sketch > Include Library > Add .Zip Library. Vyberieme si knižnice.
+ - Toto opakujeme pre každú knižnicu.
+ 
+ ## Teraz máme pripravené Arduino na upload codu
+ - otovríme si verziu programu ktorú chceme nahrať do ardunina. (otvárame súbor s príponou *.ino)
+ - Arduino prepneme do nahravacieho módu pripojením `IO0` na `GND`
+ - Vyberieme si správnu dosku: Tool > ESP32 Arduino > ESP32 Dev Module
+ - Zvolíme si vymazanie pamäte: Tool > Erase All Flash Before Sketch Upload > Enable
 
+ 
 # Javadoc
 [Server](https://tis2022-fmfi.github.io/hot-air/server_javadoc/) <br>
 [GUI](https://tis2022-fmfi.github.io/hot-air/gui_javadoc/)
