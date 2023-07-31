@@ -14,7 +14,7 @@
 //#define _DHCP set
 
 // simulation
-//#define SIMULATION
+//#define SIMULATION 
 
 // Select the IP address according to your local network, works only if _DHCP is commented
 // all info taks form memory
