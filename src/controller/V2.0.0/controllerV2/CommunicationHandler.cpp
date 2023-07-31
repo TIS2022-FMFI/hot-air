@@ -145,16 +145,19 @@ void ServerCommunication::handleTemperature(uint8_t *buffer) {
 
   if (phaseid == INT_MAX){
     status->last_err = 0;
-    status->suma = 0;    
+    status->suma = 0;
+    status->phsaeID = 0;
   } else if (status->phsaeID >= phaseid){
     Serial.print("\nPhase Ignored\nThe ID ");
     Serial.print(phaseid);
     Serial.print(" phase is less than or equal to the previous phase");
     sendAck(buffer);
     return;
+  } else {
+    status->phsaeID = phaseid;
   }
   
-  status->phsaeID = phaseid;
+ 
   
   if(temp == 0){
     status->last_err = 0;

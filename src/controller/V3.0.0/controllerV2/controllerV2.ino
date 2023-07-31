@@ -34,10 +34,8 @@
 #include <Wire.h>
 // comunication
 #include <IPAddress.h>
-#include <AsyncTCP.h>
 #include <AsyncUDP.h>
 #include <AsyncWebServer_WT32_ETH01.h>
-// #include <ESPAsyncWebServer.h>
 #include <math.h>
 
 #include <Adafruit_MAX31855.h>  // thermometer

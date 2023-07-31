@@ -191,7 +191,6 @@ public:
       waitforlock(lock);
       lock = true;
       request->send(SPIFFS, "/index.html", "text/html");
-      //request->sendChunked("const String &contentType");
       lock = false; 
       Serial.println("index.html");
     });
