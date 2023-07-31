@@ -1,4 +1,4 @@
-#include <sys/_stdint.h>
+
 //********************************************************
 // Class to handle EEPROM memory and save preferences
 //
