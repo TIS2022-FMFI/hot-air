@@ -252,8 +252,9 @@ void setup() {
 
   #ifdef _DEBUG 
   Serial.print("\nChecking hardware\n");
-  
   Wire.begin(PIN_SDA, PIN_SCL) ? Serial.println("Wire: OK") : Serial.println("Wire: ERROR");
+  #else
+  Wire.begin(PIN_SDA, PIN_SCL);
   #endif
   
   memory.begin(EEPROM_SIZE) ? status.eeprom_begin = true : status.eeprom_begin = false;
