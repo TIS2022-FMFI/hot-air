@@ -38,7 +38,12 @@
 #include <AsyncWebServer_WT32_ETH01.h>
 #include <math.h>
 
+#ifdef USE_MAX6675_INSTEAD_OF_MAX31855
+#include <max6675.h> 
+#else
 #include <Adafruit_MAX31855.h>  // thermometer
+#endif
+
 #include <DFRobot_GP8403.h>    // DAC controller
 
 #include <EEPROM.h>
@@ -53,7 +58,12 @@ ServerCommunication serverComm;
 IPAddress CONTROLLER_DNS(1, 1, 1, 10);
 
 //hardwer
+#ifdef USE_MAX6675_INSTEAD_OF_MAX31855
+MAX6675 thermocouple(PIN_thermoCLK, PIN_thermoCS, PIN_thermoDO);
+#else
 Adafruit_MAX31855 thermocouple(PIN_thermoCLK, PIN_thermoCS, PIN_thermoDO);
+#endif
+
 DFRobot_GP8403 dac(&Wire, DAC_address);
 
 // global variable.
@@ -155,8 +165,10 @@ void handleTemperature(int update_time){
       }
     #else
       status.actual_temperature = thermocouple.readCelsius() + memory.getDeltaT();
+      #ifdef _DEBUG 
       Serial.print("Thermometer temperature "); 
       Serial.println(status.actual_temperature); 
+      #endif
     #endif
 
     millis_temperature = millis();
@@ -232,27 +244,40 @@ void pd_step(){
 void setup() {
   Serial.begin(115200);
   delay(1000);
+  #ifdef _DEBUG 
   Serial.println("Booting up...");
+  #endif
   
   status.begin();
 
+  #ifdef _DEBUG 
   Serial.print("\nChecking hardware\n");
-
+  
   Wire.begin(PIN_SDA, PIN_SCL) ? Serial.println("Wire: OK") : Serial.println("Wire: ERROR");
-
+  #endif
+  
   memory.begin(EEPROM_SIZE) ? status.eeprom_begin = true : status.eeprom_begin = false;
+  #ifdef _DEBUG 
   status.eeprom_begin ? Serial.println("Preferences: OK") : Serial.println("Preferences: ERROR");
+  #endif
   
   Wire.beginTransmission(DAC_address);
   Wire.endTransmission() == 0 ? status.dac_connected = true : status.dac_connected = false;
 
   #ifndef SIMULATION  
+    #ifdef _DEBUG 
     Serial.print("Thermometer booting up");
+    #endif
+    #ifndef USE_MAX6675_INSTEAD_OF_MAX31855
     if (!thermocouple.begin()){
       status.thermometer_connected = false;
-    } else {
+    } else 
+    #endif
+    {
       for (uint8_t i = 0; i < 5; i++) {
+          #ifdef _DEBUG 
           Serial.print(".");
+          #endif
           status.actual_temperature = thermocouple.readCelsius();
           delay(250);
         }
@@ -276,6 +301,7 @@ void setup() {
   #endif 
 
   // info output to serial.
+  #ifdef _DEBUG 
   Serial.println();
   Serial.print("DAC: ");
   status.dac_connected ? Serial.println("OK") : Serial.println("ERROR");
@@ -283,23 +309,30 @@ void setup() {
   if (status.thermometer_connected){
     Serial.print("OK: ");
     Serial.print(status.actual_temperature);
+    #ifndef USE_MAX6675_INSTEAD_OF_MAX31855
     Serial.print("˚C Internal temp: ");
     Serial.print(thermocouple.readInternal());
+    #endif
     Serial.println("˚C");
   } else {
     Serial.println("ERROR");
+    #ifndef USE_MAX6675_INSTEAD_OF_MAX31855
     uint8_t e = thermocouple.readError();
     if (e & MAX31855_FAULT_OPEN) Serial.println("FAULT: Thermocouple is open - no connections.");
     if (e & MAX31855_FAULT_SHORT_GND) Serial.println("FAULT: Thermocouple is short-circuited to GND.");
     if (e & MAX31855_FAULT_SHORT_VCC) Serial.println("FAULT: Thermocouple is short-circuited to VCC.");
+    #endif
     }
-
+  #endif
+ 
   if (status.dac_connected == true){
     dac.begin();
     dac.setDACOutRange(dac.eOutputRange10V);
   }
-
+  
+  #ifdef _DEBUG 
   Serial.println("\n\nStarting ethernet");
+  #endif
   WT32_ETH01_onEvent();
   ETH.begin(ETH_PHY_ADDR, ETH_PHY_POWER);
 
@@ -311,32 +344,38 @@ void setup() {
     memory.getCONTROLLERGW(controller_GW);
     memory.getMASK(controller_MASK);
 
+    #ifdef _DEBUG 
     Serial.print("IP: ");
     Serial.println(controller_IP);
     Serial.print("GW: ");
     Serial.println(controller_GW);
     Serial.print("MASK: ");
     Serial.println(controller_MASK);
-
+    #endif
+    
     ETH.config(controller_IP, controller_GW, controller_MASK, CONTROLLER_DNS);
   #endif
 
+    #ifdef _DEBUG 
     Serial.println("waiting for ethernet connection ");
   #ifdef _DHCP
     Serial.println("and for DHCP. ");
   #endif
-
+    #endif
   unsigned long eth_not_connected_timeout = millis();
   status.ack_server_time_out = millis();
 
   while (WT32_ETH01_isConnected() == false) {
     if (millis() - eth_not_connected_timeout < 60000) {
+      #ifdef _DEBUG 
       Serial.print("*");
+      #endif
       delay(1000);
     } else {
       // turn on WIFI.
     }
   }
+  #ifdef _DEBUG 
   Serial.println();
 
   //WT32_ETH01_waitForConnect();
@@ -347,15 +386,21 @@ void setup() {
   Serial.println(ETH.broadcastIP());
 
   Serial.println("Starting Web server on port 80");
-
+  #endif
+  
   webserver.begin(server, &memory, &status);
   
   // do not change!
   for (uint8_t i = 0; i < 5; i++){
+    #ifdef _DEBUG 
     Serial.print("*");
+    #endif
     delay(1050);
   }
+
+  #ifdef _DEBUG 
   Serial.println();
+  #endif
 
   serverComm.begin(&udp, &status, &memory);
 

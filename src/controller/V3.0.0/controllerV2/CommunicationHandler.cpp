@@ -21,6 +21,7 @@ void ServerCommunication::printRawData(uint8_t *buffer, uint16_t len) {
   //make table of 3 row
   //1. Index, 2. data in HEX, 3. data in DEC
   //write index
+  #ifdef _DEBUG 
   Serial.print("INDEX: ");
   for (int i = 0; i < len; i++) {
     Serial.printf("%5d", i);
@@ -47,6 +48,7 @@ void ServerCommunication::printRawData(uint8_t *buffer, uint16_t len) {
     Serial.printf("%5c", (char)buffer[i]);
   }
   Serial.println("");
+  #endif
 }
 
 uint8_t ServerCommunication::sendTemperatureFlag() {
@@ -77,19 +79,25 @@ uint8_t ServerCommunication::sendTemperatureFlag() {
 };
 
 void ServerCommunication::udpHandler(AsyncUDPPacket packet) {
+  #ifdef _DEBUG 
   Serial.print("New UDP packet from: ");
   Serial.println(packet.remoteIP());
   Serial.print("Data: ");
   Serial.write(packet.data(), packet.length());
   Serial.println(" Password: ");
+  #endif
   for (int i = 0; i < 5; i++) {
     if (status->server_password[i] != packet.data()[i]) {
+      #ifdef _DEBUG 
       Serial.println("WRONG");
+      #endif
       return;
     }
   }
+  #ifdef _DEBUG 
   Serial.println("OK");
-
+  #endif
+  
   memory->setSERVERIP(packet.remoteIP());
   status->searching_server = false;
   status->server_find = true;
@@ -155,9 +163,11 @@ void ServerCommunication::handleTemperature(uint8_t *buffer) {
     status->suma = 0;
     status->phsaeID = 0;
   } else if (status->phsaeID >= phaseid){
+    #ifdef _DEBUG 
     Serial.print("\nPhase Ignored\nThe ID ");
     Serial.print(phaseid);
     Serial.print(" phase is less than or equal to the previous phase");
+    #endif
     sendAck(buffer);
     return;
   } else {
@@ -179,27 +189,34 @@ void ServerCommunication::handleTemperature(uint8_t *buffer) {
     status->set_airflow = air_flow;
   }
 
-  
+  #ifdef _DEBUG 
   Serial.printf("\nNew settings:\nTemperature: %u\nAirFlow: %u\nPhase ID: %d\n", status->set_temperature, status->set_airflow, status->phsaeID);
-
+  #endif
+  
   sendAck(buffer);
 }
 
 void ServerCommunication::handleEmergency_stop(uint8_t *buffer) {
   status->emergency_stop = true;
+  #ifdef _DEBUG 
   Serial.println("\n\n\nEMERGENY STOP\n\n\n");
+  #endif
   sendAck(buffer);
 }
 
 void ServerCommunication::handleEmergency_release(uint8_t *buffer) {
   status->emergency_stop = false;
+  #ifdef _DEBUG 
   Serial.println("\n\n\nEMERGENY RELEASE\n\n\n");
+  #endif
   sendAck(buffer);
 }
 
 void ServerCommunication::sendID() {
   // send server my ID.
+  #ifdef _DEBUG 
   Serial.println("Sending ID");
+  #endif
   static uint8_t controller_id[16];
   memory->trim((char *)controller_id);
   memory->getID((char *)controller_id);
@@ -254,7 +271,9 @@ void ServerCommunication::sendAck(uint8_t *buffer) {
 void ServerCommunication::handlePacket(){
   udp->onPacket([this](AsyncUDPPacket packet) {
     if (status->searching_server == true) {
+      #ifdef _DEBUG 
       Serial.println("UDP discovery handler.");
+      #endif
       udpHandler(packet);
       return;
     }
@@ -324,9 +343,11 @@ void ServerCommunication::refresh() {
       memory->getSERVERIP(server_IP);
 
       //todo add if(udp.connect(...
+      #ifdef _DEBUG 
       Serial.print("Connecting to server: ");
       Serial.println(server_IP);
-
+      #endif
+      
       if (udp->connect(server_IP, memory->getPORT())) {
         handlePacket();
         status->connecting_server = true;
@@ -335,10 +356,12 @@ void ServerCommunication::refresh() {
         status->connection_time_out_millis = millis();
 
         if (udp->listen(controllerip, memory->getPORT())) {
+          #ifdef _DEBUG 
           Serial.print("Listening on IP ");
           Serial.print(controllerip);
           Serial.print(":");
           Serial.println(memory->getPORT());
+          #endif
           handlePacket();
         }
 
@@ -346,11 +369,15 @@ void ServerCommunication::refresh() {
 
 
     } else if (status->searching_server == false && status->connection_error == true) {
+      #ifdef _DEBUG 
       Serial.println("Start searching for a server");
+      #endif
 
       if (udp->listen(memory->getPORT())) {
+        #ifdef _DEBUG 
         Serial.print("Listening on port: ");
         Serial.print(memory->getPORT());
+        #endif
         handlePacket();
       }
       status->searching_server = true;

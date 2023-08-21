@@ -39,6 +39,10 @@
 //                     THERMOMETER
 //
 //********************************************************
+
+//uncomment the following line for the old type of thermometer
+//#define USE_MAX6675_INSTEAD_OF_MAX31855
+
 #define THERMOMETER_UPDATING_TIME 500 // in milliseconds // min updating time is 250ms
 #define THERMOMETER_SENDING_INTERVAL 1000 // min 500ms max 5000ms
 //********************************************************
