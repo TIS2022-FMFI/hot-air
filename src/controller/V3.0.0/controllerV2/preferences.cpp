@@ -393,12 +393,20 @@ void Preferences::erasureAll() {
   IPAddress controllergw = IPAddress(10,2,1,1);
   IPAddress controllermask = IPAddress(255,0,0,0);
 
+  /*
   setP(0.04);
   setD(0.005);
   setI(0.0006);
   setA(1.0);
   setDelay(250);
-
+  */
+  
+  setP(0.04);
+  setD(0.2);
+  setI(0.001);
+  setA(1.0);
+  setDelay(700);
+  
   setDeltaT(0);
   
   setCONTROLLERIP(controllerip, controllergw);

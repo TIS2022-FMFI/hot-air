@@ -84,6 +84,6 @@
 #define _ETHERNET_WEBSERVER_LOGLEVEL_       3
 
 // USE ONLY FOR TESTING. BYPASS ALL SAFTY
-#define _DEBUG
+//#define _DEBUG
 
 #endif

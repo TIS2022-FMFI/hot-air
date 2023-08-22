@@ -23,6 +23,13 @@
   // Delay |250    |250    | 250     | 
   // ---------------------------------
 
+// last conservative setting:
+//  P = 0.04
+//  I = 0.001
+//  D = 0.2
+//  Alpha = 1
+//  Delay = 700
+//  dt = 0
 
 #include "defines.h"
 #include "preferences.h"
@@ -108,14 +115,17 @@ void handleDac(){
   }
 
   if (status.disconnected_time_out == true && status.connected_server == false && millis() - status.disconnected_time_out_millis > TIMEOUT_SERVER_STOP){ // #55 Ak vypadne sieť tak vypnúť testovanie po 100 sekund
-    dacPower(0);
-    dacAir(100);
-    status.actual_power = 0;
-    status.set_airflow = 100;
-    status.set_temperature = 0;
+    if (millis() < status.disconnected_time_out_millis) status.disconnected_time_out_millis = 0;
+	else {		
+		dacPower(0);
+		dacAir(100);
+		status.actual_power = 0;
+		status.set_airflow = 100;
+		status.set_temperature = 0;
 
-    status.disconnected_time_out = false;
-    return;
+		status.disconnected_time_out = false;
+		return;
+	}
   }
 
   if (status.set_temperature > 0){
@@ -163,8 +173,11 @@ void handleTemperature(int update_time){
       if (status.emergency_stop == true){
         status.actual_temperature = 0;
       }
-    #else
-      status.actual_temperature = thermocouple.readCelsius() + memory.getDeltaT();
+    #else      
+      double tmpr = thermocouple.readCelsius();
+      if (!isnan(tmpr))
+        status.actual_temperature = tmpr + memory.getDeltaT();
+//        status.actual_temperature = (status.actual_temperature * 0.2) + (tmpr * 0.8) + memory.getDeltaT();
       #ifdef _DEBUG 
       Serial.print("Thermometer temperature "); 
       Serial.println(status.actual_temperature); 
@@ -234,9 +247,11 @@ void pd_step(){
   // Serial.print((int)current_power);
   // Serial.print(" ");
   // Serial.print((int)delta_amount);
-  // Serial.print(" ");
-  // Serial.println((int)status.actual_power);
-
+  #ifdef _DEBUG
+  Serial.print("pwr: ");
+  Serial.println((int)status.actual_power);
+  #endif
+  
   //dac.outputSquare((int)status.actual_power, 10000, 0, 100, 0);
   
 }

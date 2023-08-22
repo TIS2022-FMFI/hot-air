@@ -634,7 +634,7 @@ public:
       waitforlock(lock);
       lock = true;  
       char str[4];
-      sprintf(str, "%d", status->set_airflow);
+      sprintf(str, "%hd", status->set_airflow);
       request->send(200, "text/plain", str);
       lock = false; 
     });
@@ -652,7 +652,7 @@ public:
       waitforlock(lock);
       lock = true;  
       char str[4];
-      sprintf(str, "%d", status->set_power);
+      sprintf(str, "%hd", status->set_power);
       request->send(200, "text/plain", str);
       lock = false; 
     });

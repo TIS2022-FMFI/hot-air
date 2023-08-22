@@ -364,9 +364,7 @@ void ServerCommunication::refresh() {
           #endif
           handlePacket();
         }
-
       }
-
 
     } else if (status->searching_server == false && status->connection_error == true) {
       #ifdef _DEBUG 
