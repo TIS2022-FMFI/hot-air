@@ -34,16 +34,22 @@ bool Preferences::begin(uint16_t size) {
   mem_flags = 0;
 
   if (EEPROM.begin(size) == false) {
+    #ifdef _DEBUG       
     Serial.println("EEPROM load error.\n Rebooting...");
+    #endif
     //ESP.restart();
     return false; 
   } else {
+    #ifdef _DEBUG 
     Serial.println("EEPROM load OK");
+    #endif
   }
 
   readFlags();
   if (mem_flags == 0xFF) {
+    #ifdef _DEBUG 
     Serial.println("deleting EEPROM");
+    #endif
     erasureAll();
   }
 
@@ -240,7 +246,9 @@ bool Preferences::setID(const char *id_name) {
     if (c < 0x20 || c > 0x7e) {
       c = 0;  // A8 = ¿
     }
+    #ifdef _DEBUG 
     Serial.print(c);
+    #endif
     EEPROM.writeChar(addresses::ID + i, c);
 
     if (c == 0 || c == ' '){
@@ -385,12 +393,20 @@ void Preferences::erasureAll() {
   IPAddress controllergw = IPAddress(10,2,1,1);
   IPAddress controllermask = IPAddress(255,0,0,0);
 
+  /*
   setP(0.04);
   setD(0.005);
   setI(0.0006);
   setA(1.0);
   setDelay(250);
-
+  */
+  
+  setP(0.04);
+  setD(0.2);
+  setI(0.001);
+  setA(1.0);
+  setDelay(700);
+  
   setDeltaT(0);
   
   setCONTROLLERIP(controllerip, controllergw);

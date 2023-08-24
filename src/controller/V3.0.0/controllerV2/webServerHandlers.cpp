@@ -48,9 +48,12 @@ public:
 
   bool handleData(AsyncWebServerRequest *request) {
     bool restart = false;
+    
+    #ifdef _DEBUG
     Serial.print(request->args());
     Serial.println("new dates arrived.");
-
+    #endif
+    
     if (request->hasParam("controllerIP", true) && request->hasParam("controllerGW", true)) {
       String IP;
       String GW;
@@ -61,9 +64,11 @@ public:
       string2ip(controllerIP, IP);
       string2ip(controllerGW, GW);
       memory->setCONTROLLERIP(controllerIP, controllerGW);
+      #ifdef _DEBUG
       Serial.println("got IP:");
       Serial.println(controllerIP);
       Serial.println(controllerGW);
+      #endif
       restart = true;
     }
     if (request->hasParam("controllerMASK", true)) {
@@ -72,14 +77,18 @@ public:
       IPAddress controllerMask = IPAddress();
       string2ip(controllerMask, stringMask);
       memory->setMASK(controllerMask);
+      #ifdef _DEBUG
       Serial.print("New controller Mask: ");
       Serial.println(controllerMask);
+      #endif
       restart = true;
     }
     if (request->hasParam("controllerID", true)) {
       String idstr;
       idstr = request->getParam("controllerID", true)->value();
+      #ifdef _DEBUG
       Serial.write(idstr.c_str(), 15);
+      #endif
       memory->setID(idstr.c_str());
       status->id_has_change = true;
     }
@@ -89,8 +98,10 @@ public:
       IPAddress serverIP = IPAddress();
       string2ip(serverIP, stringIP);
       memory->setSERVERIP(serverIP);
+      #ifdef _DEBUG
       Serial.print("New Server IP: ");
       Serial.println(serverIP);
+      #endif
     }
     if(request->hasParam("port",true)){
       String port = request->getParam("port", true)->value();
@@ -99,59 +110,77 @@ public:
     // PID
     if(request->hasParam("p",true)){
       String p = request->getParam("p", true)->value();
+      #ifdef _DEBUG
       Serial.print("P: ");
       Serial.println(p);
+      #endif
       memory->setP(p.toFloat());
     }
     if(request->hasParam("i",true)){
       String i = request->getParam("i", true)->value();
+      #ifdef _DEBUG
       Serial.print("I: ");
       Serial.println(i);
+      #endif
       memory->setI(i.toFloat());
     }
     if(request->hasParam("d",true)){
       String d = request->getParam("d", true)->value();
+      #ifdef _DEBUG
       Serial.print("D: ");
       Serial.println(d);
+      #endif
       memory->setD(d.toFloat());
     }
     if(request->hasParam("alpha",true)){
       String a = request->getParam("alpha", true)->value();
+      #ifdef _DEBUG
       Serial.print("A: ");
       Serial.println(a);
+      #endif
       memory->setA(a.toFloat());
     }
     if(request->hasParam("delay",true)){
       String delay = request->getParam("delay", true)->value();
+      #ifdef _DEBUG
       Serial.print("Delay: ");
       Serial.println(delay);
+      #endif
       memory->setDelay(delay.toInt());
     }
     if(request->hasParam("deltat",true)){
       String temp = request->getParam("deltat", true)->value();
       memory->setDeltaT(temp.toInt());
+      #ifdef _DEBUG
       Serial.print("Delta T: ");
       Serial.println(memory->getDeltaT());
+      #endif
     }
 
     //manualcontroll
     if(request->hasParam("power",true)){
       String powerstr = request->getParam("power", true)->value();
       status->actual_power = powerstr.toInt();
+      #ifdef _DEBUG
       Serial.print("Get new POWER: ");
       Serial.println(status->actual_power);
+      #endif
     }
     if(request->hasParam("airflow",true)){
       String airflowstr = request->getParam("airflow", true)->value();
       status->set_airflow = airflowstr.toInt();
+      #ifdef _DEBUG
       Serial.print("Get new AIRFLOW: ");
       Serial.println(status->set_airflow);
+      #endif
     }
     if(request->hasParam("temp",true)){
       String temp = request->getParam("temp", true)->value();
       status->set_temperature = temp.toInt();
+      #ifdef _DEBUG
       Serial.print("Get new TEMPERATURE: ");
       Serial.println(status->set_temperature);
+      #endif
     }
 
     if (restart == true){
@@ -172,173 +201,242 @@ public:
     status = s;
     lock = false;
     !SPIFFS.begin(true) ? status->spiffs_begin = false: status->spiffs_begin = true;
+    #ifdef _DEBUG
     !status->spiffs_begin ? Serial.println("An Error has occurred while mounting SPIFFS") : Serial.println("SPIFFS OK");
-
+    #endif
 
     // STATIC WEB PAGES
     // html
     server.on("/", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("root index.html");
+      #endif
       waitforlock(lock);
       lock = true;
       request->send(SPIFFS, "/index.html", "text/html");
       lock = false;
+      #ifdef _DEBUG
       Serial.println("root index.html");
+      #endif
     });
 
     server.on("/index.html", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("index.html");
+      #endif
       waitforlock(lock);
       lock = true;
       request->send(SPIFFS, "/index.html", "text/html");
       lock = false; 
+      #ifdef _DEBUG
       Serial.println("index.html");
+      #endif
     });
 
     server.on("/manualcontrol.html", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("manualcontrol.html");
+      #endif
       waitforlock(lock);
       lock = true;
       request->send(SPIFFS, "/manualcontrol.html", "text/html");
-      lock = false; 
+      lock = false;
+      #ifdef _DEBUG 
       Serial.println("manualcontrol.html");
+      #endif
     });
 
 
     server.on("/settings.html", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("settings.html");
+      #endif
       waitforlock(lock);
       lock = true;
       request->send(SPIFFS, "/settings.html", "text/html");
       lock = false;
+      #ifdef _DEBUG
       Serial.println("settings.html");
+      #endif
     });
 
     server.on("/pid.html", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("pid.html");
+      #endif
       waitforlock(lock);
       lock = true;
       request->send(SPIFFS, "/pid.html", "text/html");
       lock = false;
+      #ifdef _DEBUG
       Serial.println("pid.html");
+      #endif
     });
 
     // css
     server.on("/style.css", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("style.css");
+      #endif
       waitforlock(lock);
       lock = true;
       request->send(SPIFFS, "/style.css", "text/css");
       lock = false;
+      #ifdef _DEBUG
       Serial.println("style END.css");
+      #endif
     });
 
     server.on("/main.css", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("main.css");
+      #endif
       waitforlock(lock);
       lock = true;
       request->send(SPIFFS, "/main.css", "text/css");
       lock = false;
+      #ifdef _DEBUG
       Serial.println("main END.css");
+      #endif
     });
 
     // js
     server.on("/js/ajax.js", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("ajax.js");
+      #endif
       waitforlock(lock);
       lock = true;
       request->send(SPIFFS, "/js/ajax.js", "application/javascript");
       lock = false;
+      #ifdef _DEBUG
       Serial.println("ajax.js");
+      #endif
     });
 
     server.on("/js/dashboard.js", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("dashboard.js");
+      #endif
       waitforlock(lock);
       lock = true;
       request->send(SPIFFS, "/js/dashboard.js", "application/javascript");
+      #ifdef _DEBUG
       Serial.println("dashboard.js");
+      #endif
     });
 
     server.on("/js/form.js", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("form.js");
+      #endif
       waitforlock(lock);
       lock = true;
       request->send(SPIFFS, "/js/form.js", "application/javascript");
       lock = false;
+      #ifdef _DEBUG
       Serial.println("form.js");
+      #endif
     });
 
     server.on("/js/manualcontrol.js", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("manualcontrol.js");
+      #endif
       waitforlock(lock);
       lock = true;
       request->send(SPIFFS, "/js/manualcontrol.js", "application/javascript");
       lock = false; 
+      #ifdef _DEBUG
       Serial.println("manualcontrol.js");
+      #endif
     });
 
     server.on("/js/pid.js", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("pid.js");
+      #endif
       waitforlock(lock);
       lock = true;
       request->send(SPIFFS, "/js/pid.js", "application/javascript");
       lock = false; 
+      #ifdef _DEBUG
       Serial.println("pid.js");
+      #endif
     });
 
     server.on("/js/ui.js", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("ui.js");
+      #endif
       waitforlock(lock);
       lock = true;
       request->send(SPIFFS, "/js/ui.js", "application/javascript");
       lock = false;
+      #ifdef _DEBUG
       Serial.println("ui.js");
+      #endif
     });
 
     //ico
     server.on("/favicon.ico", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("favicon.ico");
+      #endif
       waitforlock(lock);
       lock = true;
       request->send(SPIFFS, "/favicon.ico", "image/vnd.microsoft.icon");
       lock = false; 
+      #ifdef _DEBUG
       Serial.println("favicon.ico");
+      #endif
     });
 
     // REQUESTS
     server.on("/t", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("t");
+      #endif
       waitforlock(lock);
       lock = true;
       char str[20];
       sprintf(str, "%f", status->actual_temperature);
       request->send(200, "text/plain", str);
       lock = false;
+      #ifdef _DEBUG
       Serial.println("t");
+      #endif
     });
 
     //PID
     server.on("/p", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("p");
+      #endif
       waitforlock(lock);
       lock = true;  
       char str[20];
       sprintf(str, "%f", memory->getP());
       request->send(200, "text/plain", str);
       lock = false; 
+      #ifdef _DEBUG
       Serial.println("p");
+      #endif
     });
 
     server.on("/i", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("i");
+      #endif
       waitforlock(lock);
       lock = true;  
       char str[20];
       sprintf(str, "%f", memory->getI());
       request->send(200, "text/plain", str);
       lock = false;
+      #ifdef _DEBUG
       Serial.println("i");
+      #endif
     });
 
     server.on("/d", HTTP_GET, [this](AsyncWebServerRequest *request) {
@@ -380,51 +478,69 @@ public:
 
     // Controller settings
     server.on("/controllerip", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("controllerip");
+      #endif
       waitforlock(lock);
       lock = true;  
       IPAddress controller_IP = IPAddress();
       memory->getCONTROLLERIP(controller_IP);
       request->send(200, "text/plain", controller_IP.toString());
       lock = false; 
+      #ifdef _DEBUG
       Serial.println("controllerip");
+      #endif
     });
 
     server.on("/controllergateway", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG
       Serial.println("gs");
+      #endif
       waitforlock(lock);
       lock = true;  
       IPAddress controller_GW = IPAddress();
       memory->getCONTROLLERGW(controller_GW);
       request->send(200, "text/plain", controller_GW.toString());
-      lock = false; 
+      lock = false;
+      #ifdef _DEBUG 
       Serial.println("gs");
+      #endif
     });
 
     server.on("/controllernwtmask", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG       
       Serial.println("mask");
+      #endif
       waitforlock(lock);
       lock = true;  
       IPAddress controller_MASK = IPAddress();
       memory->getMASK(controller_MASK);
       request->send(200, "text/plain", controller_MASK.toString());
       lock = false; 
+      #ifdef _DEBUG 
       Serial.println("mask");
+      #endif
     });
 
     server.on("/serverip", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG 
       Serial.println("serverip");
+      #endif
       waitforlock(lock);
       lock = true;  
       IPAddress server_IP = IPAddress();
       memory->getSERVERIP(server_IP);
       request->send(200, "text/plain", server_IP.toString());
       lock = false; 
+      #ifdef _DEBUG 
       Serial.println("serverup");
+      #endif
     });
 
     server.on("/controlleridcko", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG 
       Serial.println("idcko");
+      #endif
       waitforlock(lock);
       lock = true;  
       char id[16];
@@ -433,18 +549,24 @@ public:
       memcpy(idsend, id, len);
       request->send(200, "text/plain", idsend);
       lock = false; 
+      #ifdef _DEBUG 
       Serial.println("idecko");
+      #endif
     });
 
     server.on("/controllerport", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      #ifdef _DEBUG 
       Serial.println("port");
+      #endif
       waitforlock(lock);
       lock = true;  
       char str[10];
       sprintf(str, "%d", memory->getPORT());
       request->send(200, "text/plain", str);
       lock = false; 
+      #ifdef _DEBUG 
       Serial.println("port");
+      #endif
     });
 
     //Status
@@ -512,7 +634,7 @@ public:
       waitforlock(lock);
       lock = true;  
       char str[4];
-      sprintf(str, "%d", status->set_airflow);
+      sprintf(str, "%hd", status->set_airflow);
       request->send(200, "text/plain", str);
       lock = false; 
     });
@@ -530,7 +652,7 @@ public:
       waitforlock(lock);
       lock = true;  
       char str[4];
-      sprintf(str, "%d", status->set_power);
+      sprintf(str, "%hd", status->set_power);
       request->send(200, "text/plain", str);
       lock = false; 
     });
